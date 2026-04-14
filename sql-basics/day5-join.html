@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 5: テーブル結合（JOIN） - SQL基礎</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 45%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 55%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #1565c0; border-bottom: 2px solid #1976d2; padding-bottom: 10px; }
+        h3 { color: #1976d2; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .comment { color: #78909c; }
+        .code-block .table { color: #ffcc80; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        .visual-box {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #1976d2; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #1565c0; }
+        .result-area {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 80px;
+            overflow-x: auto;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area table { border-collapse: collapse; width: 100%; }
+        .result-area th, .result-area td { border: 1px solid #546e7a; padding: 6px 10px; text-align: left; }
+        .result-area th { background: #37474f; color: #80cbc4; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .schema-mini {
+            background: #37474f;
+            color: #cfd8dc;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            margin: 10px 0;
+        }
+        .schema-mini strong { color: #80cbc4; }
+        .complete-box {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .complete-box h2 {
+            color: #2e7d32;
+            border: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 5: テーブル結合（JOIN）</h1>
+        <div class="nav">
+            <a href="day4-aggregate.html">← 前へ: 集計関数</a>
+            <a href="index.html">トップに戻る</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>JOINとは？</h2>
+            <p>複数のテーブルを関連する列で結合し、一緒に取得します。</p>
+
+            <div class="visual-box">
+                products (商品)<br>
+                ├ id: 1, name: りんご, <strong>category_id: 1</strong><br><br>
+                categories (カテゴリ)<br>
+                └ <strong>id: 1</strong>, name: 食品<br><br>
+                → JOINで結合すると<br>
+                &nbsp;&nbsp;りんご | 食品
+            </div>
+
+            <h3>INNER JOIN</h3>
+            <p>両方のテーブルに一致するデータのみ取得します。</p>
+
+            <div class="code-block">
+<span class="keyword">SELECT</span>
+    <span class="table">products</span>.name <span class="keyword">AS</span> 商品名,
+    <span class="table">categories</span>.name <span class="keyword">AS</span> カテゴリ名
+<span class="keyword">FROM</span> <span class="table">products</span>
+<span class="keyword">INNER JOIN</span> <span class="table">categories</span>
+    <span class="keyword">ON</span> <span class="table">products</span>.category_id = <span class="table">categories</span>.id;
+            </div>
+
+            <div class="point-box">
+                <strong>ONの後ろで結合条件を指定</strong><br>
+                products.category_id = categories.id<br>
+                「商品のcategory_idとカテゴリのidが一致するもの」
+            </div>
+
+            <h3>テーブルに別名をつける</h3>
+            <div class="code-block">
+<span class="comment">-- p, c という短い別名を使う</span>
+<span class="keyword">SELECT</span>
+    p.name <span class="keyword">AS</span> 商品名,
+    c.name <span class="keyword">AS</span> カテゴリ名,
+    p.price
+<span class="keyword">FROM</span> products p
+<span class="keyword">INNER JOIN</span> categories c
+    <span class="keyword">ON</span> p.category_id = c.id;
+            </div>
+
+            <h3>LEFT JOIN</h3>
+            <p>左側のテーブルは全て取得し、右側は一致するものだけ。</p>
+
+            <div class="code-block">
+<span class="comment">-- 全商品を取得（カテゴリがなくてもOK）</span>
+<span class="keyword">SELECT</span>
+    p.name,
+    c.name <span class="keyword">AS</span> category
+<span class="keyword">FROM</span> products p
+<span class="keyword">LEFT JOIN</span> categories c
+    <span class="keyword">ON</span> p.category_id = c.id;
+            </div>
+
+            <h3>3つ以上のテーブルを結合</h3>
+            <div class="code-block">
+<span class="comment">-- orders + products + categories</span>
+<span class="keyword">SELECT</span>
+    o.order_date,
+    p.name <span class="keyword">AS</span> 商品名,
+    c.name <span class="keyword">AS</span> カテゴリ,
+    o.quantity
+<span class="keyword">FROM</span> orders o
+<span class="keyword">INNER JOIN</span> products p <span class="keyword">ON</span> o.product_id = p.id
+<span class="keyword">INNER JOIN</span> categories c <span class="keyword">ON</span> p.category_id = c.id;
+            </div>
+
+            <h3>JOINと集計の組み合わせ</h3>
+            <div class="code-block">
+<span class="comment">-- カテゴリ名ごとの商品数</span>
+<span class="keyword">SELECT</span>
+    c.name <span class="keyword">AS</span> カテゴリ,
+    COUNT(*) <span class="keyword">AS</span> 商品数
+<span class="keyword">FROM</span> products p
+<span class="keyword">INNER JOIN</span> categories c
+    <span class="keyword">ON</span> p.category_id = c.id
+<span class="keyword">GROUP BY</span> c.name;
+            </div>
+
+            <div class="schema-mini">
+                <strong>products:</strong> id, name, category_id, price, stock<br>
+                <strong>categories:</strong> id, name<br>
+                <strong>orders:</strong> id, product_id, quantity, order_date
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="loading" class="loading">データベースを準備中...</div>
+            <div id="content" style="display: none;">
+                <h2>練習問題</h2>
+
+                <div class="problem">
+                    <h3>問1: 基本的なJOIN</h3>
+                    <div class="problem-desc">
+                        <p>products と categories を結合して、商品名とカテゴリ名を取得してください。</p>
+                    </div>
+                    <textarea id="sql1">SELECT
+    p.name AS 商品名,
+    c.name AS カテゴリ名
+FROM products p
+INNER JOIN categories c
+    ON </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql1', 'result1')">実行</button>
+                    <div class="result-area" id="result1"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問2: JOINして全情報取得</h3>
+                    <div class="problem-desc">
+                        <p>商品名、カテゴリ名、価格、在庫を取得してください。</p>
+                    </div>
+                    <textarea id="sql2">SELECT
+    p.name AS 商品名,
+    c.name AS カテゴリ,
+    p.price,
+    p.stock
+FROM products p
+</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql2', 'result2')">実行</button>
+                    <div class="result-area" id="result2"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問3: JOIN + WHERE</h3>
+                    <div class="problem-desc">
+                        <p>「食品」カテゴリの商品だけを取得してください。</p>
+                    </div>
+                    <textarea id="sql3">SELECT
+    p.name AS 商品名,
+    c.name AS カテゴリ,
+    p.price
+FROM products p
+INNER JOIN categories c ON p.category_id = c.id
+WHERE </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql3', 'result3')">実行</button>
+                    <div class="result-area" id="result3"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問4: カテゴリ別の集計</h3>
+                    <div class="problem-desc">
+                        <p>カテゴリ名ごとの商品数と平均価格を取得してください。</p>
+                    </div>
+                    <textarea id="sql4">SELECT
+    c.name AS カテゴリ,
+    COUNT(*) AS 商品数,
+
+FROM products p
+INNER JOIN categories c ON p.category_id = c.id
+GROUP BY c.name;</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql4', 'result4')">実行</button>
+                    <div class="result-area" id="result4"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問5: 注文データと商品を結合</h3>
+                    <div class="problem-desc">
+                        <p>orders と products を結合して、注文日、商品名、数量を取得してください。</p>
+                    </div>
+                    <textarea id="sql5">SELECT
+    o.order_date AS 注文日,
+    p.name AS 商品名,
+    o.quantity AS 数量
+FROM orders o
+</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql5', 'result5')">実行</button>
+                    <div class="result-area" id="result5"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問6: 3テーブル結合</h3>
+                    <div class="problem-desc">
+                        <p>orders、products、categories を結合して<br>
+                        注文日、商品名、カテゴリ名、数量を取得してください。</p>
+                    </div>
+                    <textarea id="sql6">SELECT
+    o.order_date AS 注文日,
+    p.name AS 商品名,
+    c.name AS カテゴリ,
+    o.quantity AS 数量
+FROM orders o
+INNER JOIN products p ON o.product_id = p.id
+</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql6', 'result6')">実行</button>
+                    <div class="result-area" id="result6"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問7: 商品ごとの注文集計</h3>
+                    <div class="problem-desc">
+                        <p>商品名ごとの合計注文数量を取得してください。<br>
+                        注文数量が多い順に並べてください。</p>
+                    </div>
+                    <textarea id="sql7">SELECT
+    p.name AS 商品名,
+    SUM(o.quantity) AS 合計数量
+FROM orders o
+INNER JOIN products p ON o.product_id = p.id
+GROUP BY p.name
+ORDER BY </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql7', 'result7')">実行</button>
+                    <div class="result-area" id="result7"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問8: カテゴリ別の売上集計</h3>
+                    <div class="problem-desc">
+                        <p>カテゴリ名ごとに、注文された商品の合計数量と売上金額（price × quantity の合計）を取得してください。</p>
+                    </div>
+                    <textarea id="sql8">SELECT
+    c.name AS カテゴリ,
+    SUM(o.quantity) AS 合計数量,
+    SUM(p.price * o.quantity) AS 売上金額
+FROM orders o
+INNER JOIN products p ON o.product_id = p.id
+
+GROUP BY c.name
+ORDER BY 売上金額 DESC;</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql8', 'result8')">実行</button>
+                    <div class="result-area" id="result8"></div>
+                </div>
+
+                <div class="complete-box">
+                    <h2>SQL基礎 完了！</h2>
+                    <p>5日間のカリキュラムをすべて終えました。<br>
+                    次は要件定義フェーズに進みましょう！</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db;
+
+        async function initDB() {
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+
+            db = new SQL.Database();
+
+            db.run(`
+                CREATE TABLE categories (id INTEGER PRIMARY KEY, name TEXT);
+                CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, category_id INTEGER, price INTEGER, stock INTEGER);
+                CREATE TABLE orders (id INTEGER PRIMARY KEY, product_id INTEGER, quantity INTEGER, order_date TEXT);
+            `);
+
+            db.run(`
+                INSERT INTO categories VALUES (1, '食品'), (2, '飲料'), (3, '日用品');
+                INSERT INTO products VALUES
+                    (1, 'りんご', 1, 150, 100),
+                    (2, 'バナナ', 1, 100, 150),
+                    (3, 'オレンジ', 1, 120, 80),
+                    (4, '緑茶', 2, 130, 200),
+                    (5, 'コーヒー', 2, 150, 180),
+                    (6, '牛乳', 2, 200, 50),
+                    (7, 'ティッシュ', 3, 300, 500),
+                    (8, '洗剤', 3, 400, 120);
+                INSERT INTO orders VALUES
+                    (1, 1, 5, '2024-03-01'), (2, 2, 10, '2024-03-01'), (3, 4, 3, '2024-03-02'),
+                    (4, 1, 8, '2024-03-02'), (5, 5, 2, '2024-03-03'), (6, 7, 15, '2024-03-03'),
+                    (7, 2, 6, '2024-03-04'), (8, 3, 4, '2024-03-04'), (9, 6, 5, '2024-03-05'), (10, 8, 3, '2024-03-05');
+            `);
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function runSQL(textareaId, resultId) {
+            const sql = document.getElementById(textareaId).value;
+            const resultEl = document.getElementById(resultId);
+
+            try {
+                const results = db.exec(sql);
+                if (results.length === 0) {
+                    resultEl.innerHTML = '(結果なし)';
+                    resultEl.className = 'result-area';
+                    return;
+                }
+
+                const result = results[0];
+                let html = '<table><tr>';
+                result.columns.forEach(col => { html += `<th>${col}</th>`; });
+                html += '</tr>';
+                result.values.forEach(row => {
+                    html += '<tr>';
+                    row.forEach(val => { html += `<td>${val !== null ? val : 'NULL'}</td>`; });
+                    html += '</tr>';
+                });
+                html += '</table>';
+                html += `<div style="margin-top:10px;color:#78909c;">${result.values.length} 件</div>`;
+
+                resultEl.innerHTML = html;
+                resultEl.className = 'result-area';
+            } catch (e) {
+                resultEl.innerHTML = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+        }
+
+        initDB();
+    </script>
+</body>
+</html>

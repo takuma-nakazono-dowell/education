@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 1: SELECT の基本 - SQL基礎</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 45%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 55%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #1565c0; border-bottom: 2px solid #1976d2; padding-bottom: 10px; }
+        h3 { color: #1976d2; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .comment { color: #78909c; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #1976d2; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #1565c0; }
+        .result-area {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 80px;
+            overflow-x: auto;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .result-area th, .result-area td {
+            border: 1px solid #546e7a;
+            padding: 6px 10px;
+            text-align: left;
+        }
+        .result-area th {
+            background: #37474f;
+            color: #80cbc4;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .schema-mini {
+            background: #37474f;
+            color: #cfd8dc;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            margin: 10px 0;
+        }
+        .schema-mini strong { color: #80cbc4; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 1: SELECT の基本</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day2-where.html">次へ: WHERE →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>SELECT文とは？</h2>
+            <p>SELECT文は、データベースからデータを取得するための命令です。SQLの中で最もよく使います。</p>
+
+            <h3>基本構文</h3>
+            <div class="code-block">
+<span class="keyword">SELECT</span> 列名1, 列名2, ...
+<span class="keyword">FROM</span> テーブル名;
+            </div>
+
+            <h3>全ての列を取得: *</h3>
+            <div class="code-block">
+<span class="comment">-- products テーブルの全列を取得</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> products;
+            </div>
+
+            <div class="point-box">
+                <strong>ポイント: * は「全て」の意味</strong><br>
+                アスタリスク（*）を使うと、テーブルの全ての列を取得できます。
+            </div>
+
+            <h3>特定の列だけ取得</h3>
+            <div class="code-block">
+<span class="comment">-- 商品名と価格だけ取得</span>
+<span class="keyword">SELECT</span> name, price <span class="keyword">FROM</span> products;
+            </div>
+
+            <h3>列に別名をつける: AS</h3>
+            <div class="code-block">
+<span class="comment">-- 列名を日本語にして表示</span>
+<span class="keyword">SELECT</span>
+    name <span class="keyword">AS</span> 商品名,
+    price <span class="keyword">AS</span> 価格
+<span class="keyword">FROM</span> products;
+            </div>
+
+            <h3>計算結果を表示</h3>
+            <div class="code-block">
+<span class="comment">-- 税込価格を計算</span>
+<span class="keyword">SELECT</span>
+    name,
+    price,
+    price * 1.1 <span class="keyword">AS</span> 税込価格
+<span class="keyword">FROM</span> products;
+            </div>
+
+            <h3>重複を除く: DISTINCT</h3>
+            <div class="code-block">
+<span class="comment">-- カテゴリIDの種類を取得（重複なし）</span>
+<span class="keyword">SELECT DISTINCT</span> category_id
+<span class="keyword">FROM</span> products;
+            </div>
+
+            <h3>使用するテーブル</h3>
+            <div class="schema-mini">
+                <strong>products:</strong> id, name, category_id, price, stock
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="loading" class="loading">データベースを準備中...</div>
+            <div id="content" style="display: none;">
+                <h2>練習問題</h2>
+
+                <div class="problem">
+                    <h3>問1: 全件取得</h3>
+                    <div class="problem-desc">
+                        <p>products テーブルの全データを取得してください。</p>
+                    </div>
+                    <textarea id="sql1">SELECT </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql1', 'result1')">実行</button>
+                    <div class="result-area" id="result1"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問2: 特定の列を取得</h3>
+                    <div class="problem-desc">
+                        <p>products テーブルから「商品名（name）」と「在庫数（stock）」だけを取得してください。</p>
+                    </div>
+                    <textarea id="sql2">SELECT </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql2', 'result2')">実行</button>
+                    <div class="result-area" id="result2"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問3: 列に別名をつける</h3>
+                    <div class="problem-desc">
+                        <p>products テーブルから name を「商品名」、price を「価格」という別名で取得してください。</p>
+                    </div>
+                    <textarea id="sql3">SELECT </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql3', 'result3')">実行</button>
+                    <div class="result-area" id="result3"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問4: 計算結果を表示</h3>
+                    <div class="problem-desc">
+                        <p>商品名、価格、税込価格（price × 1.1）を取得してください。<br>
+                        税込価格には「tax_included」という別名をつけてください。</p>
+                    </div>
+                    <textarea id="sql4">SELECT </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql4', 'result4')">実行</button>
+                    <div class="result-area" id="result4"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問5: 重複を除く</h3>
+                    <div class="problem-desc">
+                        <p>products テーブルに含まれる category_id の種類を重複なしで取得してください。</p>
+                    </div>
+                    <textarea id="sql5">SELECT </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql5', 'result5')">実行</button>
+                    <div class="result-area" id="result5"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問6: 在庫金額の計算</h3>
+                    <div class="problem-desc">
+                        <p>各商品の「商品名」「価格」「在庫数」「在庫金額（price × stock）」を取得してください。<br>
+                        在庫金額には「total_value」という別名をつけてください。</p>
+                    </div>
+                    <textarea id="sql6">SELECT </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql6', 'result6')">実行</button>
+                    <div class="result-area" id="result6"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db;
+
+        async function initDB() {
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+
+            db = new SQL.Database();
+
+            // テーブル作成
+            db.run(`
+                CREATE TABLE categories (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT
+                );
+                CREATE TABLE products (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT,
+                    category_id INTEGER,
+                    price INTEGER,
+                    stock INTEGER
+                );
+                CREATE TABLE orders (
+                    id INTEGER PRIMARY KEY,
+                    product_id INTEGER,
+                    quantity INTEGER,
+                    order_date TEXT
+                );
+            `);
+
+            // データ挿入
+            db.run(`
+                INSERT INTO categories VALUES (1, '食品'), (2, '飲料'), (3, '日用品');
+
+                INSERT INTO products VALUES
+                    (1, 'りんご', 1, 150, 100),
+                    (2, 'バナナ', 1, 100, 150),
+                    (3, 'オレンジ', 1, 120, 80),
+                    (4, '緑茶', 2, 130, 200),
+                    (5, 'コーヒー', 2, 150, 180),
+                    (6, '牛乳', 2, 200, 50),
+                    (7, 'ティッシュ', 3, 300, 500),
+                    (8, '洗剤', 3, 400, 120);
+
+                INSERT INTO orders VALUES
+                    (1, 1, 5, '2024-03-01'),
+                    (2, 2, 10, '2024-03-01'),
+                    (3, 4, 3, '2024-03-02'),
+                    (4, 1, 8, '2024-03-02'),
+                    (5, 5, 2, '2024-03-03'),
+                    (6, 7, 15, '2024-03-03'),
+                    (7, 2, 6, '2024-03-04'),
+                    (8, 3, 4, '2024-03-04'),
+                    (9, 6, 5, '2024-03-05'),
+                    (10, 8, 3, '2024-03-05');
+            `);
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function runSQL(textareaId, resultId) {
+            const sql = document.getElementById(textareaId).value;
+            const resultEl = document.getElementById(resultId);
+
+            try {
+                const results = db.exec(sql);
+                if (results.length === 0) {
+                    resultEl.innerHTML = '(結果なし)';
+                    resultEl.className = 'result-area';
+                    return;
+                }
+
+                const result = results[0];
+                let html = '<table><tr>';
+                result.columns.forEach(col => {
+                    html += `<th>${col}</th>`;
+                });
+                html += '</tr>';
+
+                result.values.forEach(row => {
+                    html += '<tr>';
+                    row.forEach(val => {
+                        html += `<td>${val !== null ? val : 'NULL'}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</table>';
+                html += `<div style="margin-top:10px;color:#78909c;">${result.values.length} 件</div>`;
+
+                resultEl.innerHTML = html;
+                resultEl.className = 'result-area';
+            } catch (e) {
+                resultEl.innerHTML = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+        }
+
+        initDB();
+    </script>
+</body>
+</html>

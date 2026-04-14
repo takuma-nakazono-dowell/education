@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 1: 変数とデータ型 - JavaScript基礎</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #ff9800;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .comment { color: #78909c; }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .number { color: #f78c6c; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        .warning-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box strong { color: #c62828; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #ff9800; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #f57c00; }
+        .result-area {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area.success { color: #aed581; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 1: 変数とデータ型</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day2-conditions.html">次へ: 演算と条件分岐 →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>変数とは？</h2>
+            <p>変数は「データを入れておく箱」のようなものです。名前をつけて、後から使うことができます。</p>
+
+            <h3>変数の宣言: let と const</h3>
+            <p>JavaScriptでは <code>let</code> または <code>const</code> を使って変数を宣言します。</p>
+
+            <div class="code-block">
+<span class="keyword">let</span> name = <span class="string">"田中"</span>;      <span class="comment">// 後から変更できる</span>
+<span class="keyword">const</span> age = <span class="number">25</span>;         <span class="comment">// 後から変更できない</span>
+            </div>
+
+            <div class="point-box">
+                <strong>ポイント: let と const の使い分け</strong><br>
+                ・<code>let</code>: 後から値を変更する可能性がある場合<br>
+                ・<code>const</code>: 値を変更しない場合（基本はこちらを使う）
+            </div>
+
+            <h3>データ型</h3>
+            <p>変数に入れられるデータには種類（型）があります。</p>
+
+            <div class="code-block">
+<span class="comment">// 文字列（String）: ダブルクォートかシングルクォートで囲む</span>
+<span class="keyword">const</span> greeting = <span class="string">"こんにちは"</span>;
+<span class="keyword">const</span> city = <span class="string">'東京'</span>;
+
+<span class="comment">// 数値（Number）: クォート不要</span>
+<span class="keyword">const</span> price = <span class="number">1500</span>;
+<span class="keyword">const</span> tax = <span class="number">0.1</span>;
+
+<span class="comment">// 真偽値（Boolean）: true または false</span>
+<span class="keyword">const</span> isActive = <span class="keyword">true</span>;
+<span class="keyword">const</span> isDeleted = <span class="keyword">false</span>;
+
+<span class="comment">// undefined: 値が設定されていない</span>
+<span class="keyword">let</span> something;  <span class="comment">// undefined になる</span>
+
+<span class="comment">// null: 意図的に「空」を表す</span>
+<span class="keyword">const</span> empty = <span class="keyword">null</span>;
+            </div>
+
+            <h3>console.log() で確認する</h3>
+            <p>変数の中身を確認するには <code>console.log()</code> を使います。</p>
+
+            <div class="code-block">
+<span class="keyword">const</span> name = <span class="string">"山田"</span>;
+console.log(name);  <span class="comment">// 山田 と表示される</span>
+
+<span class="keyword">const</span> age = <span class="number">30</span>;
+console.log(<span class="string">"年齢は"</span>, age, <span class="string">"歳です"</span>);
+<span class="comment">// 年齢は 30 歳です と表示される</span>
+            </div>
+
+            <h3>文字列の連結</h3>
+            <p>文字列同士は <code>+</code> で繋げられます。テンプレートリテラル（バッククォート）も便利です。</p>
+
+            <div class="code-block">
+<span class="keyword">const</span> firstName = <span class="string">"太郎"</span>;
+<span class="keyword">const</span> lastName = <span class="string">"山田"</span>;
+
+<span class="comment">// + で連結</span>
+<span class="keyword">const</span> fullName1 = lastName + <span class="string">" "</span> + firstName;
+
+<span class="comment">// テンプレートリテラル（おすすめ）</span>
+<span class="keyword">const</span> fullName2 = <span class="string">`${lastName} ${firstName}`</span>;
+
+console.log(fullName2);  <span class="comment">// 山田 太郎</span>
+            </div>
+
+            <div class="warning-box">
+                <strong>よくあるミス</strong><br>
+                ・文字列のクォートを閉じ忘れる<br>
+                ・<code>const</code> で宣言した変数に再代入しようとする<br>
+                ・変数名のスペルミス
+            </div>
+
+            <h3>変数の命名ルール</h3>
+            <ul>
+                <li>英字、数字、_（アンダースコア）が使える</li>
+                <li>数字から始めてはいけない</li>
+                <li>キャメルケース（firstName, lastName）が一般的</li>
+                <li>意味のある名前をつける</li>
+            </ul>
+        </div>
+
+        <div class="right-panel">
+            <h2>練習問題</h2>
+
+            <div class="problem">
+                <h3>問1: 変数の宣言</h3>
+                <div class="problem-desc">
+                    <p>以下の変数を宣言して、console.logで出力してください。</p>
+                    <ul>
+                        <li>productName: "りんご"</li>
+                        <li>price: 150</li>
+                        <li>inStock: true</li>
+                    </ul>
+                </div>
+                <textarea id="code1">// ここにコードを書いてください
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code1', 'result1')">実行</button>
+                <div class="result-area" id="result1"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問2: 文字列の連結</h3>
+                <div class="problem-desc">
+                    <p>lastName と firstName を使って、フルネームを表示してください。</p>
+                    <p>期待する出力: <code>私の名前は 山田 太郎 です</code></p>
+                </div>
+                <textarea id="code2">const lastName = "山田";
+const firstName = "太郎";
+
+// ここにコードを書いてください
+// テンプレートリテラルを使ってみましょう
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code2', 'result2')">実行</button>
+                <div class="result-area" id="result2"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問3: 計算と出力</h3>
+                <div class="problem-desc">
+                    <p>商品の税込価格を計算して表示してください。</p>
+                    <p>期待する出力: <code>税込価格は 1650 円です</code></p>
+                </div>
+                <textarea id="code3">const price = 1500;
+const taxRate = 0.1;
+
+// ここにコードを書いてください
+// 1. 税込価格を計算して変数に入れる
+// 2. console.logで出力する
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code3', 'result3')">実行</button>
+                <div class="result-area" id="result3"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問4: let と const</h3>
+                <div class="problem-desc">
+                    <p>カウンターを作ってください。</p>
+                    <ol>
+                        <li>count を 0 で初期化</li>
+                        <li>count に 1 を足す</li>
+                        <li>count に さらに 1 を足す</li>
+                        <li>最終的な count を出力（2になるはず）</li>
+                    </ol>
+                    <p>ヒント: 後から値を変えるので let を使います</p>
+                </div>
+                <textarea id="code4">// ここにコードを書いてください
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code4', 'result4')">実行</button>
+                <div class="result-area" id="result4"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問5: 自己紹介を作ろう</h3>
+                <div class="problem-desc">
+                    <p>以下の変数を使って、自己紹介文を作成してください。</p>
+                    <p>期待する出力例: <code>私は 東京 出身の 25 歳、山田太郎 です。趣味は 読書 です。</code></p>
+                </div>
+                <textarea id="code5">const name = "山田太郎";
+const age = 25;
+const city = "東京";
+const hobby = "読書";
+
+// テンプレートリテラルを使って自己紹介文を作ってください
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code5', 'result5')">実行</button>
+                <div class="result-area" id="result5"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runCode(codeId, resultId) {
+            const code = document.getElementById(codeId).value;
+            const resultEl = document.getElementById(resultId);
+            let output = [];
+
+            // console.logをオーバーライド
+            const originalLog = console.log;
+            console.log = function(...args) {
+                output.push(args.map(arg =>
+                    typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+                ).join(' '));
+            };
+
+            try {
+                eval(code);
+                resultEl.textContent = output.length > 0 ? output.join('\n') : '(出力なし)';
+                resultEl.className = 'result-area success';
+            } catch (e) {
+                resultEl.textContent = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+
+            console.log = originalLog;
+        }
+    </script>
+</body>
+</html>

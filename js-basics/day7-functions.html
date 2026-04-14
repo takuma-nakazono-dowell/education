@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 7: 関数 - JavaScript基礎</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #ff9800;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .comment { color: #78909c; }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .number { color: #f78c6c; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 180px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #ff9800; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #f57c00; }
+        .result-area {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area.success { color: #aed581; }
+        .visual-box {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        .complete-box {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .complete-box h2 {
+            color: #2e7d32;
+            border: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 7: 関数</h1>
+        <div class="nav">
+            <a href="day6-objects.html">← 前へ: オブジェクト</a>
+            <a href="index.html">トップに戻る</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>関数とは？</h2>
+            <p>関数は、処理をまとめて名前をつけたものです。<br>
+            何度も使う処理を関数にしておくと、コードがスッキリします。</p>
+
+            <div class="visual-box">
+                function 挨拶する(名前) {<br>
+                &nbsp;&nbsp;「こんにちは、{名前}さん」と表示<br>
+                }<br><br>
+                挨拶する("田中");&nbsp;&nbsp;<span style="color:#78909c">← 呼び出し</span><br>
+                → こんにちは、田中さん
+            </div>
+
+            <h3>関数の定義と呼び出し</h3>
+            <div class="code-block">
+<span class="comment">// 関数の定義</span>
+<span class="keyword">function</span> greet() {
+    console.log(<span class="string">"こんにちは！"</span>);
+}
+
+<span class="comment">// 関数の呼び出し</span>
+greet();  <span class="comment">// こんにちは！</span>
+greet();  <span class="comment">// 何度でも呼べる</span>
+            </div>
+
+            <h3>引数（パラメータ）</h3>
+            <p>関数に値を渡すことができます。</p>
+            <div class="code-block">
+<span class="keyword">function</span> greet(name) {
+    console.log(<span class="string">`こんにちは、${name}さん！`</span>);
+}
+
+greet(<span class="string">"田中"</span>);  <span class="comment">// こんにちは、田中さん！</span>
+greet(<span class="string">"鈴木"</span>);  <span class="comment">// こんにちは、鈴木さん！</span>
+            </div>
+
+            <h3>複数の引数</h3>
+            <div class="code-block">
+<span class="keyword">function</span> introduce(name, age) {
+    console.log(<span class="string">`${name}さんは${age}歳です`</span>);
+}
+
+introduce(<span class="string">"田中"</span>, <span class="number">25</span>);  <span class="comment">// 田中さんは25歳です</span>
+            </div>
+
+            <h3>戻り値（return）</h3>
+            <p>関数から値を返すことができます。</p>
+            <div class="code-block">
+<span class="keyword">function</span> add(a, b) {
+    <span class="keyword">return</span> a + b;
+}
+
+<span class="keyword">const</span> result = add(<span class="number">3</span>, <span class="number">5</span>);
+console.log(result);  <span class="comment">// 8</span>
+
+<span class="comment">// 直接使うこともできる</span>
+console.log(add(<span class="number">10</span>, <span class="number">20</span>));  <span class="comment">// 30</span>
+            </div>
+
+            <div class="point-box">
+                <strong>return の後は実行されない</strong><br>
+                return が実行されると、そこで関数が終了します。
+            </div>
+
+            <h3>デフォルト引数</h3>
+            <div class="code-block">
+<span class="keyword">function</span> greet(name = <span class="string">"ゲスト"</span>) {
+    console.log(<span class="string">`こんにちは、${name}さん！`</span>);
+}
+
+greet(<span class="string">"田中"</span>);  <span class="comment">// こんにちは、田中さん！</span>
+greet();        <span class="comment">// こんにちは、ゲストさん！</span>
+            </div>
+
+            <h2>アロー関数</h2>
+            <p>関数をより短く書ける構文です。現代のJavaScriptでよく使います。</p>
+
+            <div class="code-block">
+<span class="comment">// 従来の書き方</span>
+<span class="keyword">function</span> add(a, b) {
+    <span class="keyword">return</span> a + b;
+}
+
+<span class="comment">// アロー関数</span>
+<span class="keyword">const</span> add = (a, b) => {
+    <span class="keyword">return</span> a + b;
+};
+
+<span class="comment">// さらに短く（1行で return できる場合）</span>
+<span class="keyword">const</span> add = (a, b) => a + b;
+
+<span class="comment">// 引数が1つの場合、括弧も省略可</span>
+<span class="keyword">const</span> double = n => n * <span class="number">2</span>;
+            </div>
+
+            <h3>配列メソッドとの組み合わせ</h3>
+            <div class="code-block">
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
+
+<span class="comment">// アロー関数を使う</span>
+<span class="keyword">const</span> doubled = numbers.map(n => n * <span class="number">2</span>);
+<span class="keyword">const</span> evens = numbers.filter(n => n % <span class="number">2</span> === <span class="number">0</span>);
+<span class="keyword">const</span> sum = numbers.reduce((acc, n) => acc + n, <span class="number">0</span>);
+            </div>
+
+            <h3>関数を変数に入れる</h3>
+            <div class="code-block">
+<span class="comment">// 関数を変数に代入</span>
+<span class="keyword">const</span> greet = <span class="keyword">function</span>(name) {
+    console.log(<span class="string">`こんにちは、${name}さん！`</span>);
+};
+
+<span class="comment">// アロー関数で書くとこう</span>
+<span class="keyword">const</span> greet = (name) => {
+    console.log(<span class="string">`こんにちは、${name}さん！`</span>);
+};
+
+greet(<span class="string">"田中"</span>);
+            </div>
+
+            <h3>オブジェクトを返す</h3>
+            <div class="code-block">
+<span class="comment">// オブジェクトを返す場合は () で囲む</span>
+<span class="keyword">const</span> createUser = (name, age) => ({
+    name: name,
+    age: age
+});
+
+<span class="comment">// 省略記法（キーと変数名が同じ場合）</span>
+<span class="keyword">const</span> createUser = (name, age) => ({ name, age });
+
+<span class="keyword">const</span> user = createUser(<span class="string">"田中"</span>, <span class="number">25</span>);
+console.log(user);  <span class="comment">// { name: "田中", age: 25 }</span>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>練習問題</h2>
+
+            <div class="problem">
+                <h3>問1: 基本の関数</h3>
+                <div class="problem-desc">
+                    <p>名前を受け取って挨拶を出力する関数を作ってください。</p>
+                    <p>出力: <code>おはよう、田中さん！</code></p>
+                </div>
+                <textarea id="code1">// 関数を定義
+
+
+// 呼び出し
+greet("田中");
+greet("鈴木");
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code1', 'result1')">実行</button>
+                <div class="result-area" id="result1"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問2: 戻り値</h3>
+                <div class="problem-desc">
+                    <p>税込価格を計算する関数を作ってください。</p>
+                    <ul>
+                        <li>引数: 価格（price）、税率（taxRate、デフォルト0.1）</li>
+                        <li>戻り値: 税込価格</li>
+                    </ul>
+                </div>
+                <textarea id="code2">// 関数を定義
+
+
+// テスト
+console.log(calcTax(1000));        // 1100
+console.log(calcTax(1000, 0.08));  // 1080
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code2', 'result2')">実行</button>
+                <div class="result-area" id="result2"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問3: アロー関数</h3>
+                <div class="problem-desc">
+                    <p>アロー関数で書き直してください。</p>
+                    <ol>
+                        <li>2つの数の平均を返す関数</li>
+                        <li>文字列の長さを返す関数</li>
+                    </ol>
+                </div>
+                <textarea id="code3">// 1. 平均を返す関数（アロー関数で）
+const average = // ここを埋めてください
+
+// 2. 文字列の長さを返す関数（アロー関数で）
+const getLength = // ここを埋めてください
+
+console.log(average(10, 20));     // 15
+console.log(getLength("Hello"));  // 5
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code3', 'result3')">実行</button>
+                <div class="result-area" id="result3"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問4: 配列を処理する関数</h3>
+                <div class="problem-desc">
+                    <p>配列の合計を返す関数を作ってください。</p>
+                </div>
+                <textarea id="code4">// 関数を定義（reduceを使う）
+const sumArray = // ここを埋めてください
+
+// テスト
+console.log(sumArray([1, 2, 3, 4, 5]));  // 15
+console.log(sumArray([10, 20, 30]));     // 60
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code4', 'result4')">実行</button>
+                <div class="result-area" id="result4"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問5: オブジェクトを返す関数</h3>
+                <div class="problem-desc">
+                    <p>商品情報のオブジェクトを作成する関数を作ってください。</p>
+                    <p>引数: name, price, stock</p>
+                    <p>戻り値: { name, price, stock, total（price x stock）}</p>
+                </div>
+                <textarea id="code5">// 関数を定義
+const createProduct = // ここを埋めてください
+
+// テスト
+const apple = createProduct("りんご", 150, 10);
+console.log(apple);
+// { name: "りんご", price: 150, stock: 10, total: 1500 }
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code5', 'result5')">実行</button>
+                <div class="result-area" id="result5"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問6: 総合問題</h3>
+                <div class="problem-desc">
+                    <p>社員データから、指定した部署の平均年齢を計算する関数を作ってください。</p>
+                </div>
+                <textarea id="code6">const employees = [
+    { name: "田中", department: "開発", age: 28 },
+    { name: "鈴木", department: "営業", age: 35 },
+    { name: "佐藤", department: "開発", age: 42 },
+    { name: "山田", department: "開発", age: 25 },
+    { name: "伊藤", department: "営業", age: 30 }
+];
+
+// 関数を定義
+// 1. 指定した部署の社員だけをfilter
+// 2. 平均年齢を計算して返す
+const getAverageAge = (employees, department) => {
+    // ここを実装
+};
+
+console.log(getAverageAge(employees, "開発"));  // 約31.67
+console.log(getAverageAge(employees, "営業"));  // 32.5
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code6', 'result6')">実行</button>
+                <div class="result-area" id="result6"></div>
+            </div>
+
+            <div class="complete-box">
+                <h2>JavaScript基礎 完了！</h2>
+                <p>7日間のカリキュラムをすべて終えました。<br>
+                次はSQL基礎に進みましょう！</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runCode(codeId, resultId) {
+            const code = document.getElementById(codeId).value;
+            const resultEl = document.getElementById(resultId);
+            let output = [];
+
+            const originalLog = console.log;
+            console.log = function(...args) {
+                output.push(args.map(arg =>
+                    typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+                ).join(' '));
+            };
+
+            try {
+                eval(code);
+                resultEl.textContent = output.length > 0 ? output.join('\n') : '(出力なし)';
+                resultEl.className = 'result-area success';
+            } catch (e) {
+                resultEl.textContent = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+
+            console.log = originalLog;
+        }
+    </script>
+</body>
+</html>

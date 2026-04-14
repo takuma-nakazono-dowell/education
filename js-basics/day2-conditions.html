@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 2: 演算と条件分岐 - JavaScript基礎</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #ff9800;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .comment { color: #78909c; }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .number { color: #f78c6c; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th { background: #f5f5f5; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #ff9800; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #f57c00; }
+        .result-area {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area.success { color: #aed581; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 2: 演算と条件分岐</h1>
+        <div class="nav">
+            <a href="day1-variables.html">← 前へ: 変数とデータ型</a>
+            <a href="day3-loops.html">次へ: ループ →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>演算子</h2>
+
+            <h3>算術演算子</h3>
+            <table>
+                <tr><th>演算子</th><th>意味</th><th>例</th></tr>
+                <tr><td>+</td><td>足し算</td><td>5 + 3 = 8</td></tr>
+                <tr><td>-</td><td>引き算</td><td>5 - 3 = 2</td></tr>
+                <tr><td>*</td><td>掛け算</td><td>5 * 3 = 15</td></tr>
+                <tr><td>/</td><td>割り算</td><td>6 / 3 = 2</td></tr>
+                <tr><td>%</td><td>余り</td><td>7 % 3 = 1</td></tr>
+            </table>
+
+            <div class="code-block">
+<span class="keyword">const</span> a = <span class="number">10</span>;
+<span class="keyword">const</span> b = <span class="number">3</span>;
+
+console.log(a + b);  <span class="comment">// 13</span>
+console.log(a - b);  <span class="comment">// 7</span>
+console.log(a * b);  <span class="comment">// 30</span>
+console.log(a / b);  <span class="comment">// 3.333...</span>
+console.log(a % b);  <span class="comment">// 1（余り）</span>
+            </div>
+
+            <h3>比較演算子</h3>
+            <table>
+                <tr><th>演算子</th><th>意味</th><th>例</th></tr>
+                <tr><td>===</td><td>等しい</td><td>5 === 5 → true</td></tr>
+                <tr><td>!==</td><td>等しくない</td><td>5 !== 3 → true</td></tr>
+                <tr><td>&gt;</td><td>より大きい</td><td>5 &gt; 3 → true</td></tr>
+                <tr><td>&lt;</td><td>より小さい</td><td>5 &lt; 3 → false</td></tr>
+                <tr><td>&gt;=</td><td>以上</td><td>5 &gt;= 5 → true</td></tr>
+                <tr><td>&lt;=</td><td>以下</td><td>5 &lt;= 3 → false</td></tr>
+            </table>
+
+            <div class="point-box">
+                <strong>ポイント: === と == の違い</strong><br>
+                <code>===</code> は型も含めて比較（厳密等価）<br>
+                <code>==</code> は型を変換して比較（曖昧）<br>
+                基本的に <code>===</code> を使いましょう。
+            </div>
+
+            <h3>論理演算子</h3>
+            <table>
+                <tr><th>演算子</th><th>意味</th><th>例</th></tr>
+                <tr><td>&&</td><td>かつ（AND）</td><td>true && false → false</td></tr>
+                <tr><td>||</td><td>または（OR）</td><td>true || false → true</td></tr>
+                <tr><td>!</td><td>否定（NOT）</td><td>!true → false</td></tr>
+            </table>
+
+            <h2>条件分岐: if文</h2>
+
+            <h3>基本形</h3>
+            <div class="code-block">
+<span class="keyword">const</span> age = <span class="number">20</span>;
+
+<span class="keyword">if</span> (age >= <span class="number">20</span>) {
+    console.log(<span class="string">"成人です"</span>);
+}
+            </div>
+
+            <h3>if-else</h3>
+            <div class="code-block">
+<span class="keyword">const</span> age = <span class="number">15</span>;
+
+<span class="keyword">if</span> (age >= <span class="number">20</span>) {
+    console.log(<span class="string">"成人です"</span>);
+} <span class="keyword">else</span> {
+    console.log(<span class="string">"未成年です"</span>);
+}
+            </div>
+
+            <h3>if-else if-else</h3>
+            <div class="code-block">
+<span class="keyword">const</span> score = <span class="number">75</span>;
+
+<span class="keyword">if</span> (score >= <span class="number">90</span>) {
+    console.log(<span class="string">"A"</span>);
+} <span class="keyword">else if</span> (score >= <span class="number">70</span>) {
+    console.log(<span class="string">"B"</span>);
+} <span class="keyword">else if</span> (score >= <span class="number">50</span>) {
+    console.log(<span class="string">"C"</span>);
+} <span class="keyword">else</span> {
+    console.log(<span class="string">"D"</span>);
+}
+            </div>
+
+            <h3>三項演算子</h3>
+            <p>シンプルな条件分岐を1行で書けます。</p>
+            <div class="code-block">
+<span class="keyword">const</span> age = <span class="number">20</span>;
+
+<span class="comment">// 条件 ? trueの時の値 : falseの時の値</span>
+<span class="keyword">const</span> status = age >= <span class="number">20</span> ? <span class="string">"成人"</span> : <span class="string">"未成年"</span>;
+
+console.log(status);  <span class="comment">// 成人</span>
+            </div>
+
+            <h3>複数条件の組み合わせ</h3>
+            <div class="code-block">
+<span class="keyword">const</span> age = <span class="number">25</span>;
+<span class="keyword">const</span> hasLicense = <span class="keyword">true</span>;
+
+<span class="comment">// AND: 両方満たす場合</span>
+<span class="keyword">if</span> (age >= <span class="number">18</span> && hasLicense) {
+    console.log(<span class="string">"運転できます"</span>);
+}
+
+<span class="comment">// OR: どちらか満たす場合</span>
+<span class="keyword">const</span> isWeekend = <span class="keyword">true</span>;
+<span class="keyword">const</span> isHoliday = <span class="keyword">false</span>;
+
+<span class="keyword">if</span> (isWeekend || isHoliday) {
+    console.log(<span class="string">"休みです"</span>);
+}
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>練習問題</h2>
+
+            <div class="problem">
+                <h3>問1: 偶数・奇数判定</h3>
+                <div class="problem-desc">
+                    <p>num が偶数なら「偶数です」、奇数なら「奇数です」と出力してください。</p>
+                    <p>ヒント: 2で割った余りが0なら偶数</p>
+                </div>
+                <textarea id="code1">const num = 7;
+
+// ここにif文を書いてください
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code1', 'result1')">実行</button>
+                <div class="result-area" id="result1"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問2: 成績判定</h3>
+                <div class="problem-desc">
+                    <p>score に応じて成績を出力してください。</p>
+                    <ul>
+                        <li>90以上: "優"</li>
+                        <li>70以上: "良"</li>
+                        <li>50以上: "可"</li>
+                        <li>それ以外: "不可"</li>
+                    </ul>
+                </div>
+                <textarea id="code2">const score = 85;
+
+// ここにif-else文を書いてください
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code2', 'result2')">実行</button>
+                <div class="result-area" id="result2"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問3: 入場料計算</h3>
+                <div class="problem-desc">
+                    <p>年齢に応じた入場料を計算してください。</p>
+                    <ul>
+                        <li>6歳未満: 無料（0円）</li>
+                        <li>6歳以上12歳以下: 500円</li>
+                        <li>13歳以上64歳以下: 1000円</li>
+                        <li>65歳以上: 800円</li>
+                    </ul>
+                    <p>出力例: <code>入場料は 1000 円です</code></p>
+                </div>
+                <textarea id="code3">const age = 35;
+
+// ここにコードを書いてください
+// 1. 入場料を変数に入れる
+// 2. console.logで出力する
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code3', 'result3')">実行</button>
+                <div class="result-area" id="result3"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問4: 三項演算子</h3>
+                <div class="problem-desc">
+                    <p>三項演算子を使って、在庫の有無を表示してください。</p>
+                    <p>stock が 0 なら「在庫なし」、それ以外なら「在庫あり」</p>
+                </div>
+                <textarea id="code4">const stock = 5;
+
+// 三項演算子を使って message を作成してください
+const message = // ここを埋めてください
+
+console.log(message);
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code4', 'result4')">実行</button>
+                <div class="result-area" id="result4"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問5: 複合条件</h3>
+                <div class="problem-desc">
+                    <p>会員限定セール！以下の条件を判定してください。</p>
+                    <ul>
+                        <li>会員（isMember）で、かつ購入金額（amount）が3000円以上なら「10%割引！」</li>
+                        <li>会員だが3000円未満なら「5%割引」</li>
+                        <li>会員でなければ「割引なし」</li>
+                    </ul>
+                </div>
+                <textarea id="code5">const isMember = true;
+const amount = 5000;
+
+// ここにコードを書いてください
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code5', 'result5')">実行</button>
+                <div class="result-area" id="result5"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runCode(codeId, resultId) {
+            const code = document.getElementById(codeId).value;
+            const resultEl = document.getElementById(resultId);
+            let output = [];
+
+            const originalLog = console.log;
+            console.log = function(...args) {
+                output.push(args.map(arg =>
+                    typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+                ).join(' '));
+            };
+
+            try {
+                eval(code);
+                resultEl.textContent = output.length > 0 ? output.join('\n') : '(出力なし)';
+                resultEl.className = 'result-area success';
+            } catch (e) {
+                resultEl.textContent = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+
+            console.log = originalLog;
+        }
+    </script>
+</body>
+</html>

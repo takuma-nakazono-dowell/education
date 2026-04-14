@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3: 並び替えと件数制限 - SQL基礎</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 45%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 55%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #1565c0; border-bottom: 2px solid #1976d2; padding-bottom: 10px; }
+        h3 { color: #1976d2; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .comment { color: #78909c; }
+        .code-block .number { color: #f78c6c; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #1976d2; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #1565c0; }
+        .result-area {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 80px;
+            overflow-x: auto;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area table { border-collapse: collapse; width: 100%; }
+        .result-area th, .result-area td { border: 1px solid #546e7a; padding: 6px 10px; text-align: left; }
+        .result-area th { background: #37474f; color: #80cbc4; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .schema-mini {
+            background: #37474f;
+            color: #cfd8dc;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            margin: 10px 0;
+        }
+        .schema-mini strong { color: #80cbc4; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 3: 並び替えと件数制限</h1>
+        <div class="nav">
+            <a href="day2-where.html">← 前へ: WHERE</a>
+            <a href="day4-aggregate.html">次へ: 集計関数 →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>ORDER BY: 並び替え</h2>
+            <p>取得したデータを特定の列で並び替えます。</p>
+
+            <h3>基本構文</h3>
+            <div class="code-block">
+<span class="keyword">SELECT</span> 列名 <span class="keyword">FROM</span> テーブル名
+<span class="keyword">ORDER BY</span> 列名;
+            </div>
+
+            <h3>昇順（ASC）と降順（DESC）</h3>
+            <div class="code-block">
+<span class="comment">-- 価格の安い順（昇順・デフォルト）</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> products
+<span class="keyword">ORDER BY</span> price <span class="keyword">ASC</span>;
+
+<span class="comment">-- 価格の高い順（降順）</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> products
+<span class="keyword">ORDER BY</span> price <span class="keyword">DESC</span>;
+            </div>
+
+            <div class="point-box">
+                <strong>ポイント</strong><br>
+                ・ASC（Ascending）: 昇順（小→大）、省略可<br>
+                ・DESC（Descending）: 降順（大→小）
+            </div>
+
+            <h3>複数列での並び替え</h3>
+            <div class="code-block">
+<span class="comment">-- カテゴリ順、同じカテゴリ内は価格順</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> products
+<span class="keyword">ORDER BY</span> category_id <span class="keyword">ASC</span>, price <span class="keyword">DESC</span>;
+            </div>
+
+            <h2>LIMIT: 件数制限</h2>
+            <p>取得する件数を制限します。</p>
+
+            <div class="code-block">
+<span class="comment">-- 上位3件だけ取得</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> products
+<span class="keyword">LIMIT</span> <span class="number">3</span>;
+
+<span class="comment">-- 価格が高い順で上位3件</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> products
+<span class="keyword">ORDER BY</span> price <span class="keyword">DESC</span>
+<span class="keyword">LIMIT</span> <span class="number">3</span>;
+            </div>
+
+            <h3>OFFSET: スキップ</h3>
+            <div class="code-block">
+<span class="comment">-- 3件目から5件取得（ページング用）</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> products
+<span class="keyword">ORDER BY</span> id
+<span class="keyword">LIMIT</span> <span class="number">5</span> <span class="keyword">OFFSET</span> <span class="number">2</span>;
+            </div>
+
+            <div class="point-box">
+                <strong>SQL Serverでは TOP を使う</strong><br>
+                本教材はSQLite（LIMIT）ですが、SQL Serverでは<br>
+                <code>SELECT TOP 3 * FROM products</code><br>
+                のように書きます。
+            </div>
+
+            <h3>WHERE + ORDER BY + LIMIT</h3>
+            <div class="code-block">
+<span class="comment">-- 食品カテゴリの中で価格が高い上位2件</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> products
+<span class="keyword">WHERE</span> category_id = <span class="number">1</span>
+<span class="keyword">ORDER BY</span> price <span class="keyword">DESC</span>
+<span class="keyword">LIMIT</span> <span class="number">2</span>;
+            </div>
+
+            <div class="schema-mini">
+                <strong>products:</strong> id, name, category_id, price, stock
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="loading" class="loading">データベースを準備中...</div>
+            <div id="content" style="display: none;">
+                <h2>練習問題</h2>
+
+                <div class="problem">
+                    <h3>問1: 価格の昇順</h3>
+                    <div class="problem-desc">
+                        <p>全商品を価格の安い順に取得してください。</p>
+                    </div>
+                    <textarea id="sql1">SELECT * FROM products
+ORDER BY </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql1', 'result1')">実行</button>
+                    <div class="result-area" id="result1"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問2: 在庫の降順</h3>
+                    <div class="problem-desc">
+                        <p>全商品を在庫数の多い順に取得してください。</p>
+                    </div>
+                    <textarea id="sql2">SELECT * FROM products
+ORDER BY </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql2', 'result2')">実行</button>
+                    <div class="result-area" id="result2"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問3: 上位3件</h3>
+                    <div class="problem-desc">
+                        <p>価格が高い順に上位3件を取得してください。</p>
+                    </div>
+                    <textarea id="sql3">SELECT * FROM products
+</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql3', 'result3')">実行</button>
+                    <div class="result-area" id="result3"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問4: 複数列でソート</h3>
+                    <div class="problem-desc">
+                        <p>category_id の昇順で並べ、同じカテゴリ内では在庫数の降順で並べてください。</p>
+                    </div>
+                    <textarea id="sql4">SELECT * FROM products
+ORDER BY </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql4', 'result4')">実行</button>
+                    <div class="result-area" id="result4"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問5: WHERE + ORDER BY</h3>
+                    <div class="problem-desc">
+                        <p>飲料カテゴリ（category_id = 2）の商品を、価格の安い順で取得してください。</p>
+                    </div>
+                    <textarea id="sql5">SELECT * FROM products
+WHERE
+ORDER BY </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql5', 'result5')">実行</button>
+                    <div class="result-area" id="result5"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問6: 在庫が少ない商品</h3>
+                    <div class="problem-desc">
+                        <p>在庫数が少ない順に上位3件を取得してください。<br>
+                        これで「発注が必要な商品」が分かります。</p>
+                    </div>
+                    <textarea id="sql6">SELECT * FROM products
+</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql6', 'result6')">実行</button>
+                    <div class="result-area" id="result6"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問7: ページング</h3>
+                    <div class="problem-desc">
+                        <p>id順で4番目から3件取得してください。（2ページ目のイメージ）<br>
+                        ヒント: OFFSET 3 で最初の3件をスキップ</p>
+                    </div>
+                    <textarea id="sql7">SELECT * FROM products
+ORDER BY id
+</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql7', 'result7')">実行</button>
+                    <div class="result-area" id="result7"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db;
+
+        async function initDB() {
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+
+            db = new SQL.Database();
+
+            db.run(`
+                CREATE TABLE categories (id INTEGER PRIMARY KEY, name TEXT);
+                CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, category_id INTEGER, price INTEGER, stock INTEGER);
+                CREATE TABLE orders (id INTEGER PRIMARY KEY, product_id INTEGER, quantity INTEGER, order_date TEXT);
+            `);
+
+            db.run(`
+                INSERT INTO categories VALUES (1, '食品'), (2, '飲料'), (3, '日用品');
+                INSERT INTO products VALUES
+                    (1, 'りんご', 1, 150, 100),
+                    (2, 'バナナ', 1, 100, 150),
+                    (3, 'オレンジ', 1, 120, 80),
+                    (4, '緑茶', 2, 130, 200),
+                    (5, 'コーヒー', 2, 150, 180),
+                    (6, '牛乳', 2, 200, 50),
+                    (7, 'ティッシュ', 3, 300, 500),
+                    (8, '洗剤', 3, 400, 120);
+                INSERT INTO orders VALUES
+                    (1, 1, 5, '2024-03-01'), (2, 2, 10, '2024-03-01'), (3, 4, 3, '2024-03-02'),
+                    (4, 1, 8, '2024-03-02'), (5, 5, 2, '2024-03-03'), (6, 7, 15, '2024-03-03'),
+                    (7, 2, 6, '2024-03-04'), (8, 3, 4, '2024-03-04'), (9, 6, 5, '2024-03-05'), (10, 8, 3, '2024-03-05');
+            `);
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function runSQL(textareaId, resultId) {
+            const sql = document.getElementById(textareaId).value;
+            const resultEl = document.getElementById(resultId);
+
+            try {
+                const results = db.exec(sql);
+                if (results.length === 0) {
+                    resultEl.innerHTML = '(結果なし)';
+                    resultEl.className = 'result-area';
+                    return;
+                }
+
+                const result = results[0];
+                let html = '<table><tr>';
+                result.columns.forEach(col => { html += `<th>${col}</th>`; });
+                html += '</tr>';
+                result.values.forEach(row => {
+                    html += '<tr>';
+                    row.forEach(val => { html += `<td>${val !== null ? val : 'NULL'}</td>`; });
+                    html += '</tr>';
+                });
+                html += '</table>';
+                html += `<div style="margin-top:10px;color:#78909c;">${result.values.length} 件</div>`;
+
+                resultEl.innerHTML = html;
+                resultEl.className = 'result-area';
+            } catch (e) {
+                resultEl.innerHTML = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+        }
+
+        initDB();
+    </script>
+</body>
+</html>

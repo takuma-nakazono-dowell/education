@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 4: 配列（基礎） - JavaScript基礎</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #ff9800;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .comment { color: #78909c; }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .number { color: #f78c6c; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        .warning-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box strong { color: #c62828; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #ff9800; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #f57c00; }
+        .result-area {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area.success { color: #aed581; }
+        .visual-box {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 4: 配列（基礎）</h1>
+        <div class="nav">
+            <a href="day3-loops.html">← 前へ: ループ</a>
+            <a href="day5-arrays-methods.html">次へ: 配列（メソッド） →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>配列とは？</h2>
+            <p>配列は、複数の値をまとめて管理できる「箱の列」のようなものです。</p>
+
+            <div class="visual-box">
+                fruits = [ "りんご", "バナナ", "みかん" ]<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ↑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↑<br>
+                インデックス&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2
+            </div>
+
+            <h3>配列の作成</h3>
+            <div class="code-block">
+<span class="comment">// 配列の作成</span>
+<span class="keyword">const</span> fruits = [<span class="string">"りんご"</span>, <span class="string">"バナナ"</span>, <span class="string">"みかん"</span>];
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
+<span class="keyword">const</span> mixed = [<span class="string">"太郎"</span>, <span class="number">25</span>, <span class="keyword">true</span>];  <span class="comment">// 異なる型も可</span>
+
+<span class="comment">// 空の配列</span>
+<span class="keyword">const</span> empty = [];
+            </div>
+
+            <h3>要素へのアクセス</h3>
+            <div class="code-block">
+<span class="keyword">const</span> fruits = [<span class="string">"りんご"</span>, <span class="string">"バナナ"</span>, <span class="string">"みかん"</span>];
+
+console.log(fruits[<span class="number">0</span>]);  <span class="comment">// りんご（最初）</span>
+console.log(fruits[<span class="number">1</span>]);  <span class="comment">// バナナ（2番目）</span>
+console.log(fruits[<span class="number">2</span>]);  <span class="comment">// みかん（3番目）</span>
+            </div>
+
+            <div class="warning-box">
+                <strong>重要: インデックスは0から始まる！</strong><br>
+                最初の要素は [0]、2番目は [1]、3番目は [2] です。<br>
+                これはプログラミングでは一般的なルールです。
+            </div>
+
+            <h3>配列の長さ: length</h3>
+            <div class="code-block">
+<span class="keyword">const</span> fruits = [<span class="string">"りんご"</span>, <span class="string">"バナナ"</span>, <span class="string">"みかん"</span>];
+
+console.log(fruits.length);  <span class="comment">// 3</span>
+
+<span class="comment">// 最後の要素を取得</span>
+console.log(fruits[fruits.length - <span class="number">1</span>]);  <span class="comment">// みかん</span>
+            </div>
+
+            <h3>要素の変更</h3>
+            <div class="code-block">
+<span class="keyword">const</span> fruits = [<span class="string">"りんご"</span>, <span class="string">"バナナ"</span>, <span class="string">"みかん"</span>];
+
+fruits[<span class="number">1</span>] = <span class="string">"ぶどう"</span>;  <span class="comment">// バナナをぶどうに変更</span>
+
+console.log(fruits);  <span class="comment">// ["りんご", "ぶどう", "みかん"]</span>
+            </div>
+
+            <div class="point-box">
+                <strong>const でも中身は変えられる</strong><br>
+                const は「変数への再代入」を禁止するだけ。<br>
+                配列の中身を変更することは可能です。
+            </div>
+
+            <h3>要素の追加: push</h3>
+            <div class="code-block">
+<span class="keyword">const</span> fruits = [<span class="string">"りんご"</span>, <span class="string">"バナナ"</span>];
+
+fruits.push(<span class="string">"みかん"</span>);  <span class="comment">// 末尾に追加</span>
+
+console.log(fruits);  <span class="comment">// ["りんご", "バナナ", "みかん"]</span>
+            </div>
+
+            <h3>要素の削除: pop, shift</h3>
+            <div class="code-block">
+<span class="keyword">const</span> fruits = [<span class="string">"りんご"</span>, <span class="string">"バナナ"</span>, <span class="string">"みかん"</span>];
+
+<span class="comment">// 末尾を削除</span>
+<span class="keyword">const</span> last = fruits.pop();
+console.log(last);    <span class="comment">// みかん</span>
+console.log(fruits);  <span class="comment">// ["りんご", "バナナ"]</span>
+
+<span class="comment">// 先頭を削除</span>
+<span class="keyword">const</span> first = fruits.shift();
+console.log(first);   <span class="comment">// りんご</span>
+console.log(fruits);  <span class="comment">// ["バナナ"]</span>
+            </div>
+
+            <h3>配列とループ</h3>
+            <div class="code-block">
+<span class="keyword">const</span> fruits = [<span class="string">"りんご"</span>, <span class="string">"バナナ"</span>, <span class="string">"みかん"</span>];
+
+<span class="comment">// for文で全要素を処理</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i < fruits.length; i++) {
+    console.log(fruits[i]);
+}
+
+<span class="comment">// for...of（シンプルに書ける）</span>
+<span class="keyword">for</span> (<span class="keyword">const</span> fruit <span class="keyword">of</span> fruits) {
+    console.log(fruit);
+}
+            </div>
+
+            <h3>配列の検索: includes, indexOf</h3>
+            <div class="code-block">
+<span class="keyword">const</span> fruits = [<span class="string">"りんご"</span>, <span class="string">"バナナ"</span>, <span class="string">"みかん"</span>];
+
+<span class="comment">// 含まれているか（true/false）</span>
+console.log(fruits.includes(<span class="string">"バナナ"</span>));  <span class="comment">// true</span>
+console.log(fruits.includes(<span class="string">"ぶどう"</span>));  <span class="comment">// false</span>
+
+<span class="comment">// 位置を取得（なければ-1）</span>
+console.log(fruits.indexOf(<span class="string">"バナナ"</span>));  <span class="comment">// 1</span>
+console.log(fruits.indexOf(<span class="string">"ぶどう"</span>));  <span class="comment">// -1</span>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>練習問題</h2>
+
+            <div class="problem">
+                <h3>問1: 配列の基本操作</h3>
+                <div class="problem-desc">
+                    <p>配列 colors を作成し、各要素を出力してください。</p>
+                    <ul>
+                        <li>colors: "赤", "青", "緑"</li>
+                        <li>それぞれ出力してください</li>
+                    </ul>
+                </div>
+                <textarea id="code1">// 配列を作成して各要素を出力
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code1', 'result1')">実行</button>
+                <div class="result-area" id="result1"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問2: 配列をループで出力</h3>
+                <div class="problem-desc">
+                    <p>for文を使って、配列の全要素を出力してください。</p>
+                    <p>出力形式: <code>1: りんご</code> のように番号付きで</p>
+                </div>
+                <textarea id="code2">const fruits = ["りんご", "バナナ", "みかん", "ぶどう"];
+
+// for文で番号付きで出力してください
+// ヒント: i + 1 で1から始まる番号になる
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code2', 'result2')">実行</button>
+                <div class="result-area" id="result2"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問3: 配列の合計</h3>
+                <div class="problem-desc">
+                    <p>数値の配列の合計を計算してください。</p>
+                </div>
+                <textarea id="code3">const numbers = [10, 20, 30, 40, 50];
+
+// 合計を計算して出力してください
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code3', 'result3')">実行</button>
+                <div class="result-area" id="result3"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問4: 要素の追加と削除</h3>
+                <div class="problem-desc">
+                    <p>以下の操作を行ってください:</p>
+                    <ol>
+                        <li>配列の末尾に "メロン" を追加</li>
+                        <li>配列の先頭を削除</li>
+                        <li>最終的な配列を出力</li>
+                    </ol>
+                </div>
+                <textarea id="code4">const fruits = ["りんご", "バナナ", "みかん"];
+
+// 1. "メロン" を追加
+// 2. 先頭を削除
+// 3. 配列を出力
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code4', 'result4')">実行</button>
+                <div class="result-area" id="result4"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問5: 最大値を見つける</h3>
+                <div class="problem-desc">
+                    <p>配列の中から最大値を見つけて出力してください。</p>
+                    <p>ヒント: ループで全要素を比較する</p>
+                </div>
+                <textarea id="code5">const numbers = [34, 78, 12, 95, 23, 67];
+
+// 最大値を見つけて出力してください
+let max = numbers[0];  // 最初は先頭を仮の最大値に
+
+// ここにループを書いてください
+
+console.log("最大値:", max);
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code5', 'result5')">実行</button>
+                <div class="result-area" id="result5"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問6: 検索</h3>
+                <div class="problem-desc">
+                    <p>商品リストに「牛乳」があるか調べてください。</p>
+                    <p>あれば「牛乳は〇番目にあります」、なければ「牛乳はありません」と出力。</p>
+                </div>
+                <textarea id="code6">const products = ["パン", "卵", "牛乳", "バター", "チーズ"];
+const target = "牛乳";
+
+// 検索して結果を出力してください
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code6', 'result6')">実行</button>
+                <div class="result-area" id="result6"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runCode(codeId, resultId) {
+            const code = document.getElementById(codeId).value;
+            const resultEl = document.getElementById(resultId);
+            let output = [];
+
+            const originalLog = console.log;
+            console.log = function(...args) {
+                output.push(args.map(arg =>
+                    typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+                ).join(' '));
+            };
+
+            try {
+                eval(code);
+                resultEl.textContent = output.length > 0 ? output.join('\n') : '(出力なし)';
+                resultEl.className = 'result-area success';
+            } catch (e) {
+                resultEl.textContent = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+
+            console.log = originalLog;
+        }
+    </script>
+</body>
+</html>

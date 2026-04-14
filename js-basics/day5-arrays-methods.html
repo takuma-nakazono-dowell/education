@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 5: 配列（メソッド） - JavaScript基礎</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #ff9800;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .comment { color: #78909c; }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .number { color: #f78c6c; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #ff9800; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #f57c00; }
+        .result-area {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area.success { color: #aed581; }
+        .visual-box {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 5: 配列（メソッド）</h1>
+        <div class="nav">
+            <a href="day4-arrays-basic.html">← 前へ: 配列（基礎）</a>
+            <a href="day6-objects.html">次へ: オブジェクト →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>配列メソッドとは？</h2>
+            <p>配列には便利なメソッド（機能）が用意されています。<br>
+            ループを書かなくても、配列を効率的に操作できます。</p>
+
+            <h3>forEach: 各要素に処理を実行</h3>
+            <div class="code-block">
+<span class="keyword">const</span> fruits = [<span class="string">"りんご"</span>, <span class="string">"バナナ"</span>, <span class="string">"みかん"</span>];
+
+fruits.forEach(<span class="keyword">function</span>(fruit) {
+    console.log(fruit);
+});
+
+<span class="comment">// アロー関数で短く書ける</span>
+fruits.forEach(fruit => console.log(fruit));
+            </div>
+
+            <div class="visual-box">
+                forEach: 配列の各要素に対して関数を実行<br>
+                [りんご, バナナ, みかん].forEach(出力)<br>
+                → りんご を出力<br>
+                → バナナ を出力<br>
+                → みかん を出力
+            </div>
+
+            <h3>map: 各要素を変換して新しい配列を作る</h3>
+            <div class="code-block">
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
+
+<span class="comment">// 各要素を2倍にした新しい配列を作る</span>
+<span class="keyword">const</span> doubled = numbers.map(num => num * <span class="number">2</span>);
+
+console.log(doubled);  <span class="comment">// [2, 4, 6, 8, 10]</span>
+console.log(numbers);  <span class="comment">// [1, 2, 3, 4, 5]（元は変わらない）</span>
+            </div>
+
+            <div class="visual-box">
+                map: 各要素を変換して新しい配列を返す<br>
+                [1, 2, 3].map(x => x * 2)<br>
+                → [2, 4, 6]
+            </div>
+
+            <div class="point-box">
+                <strong>ポイント: map は新しい配列を返す</strong><br>
+                元の配列は変更されません。<br>
+                結果を変数に入れて使います。
+            </div>
+
+            <h3>filter: 条件に合う要素だけ抽出</h3>
+            <div class="code-block">
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>];
+
+<span class="comment">// 偶数だけ抽出</span>
+<span class="keyword">const</span> evens = numbers.filter(num => num % <span class="number">2</span> === <span class="number">0</span>);
+
+console.log(evens);  <span class="comment">// [2, 4, 6]</span>
+            </div>
+
+            <div class="visual-box">
+                filter: 条件に合う要素だけの配列を返す<br>
+                [1, 2, 3, 4, 5, 6].filter(偶数?)<br>
+                → [2, 4, 6]
+            </div>
+
+            <h3>find: 条件に合う最初の要素を返す</h3>
+            <div class="code-block">
+<span class="keyword">const</span> numbers = [<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>];
+
+<span class="comment">// 25より大きい最初の要素</span>
+<span class="keyword">const</span> found = numbers.find(num => num > <span class="number">25</span>);
+
+console.log(found);  <span class="comment">// 30</span>
+            </div>
+
+            <h3>some / every: 条件チェック</h3>
+            <div class="code-block">
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
+
+<span class="comment">// some: 1つでも条件を満たすか</span>
+console.log(numbers.some(n => n > <span class="number">3</span>));   <span class="comment">// true</span>
+
+<span class="comment">// every: 全てが条件を満たすか</span>
+console.log(numbers.every(n => n > <span class="number">0</span>));  <span class="comment">// true</span>
+console.log(numbers.every(n => n > <span class="number">3</span>));  <span class="comment">// false</span>
+            </div>
+
+            <h3>reduce: 配列を1つの値にまとめる</h3>
+            <div class="code-block">
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
+
+<span class="comment">// 合計を求める</span>
+<span class="keyword">const</span> sum = numbers.reduce((total, num) => total + num, <span class="number">0</span>);
+
+console.log(sum);  <span class="comment">// 15</span>
+            </div>
+
+            <div class="visual-box">
+                reduce: 配列を1つの値にまとめる<br>
+                [1, 2, 3, 4, 5].reduce(足す, 初期値0)<br>
+                → 0 + 1 = 1<br>
+                → 1 + 2 = 3<br>
+                → 3 + 3 = 6<br>
+                → 6 + 4 = 10<br>
+                → 10 + 5 = 15
+            </div>
+
+            <h3>メソッドチェーン</h3>
+            <p>メソッドを繋げて書くことができます。</p>
+            <div class="code-block">
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>];
+
+<span class="comment">// 偶数だけ取り出して、2倍にする</span>
+<span class="keyword">const</span> result = numbers
+    .filter(n => n % <span class="number">2</span> === <span class="number">0</span>)  <span class="comment">// [2, 4, 6]</span>
+    .map(n => n * <span class="number">2</span>);            <span class="comment">// [4, 8, 12]</span>
+
+console.log(result);  <span class="comment">// [4, 8, 12]</span>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>練習問題</h2>
+
+            <div class="problem">
+                <h3>問1: forEachで出力</h3>
+                <div class="problem-desc">
+                    <p>forEachを使って、配列の全商品を出力してください。</p>
+                    <p>出力形式: <code>商品: りんご</code></p>
+                </div>
+                <textarea id="code1">const products = ["りんご", "バナナ", "みかん", "ぶどう"];
+
+// forEachを使って出力してください
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code1', 'result1')">実行</button>
+                <div class="result-area" id="result1"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問2: mapで変換</h3>
+                <div class="problem-desc">
+                    <p>mapを使って、全ての価格を税込（1.1倍）にしてください。</p>
+                </div>
+                <textarea id="code2">const prices = [100, 200, 300, 400, 500];
+
+// mapで税込価格の配列を作ってください
+const taxIncluded = // ここを埋めてください
+
+console.log(taxIncluded);
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code2', 'result2')">実行</button>
+                <div class="result-area" id="result2"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問3: filterで絞り込み</h3>
+                <div class="problem-desc">
+                    <p>filterを使って、80点以上の点数だけを抽出してください。</p>
+                </div>
+                <textarea id="code3">const scores = [65, 80, 92, 55, 78, 88, 45, 95];
+
+// 80点以上だけを抽出
+const passed = // ここを埋めてください
+
+console.log(passed);
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code3', 'result3')">実行</button>
+                <div class="result-area" id="result3"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問4: findで検索</h3>
+                <div class="problem-desc">
+                    <p>findを使って、在庫が50以下の最初の商品を見つけてください。</p>
+                </div>
+                <textarea id="code4">const stocks = [
+    { name: "りんご", stock: 100 },
+    { name: "バナナ", stock: 30 },
+    { name: "みかん", stock: 80 },
+    { name: "ぶどう", stock: 45 }
+];
+
+// 在庫50以下の最初の商品を見つける
+const lowStock = // ここを埋めてください
+
+console.log("在庫少:", lowStock.name);
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code4', 'result4')">実行</button>
+                <div class="result-area" id="result4"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問5: reduceで合計</h3>
+                <div class="problem-desc">
+                    <p>reduceを使って、カートの合計金額を計算してください。</p>
+                </div>
+                <textarea id="code5">const cart = [
+    { name: "りんご", price: 150 },
+    { name: "バナナ", price: 100 },
+    { name: "みかん", price: 80 }
+];
+
+// reduceで合計金額を計算
+const total = // ここを埋めてください
+
+console.log("合計:", total, "円");
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code5', 'result5')">実行</button>
+                <div class="result-area" id="result5"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問6: メソッドチェーン</h3>
+                <div class="problem-desc">
+                    <p>以下の処理をメソッドチェーンで実装してください:</p>
+                    <ol>
+                        <li>点数が70以上の人だけ抽出</li>
+                        <li>抽出した人の名前だけの配列に変換</li>
+                    </ol>
+                </div>
+                <textarea id="code6">const students = [
+    { name: "田中", score: 85 },
+    { name: "鈴木", score: 60 },
+    { name: "佐藤", score: 92 },
+    { name: "山田", score: 45 },
+    { name: "伊藤", score: 78 }
+];
+
+// filter と map をチェーンして、合格者の名前一覧を作る
+const passedNames = // ここを埋めてください
+
+console.log(passedNames);
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code6', 'result6')">実行</button>
+                <div class="result-area" id="result6"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runCode(codeId, resultId) {
+            const code = document.getElementById(codeId).value;
+            const resultEl = document.getElementById(resultId);
+            let output = [];
+
+            const originalLog = console.log;
+            console.log = function(...args) {
+                output.push(args.map(arg =>
+                    typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+                ).join(' '));
+            };
+
+            try {
+                eval(code);
+                resultEl.textContent = output.length > 0 ? output.join('\n') : '(出力なし)';
+                resultEl.className = 'result-area success';
+            } catch (e) {
+                resultEl.textContent = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+
+            console.log = originalLog;
+        }
+    </script>
+</body>
+</html>

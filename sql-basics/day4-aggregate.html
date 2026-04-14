@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 4: 集計関数と GROUP BY - SQL基礎</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 45%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 55%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #1565c0; border-bottom: 2px solid #1976d2; padding-bottom: 10px; }
+        h3 { color: #1976d2; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .comment { color: #78909c; }
+        .code-block .number { color: #f78c6c; }
+        .code-block .func { color: #ffcc80; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        table.funcs {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table.funcs th, table.funcs td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        table.funcs th { background: #f5f5f5; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #1976d2; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #1565c0; }
+        .result-area {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 80px;
+            overflow-x: auto;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area table { border-collapse: collapse; width: 100%; }
+        .result-area th, .result-area td { border: 1px solid #546e7a; padding: 6px 10px; text-align: left; }
+        .result-area th { background: #37474f; color: #80cbc4; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .schema-mini {
+            background: #37474f;
+            color: #cfd8dc;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            margin: 10px 0;
+        }
+        .schema-mini strong { color: #80cbc4; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 4: 集計関数と GROUP BY</h1>
+        <div class="nav">
+            <a href="day3-orderby.html">← 前へ: ORDER BY</a>
+            <a href="day5-join.html">次へ: JOIN →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>集計関数</h2>
+            <p>複数の行から1つの結果を計算します。</p>
+
+            <table class="funcs">
+                <tr><th>関数</th><th>意味</th><th>例</th></tr>
+                <tr><td>COUNT</td><td>件数</td><td>COUNT(*)</td></tr>
+                <tr><td>SUM</td><td>合計</td><td>SUM(price)</td></tr>
+                <tr><td>AVG</td><td>平均</td><td>AVG(price)</td></tr>
+                <tr><td>MAX</td><td>最大値</td><td>MAX(price)</td></tr>
+                <tr><td>MIN</td><td>最小値</td><td>MIN(price)</td></tr>
+            </table>
+
+            <div class="code-block">
+<span class="comment">-- 商品の件数</span>
+<span class="keyword">SELECT</span> <span class="func">COUNT</span>(*) <span class="keyword">FROM</span> products;
+
+<span class="comment">-- 価格の合計、平均、最大、最小</span>
+<span class="keyword">SELECT</span>
+    <span class="func">SUM</span>(price) <span class="keyword">AS</span> 合計,
+    <span class="func">AVG</span>(price) <span class="keyword">AS</span> 平均,
+    <span class="func">MAX</span>(price) <span class="keyword">AS</span> 最大,
+    <span class="func">MIN</span>(price) <span class="keyword">AS</span> 最小
+<span class="keyword">FROM</span> products;
+            </div>
+
+            <h2>GROUP BY: グループ化</h2>
+            <p>指定した列でグループを作り、グループごとに集計します。</p>
+
+            <div class="code-block">
+<span class="comment">-- カテゴリごとの商品数</span>
+<span class="keyword">SELECT</span>
+    category_id,
+    <span class="func">COUNT</span>(*) <span class="keyword">AS</span> 商品数
+<span class="keyword">FROM</span> products
+<span class="keyword">GROUP BY</span> category_id;
+            </div>
+
+            <div class="point-box">
+                <strong>ポイント: GROUP BYのルール</strong><br>
+                SELECTに書ける列は<br>
+                ・GROUP BYで指定した列<br>
+                ・集計関数（COUNT, SUM等）<br>
+                のどちらかです。
+            </div>
+
+            <h3>複数の集計</h3>
+            <div class="code-block">
+<span class="comment">-- カテゴリごとの商品数と平均価格</span>
+<span class="keyword">SELECT</span>
+    category_id,
+    <span class="func">COUNT</span>(*) <span class="keyword">AS</span> 商品数,
+    <span class="func">AVG</span>(price) <span class="keyword">AS</span> 平均価格,
+    <span class="func">SUM</span>(stock) <span class="keyword">AS</span> 在庫合計
+<span class="keyword">FROM</span> products
+<span class="keyword">GROUP BY</span> category_id;
+            </div>
+
+            <h2>HAVING: 集計結果の絞り込み</h2>
+            <p>GROUP BYの結果に条件をつけます。</p>
+
+            <div class="code-block">
+<span class="comment">-- 平均価格が150以上のカテゴリ</span>
+<span class="keyword">SELECT</span>
+    category_id,
+    <span class="func">AVG</span>(price) <span class="keyword">AS</span> 平均価格
+<span class="keyword">FROM</span> products
+<span class="keyword">GROUP BY</span> category_id
+<span class="keyword">HAVING</span> <span class="func">AVG</span>(price) >= <span class="number">150</span>;
+            </div>
+
+            <div class="point-box">
+                <strong>WHERE と HAVING の違い</strong><br>
+                ・WHERE: グループ化の前に絞り込む<br>
+                ・HAVING: グループ化の後に絞り込む
+            </div>
+
+            <div class="code-block">
+<span class="comment">-- WHEREとHAVINGを両方使う例</span>
+<span class="keyword">SELECT</span>
+    category_id,
+    <span class="func">COUNT</span>(*) <span class="keyword">AS</span> cnt
+<span class="keyword">FROM</span> products
+<span class="keyword">WHERE</span> stock >= <span class="number">100</span>  <span class="comment">-- 先に絞り込み</span>
+<span class="keyword">GROUP BY</span> category_id
+<span class="keyword">HAVING</span> <span class="func">COUNT</span>(*) >= <span class="number">2</span>;  <span class="comment">-- 集計結果で絞り込み</span>
+            </div>
+
+            <div class="schema-mini">
+                <strong>products:</strong> id, name, category_id, price, stock<br>
+                <strong>orders:</strong> id, product_id, quantity, order_date
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="loading" class="loading">データベースを準備中...</div>
+            <div id="content" style="display: none;">
+                <h2>練習問題</h2>
+
+                <div class="problem">
+                    <h3>問1: 件数を数える</h3>
+                    <div class="problem-desc">
+                        <p>productsテーブルの商品数を取得してください。</p>
+                    </div>
+                    <textarea id="sql1">SELECT </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql1', 'result1')">実行</button>
+                    <div class="result-area" id="result1"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問2: 集計関数</h3>
+                    <div class="problem-desc">
+                        <p>全商品の価格の合計、平均、最大、最小を取得してください。</p>
+                    </div>
+                    <textarea id="sql2">SELECT
+    SUM(price) AS 合計,
+
+FROM products;</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql2', 'result2')">実行</button>
+                    <div class="result-area" id="result2"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問3: カテゴリ別の集計</h3>
+                    <div class="problem-desc">
+                        <p>カテゴリごとの商品数を取得してください。</p>
+                    </div>
+                    <textarea id="sql3">SELECT
+    category_id,
+
+FROM products
+GROUP BY </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql3', 'result3')">実行</button>
+                    <div class="result-area" id="result3"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問4: カテゴリ別の詳細集計</h3>
+                    <div class="problem-desc">
+                        <p>カテゴリごとに、商品数・平均価格・在庫合計を取得してください。</p>
+                    </div>
+                    <textarea id="sql4">SELECT
+    category_id,
+    COUNT(*) AS 商品数,
+
+FROM products
+GROUP BY category_id;</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql4', 'result4')">実行</button>
+                    <div class="result-area" id="result4"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問5: HAVINGで絞り込み</h3>
+                    <div class="problem-desc">
+                        <p>商品数が3件以上のカテゴリだけを取得してください。</p>
+                    </div>
+                    <textarea id="sql5">SELECT
+    category_id,
+    COUNT(*) AS 商品数
+FROM products
+GROUP BY category_id
+HAVING </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql5', 'result5')">実行</button>
+                    <div class="result-area" id="result5"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問6: 注文データの集計</h3>
+                    <div class="problem-desc">
+                        <p>ordersテーブルから、商品ごとの注文数量の合計を取得してください。</p>
+                    </div>
+                    <textarea id="sql6">SELECT
+    product_id,
+
+FROM orders
+GROUP BY </textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql6', 'result6')">実行</button>
+                    <div class="result-area" id="result6"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問7: 日付別の集計</h3>
+                    <div class="problem-desc">
+                        <p>ordersテーブルから、日付ごとの注文件数と合計数量を取得してください。</p>
+                    </div>
+                    <textarea id="sql7">SELECT
+    order_date,
+    COUNT(*) AS 注文件数,
+
+FROM orders
+GROUP BY order_date
+ORDER BY order_date;</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql7', 'result7')">実行</button>
+                    <div class="result-area" id="result7"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db;
+
+        async function initDB() {
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+
+            db = new SQL.Database();
+
+            db.run(`
+                CREATE TABLE categories (id INTEGER PRIMARY KEY, name TEXT);
+                CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, category_id INTEGER, price INTEGER, stock INTEGER);
+                CREATE TABLE orders (id INTEGER PRIMARY KEY, product_id INTEGER, quantity INTEGER, order_date TEXT);
+            `);
+
+            db.run(`
+                INSERT INTO categories VALUES (1, '食品'), (2, '飲料'), (3, '日用品');
+                INSERT INTO products VALUES
+                    (1, 'りんご', 1, 150, 100),
+                    (2, 'バナナ', 1, 100, 150),
+                    (3, 'オレンジ', 1, 120, 80),
+                    (4, '緑茶', 2, 130, 200),
+                    (5, 'コーヒー', 2, 150, 180),
+                    (6, '牛乳', 2, 200, 50),
+                    (7, 'ティッシュ', 3, 300, 500),
+                    (8, '洗剤', 3, 400, 120);
+                INSERT INTO orders VALUES
+                    (1, 1, 5, '2024-03-01'), (2, 2, 10, '2024-03-01'), (3, 4, 3, '2024-03-02'),
+                    (4, 1, 8, '2024-03-02'), (5, 5, 2, '2024-03-03'), (6, 7, 15, '2024-03-03'),
+                    (7, 2, 6, '2024-03-04'), (8, 3, 4, '2024-03-04'), (9, 6, 5, '2024-03-05'), (10, 8, 3, '2024-03-05');
+            `);
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function runSQL(textareaId, resultId) {
+            const sql = document.getElementById(textareaId).value;
+            const resultEl = document.getElementById(resultId);
+
+            try {
+                const results = db.exec(sql);
+                if (results.length === 0) {
+                    resultEl.innerHTML = '(結果なし)';
+                    resultEl.className = 'result-area';
+                    return;
+                }
+
+                const result = results[0];
+                let html = '<table><tr>';
+                result.columns.forEach(col => { html += `<th>${col}</th>`; });
+                html += '</tr>';
+                result.values.forEach(row => {
+                    html += '<tr>';
+                    row.forEach(val => { html += `<td>${val !== null ? val : 'NULL'}</td>`; });
+                    html += '</tr>';
+                });
+                html += '</table>';
+                html += `<div style="margin-top:10px;color:#78909c;">${result.values.length} 件</div>`;
+
+                resultEl.innerHTML = html;
+                resultEl.className = 'result-area';
+            } catch (e) {
+                resultEl.innerHTML = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+        }
+
+        initDB();
+    </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 6: オブジェクト - JavaScript基礎</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #ff9800;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .comment { color: #78909c; }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .number { color: #f78c6c; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 180px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #ff9800; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #f57c00; }
+        .result-area {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area.success { color: #aed581; }
+        .visual-box {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 6: オブジェクト</h1>
+        <div class="nav">
+            <a href="day5-arrays-methods.html">← 前へ: 配列（メソッド）</a>
+            <a href="day7-functions.html">次へ: 関数 →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>オブジェクトとは？</h2>
+            <p>オブジェクトは、関連するデータをまとめて管理できる仕組みです。<br>
+            「キー」と「値」のペアで構成されます。</p>
+
+            <div class="visual-box">
+                person = {<br>
+                &nbsp;&nbsp;name: "田中太郎",&nbsp;&nbsp;<span style="color:#78909c">← キー: 値</span><br>
+                &nbsp;&nbsp;age: 25,<br>
+                &nbsp;&nbsp;city: "東京"<br>
+                }
+            </div>
+
+            <h3>オブジェクトの作成</h3>
+            <div class="code-block">
+<span class="keyword">const</span> person = {
+    name: <span class="string">"田中太郎"</span>,
+    age: <span class="number">25</span>,
+    city: <span class="string">"東京"</span>
+};
+
+console.log(person);
+            </div>
+
+            <h3>プロパティへのアクセス</h3>
+            <div class="code-block">
+<span class="keyword">const</span> person = {
+    name: <span class="string">"田中太郎"</span>,
+    age: <span class="number">25</span>
+};
+
+<span class="comment">// ドット記法（よく使う）</span>
+console.log(person.name);  <span class="comment">// 田中太郎</span>
+console.log(person.age);   <span class="comment">// 25</span>
+
+<span class="comment">// ブラケット記法（変数を使う時に便利）</span>
+console.log(person[<span class="string">"name"</span>]);  <span class="comment">// 田中太郎</span>
+
+<span class="keyword">const</span> key = <span class="string">"age"</span>;
+console.log(person[key]);  <span class="comment">// 25</span>
+            </div>
+
+            <h3>プロパティの変更・追加</h3>
+            <div class="code-block">
+<span class="keyword">const</span> person = {
+    name: <span class="string">"田中太郎"</span>,
+    age: <span class="number">25</span>
+};
+
+<span class="comment">// 変更</span>
+person.age = <span class="number">26</span>;
+
+<span class="comment">// 追加</span>
+person.city = <span class="string">"東京"</span>;
+
+console.log(person);
+<span class="comment">// { name: "田中太郎", age: 26, city: "東京" }</span>
+            </div>
+
+            <h3>プロパティの削除</h3>
+            <div class="code-block">
+<span class="keyword">const</span> person = {
+    name: <span class="string">"田中太郎"</span>,
+    age: <span class="number">25</span>,
+    city: <span class="string">"東京"</span>
+};
+
+<span class="keyword">delete</span> person.city;
+
+console.log(person);  <span class="comment">// { name: "田中太郎", age: 25 }</span>
+            </div>
+
+            <h2>オブジェクトの配列</h2>
+            <p>実務では「オブジェクトの配列」をよく使います。</p>
+
+            <div class="code-block">
+<span class="keyword">const</span> products = [
+    { name: <span class="string">"りんご"</span>, price: <span class="number">150</span> },
+    { name: <span class="string">"バナナ"</span>, price: <span class="number">100</span> },
+    { name: <span class="string">"みかん"</span>, price: <span class="number">80</span> }
+];
+
+<span class="comment">// 2番目の商品の名前</span>
+console.log(products[<span class="number">1</span>].name);  <span class="comment">// バナナ</span>
+
+<span class="comment">// 全商品の名前を出力</span>
+products.forEach(product => {
+    console.log(product.name);
+});
+            </div>
+
+            <div class="point-box">
+                <strong>Vue.jsでよく見る形</strong><br>
+                APIからデータを取得すると、大抵このような<br>
+                「オブジェクトの配列」形式で返ってきます。
+            </div>
+
+            <h3>オブジェクトの配列を操作</h3>
+            <div class="code-block">
+<span class="keyword">const</span> products = [
+    { name: <span class="string">"りんご"</span>, price: <span class="number">150</span>, stock: <span class="number">10</span> },
+    { name: <span class="string">"バナナ"</span>, price: <span class="number">100</span>, stock: <span class="number">0</span> },
+    { name: <span class="string">"みかん"</span>, price: <span class="number">80</span>, stock: <span class="number">5</span> }
+];
+
+<span class="comment">// 在庫がある商品だけ抽出</span>
+<span class="keyword">const</span> inStock = products.filter(p => p.stock > <span class="number">0</span>);
+
+<span class="comment">// 商品名だけの配列を作る</span>
+<span class="keyword">const</span> names = products.map(p => p.name);
+
+<span class="comment">// 合計金額を計算（在庫 x 価格）</span>
+<span class="keyword">const</span> total = products.reduce((sum, p) => sum + p.price * p.stock, <span class="number">0</span>);
+            </div>
+
+            <h3>分割代入</h3>
+            <p>オブジェクトのプロパティを変数に取り出す便利な書き方です。</p>
+            <div class="code-block">
+<span class="keyword">const</span> person = {
+    name: <span class="string">"田中太郎"</span>,
+    age: <span class="number">25</span>,
+    city: <span class="string">"東京"</span>
+};
+
+<span class="comment">// 従来の書き方</span>
+<span class="keyword">const</span> name1 = person.name;
+<span class="keyword">const</span> age1 = person.age;
+
+<span class="comment">// 分割代入（おすすめ）</span>
+<span class="keyword">const</span> { name, age, city } = person;
+
+console.log(name);  <span class="comment">// 田中太郎</span>
+console.log(age);   <span class="comment">// 25</span>
+            </div>
+
+            <h3>スプレッド構文</h3>
+            <p>オブジェクトをコピーしたり、一部を変更した新しいオブジェクトを作れます。</p>
+            <div class="code-block">
+<span class="keyword">const</span> person = { name: <span class="string">"田中"</span>, age: <span class="number">25</span> };
+
+<span class="comment">// コピー</span>
+<span class="keyword">const</span> copy = { ...person };
+
+<span class="comment">// 一部を変更した新しいオブジェクト</span>
+<span class="keyword">const</span> updated = { ...person, age: <span class="number">26</span> };
+
+console.log(updated);  <span class="comment">// { name: "田中", age: 26 }</span>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>練習問題</h2>
+
+            <div class="problem">
+                <h3>問1: オブジェクトの作成</h3>
+                <div class="problem-desc">
+                    <p>商品オブジェクトを作成して、各プロパティを出力してください。</p>
+                    <ul>
+                        <li>name: "ノートPC"</li>
+                        <li>price: 80000</li>
+                        <li>inStock: true</li>
+                    </ul>
+                </div>
+                <textarea id="code1">// 商品オブジェクトを作成
+
+// 各プロパティを出力
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code1', 'result1')">実行</button>
+                <div class="result-area" id="result1"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問2: プロパティの操作</h3>
+                <div class="problem-desc">
+                    <p>以下の操作を行ってください:</p>
+                    <ol>
+                        <li>年齢を26に変更</li>
+                        <li>部署（department: "開発"）を追加</li>
+                        <li>結果を出力</li>
+                    </ol>
+                </div>
+                <textarea id="code2">const employee = {
+    name: "山田太郎",
+    age: 25
+};
+
+// 1. 年齢を26に変更
+// 2. 部署を追加
+// 3. 出力
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code2', 'result2')">実行</button>
+                <div class="result-area" id="result2"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問3: オブジェクトの配列 - 全件出力</h3>
+                <div class="problem-desc">
+                    <p>forEachを使って、全社員の名前と部署を出力してください。</p>
+                    <p>出力形式: <code>田中 - 営業部</code></p>
+                </div>
+                <textarea id="code3">const employees = [
+    { name: "田中", department: "営業部" },
+    { name: "鈴木", department: "開発部" },
+    { name: "佐藤", department: "人事部" }
+];
+
+// forEachで出力
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code3', 'result3')">実行</button>
+                <div class="result-area" id="result3"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問4: オブジェクトの配列 - 絞り込み</h3>
+                <div class="problem-desc">
+                    <p>価格が200円以下の商品だけを抽出してください。</p>
+                </div>
+                <textarea id="code4">const products = [
+    { name: "りんご", price: 150 },
+    { name: "メロン", price: 800 },
+    { name: "バナナ", price: 100 },
+    { name: "ぶどう", price: 400 },
+    { name: "みかん", price: 80 }
+];
+
+// 200円以下の商品を抽出
+const cheap = // ここを埋めてください
+
+console.log(cheap);
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code4', 'result4')">実行</button>
+                <div class="result-area" id="result4"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問5: オブジェクトの配列 - 集計</h3>
+                <div class="problem-desc">
+                    <p>全社員の平均年齢を計算してください。</p>
+                </div>
+                <textarea id="code5">const employees = [
+    { name: "田中", age: 28 },
+    { name: "鈴木", age: 35 },
+    { name: "佐藤", age: 42 },
+    { name: "山田", age: 25 }
+];
+
+// 1. 年齢の合計を計算（reduceを使う）
+// 2. 人数で割って平均を出す
+// 3. 結果を出力
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code5', 'result5')">実行</button>
+                <div class="result-area" id="result5"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問6: 分割代入</h3>
+                <div class="problem-desc">
+                    <p>分割代入を使って、ユーザー情報を取り出して表示してください。</p>
+                    <p>出力: <code>山田太郎さん（25歳）は東京在住です</code></p>
+                </div>
+                <textarea id="code6">const user = {
+    name: "山田太郎",
+    age: 25,
+    city: "東京",
+    email: "yamada@example.com"
+};
+
+// 分割代入でname, age, cityを取り出す
+
+// テンプレートリテラルで出力
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code6', 'result6')">実行</button>
+                <div class="result-area" id="result6"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runCode(codeId, resultId) {
+            const code = document.getElementById(codeId).value;
+            const resultEl = document.getElementById(resultId);
+            let output = [];
+
+            const originalLog = console.log;
+            console.log = function(...args) {
+                output.push(args.map(arg =>
+                    typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+                ).join(' '));
+            };
+
+            try {
+                eval(code);
+                resultEl.textContent = output.length > 0 ? output.join('\n') : '(出力なし)';
+                resultEl.className = 'result-area success';
+            } catch (e) {
+                resultEl.textContent = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+
+            console.log = originalLog;
+        }
+    </script>
+</body>
+</html>
