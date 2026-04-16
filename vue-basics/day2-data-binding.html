@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 2: データバインディング | Vue.js 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #42b883; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #35495e; border-bottom: 2px solid #42b883; padding-bottom: 10px; }
+    h3 { color: #42b883; margin-top: 25px; }
+    .code-block { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; }
+    .code-block .comment { color: #78909c; }
+    .code-block .tag { color: #82b1ff; }
+    .code-block .attr { color: #c3e88d; }
+    .code-block .value { color: #f78c6c; }
+    .code-block .keyword { color: #82b1ff; }
+    .code-block .string { color: #c3e88d; }
+    .point-box { background: #e8f5e9; border-left: 4px solid #42b883; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #1b5e20; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .demo-area { background: #fafafa; border: 2px solid #42b883; border-radius: 8px; padding: 20px; margin: 15px 0; }
+    .demo-area label { font-weight: bold; color: #35495e; margin-right: 10px; }
+    .demo-area input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .demo-area button { padding: 8px 16px; background: #42b883; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+    .demo-area button:hover { background: #35a371; }
+    .demo-output { margin-top: 10px; padding: 10px; background: white; border-radius: 4px; min-height: 30px; border: 1px solid #ddd; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: #42b883; font-weight: bold; padding: 8px 12px; background: #e8f5e9; border-radius: 4px; }
+    summary:hover { background: #c8e6c9; }
+    details > div { background: #f9fbe7; border: 1px solid #c8e6c9; padding: 15px; border-radius: 0 0 8px 8px; margin-top: 4px; }
+    /* デモ固有スタイル */
+    .highlight-box { background: #e8f5e9; border: 2px solid #42b883; border-radius: 8px; padding: 15px; margin-top: 10px; font-size: 1.1em; }
+    .active-style { background: #42b883; color: white; padding: 4px 10px; border-radius: 4px; }
+    .inactive-style { background: #ddd; color: #888; padding: 4px 10px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Day 2: データバインディング</h1>
+  <div class="nav">
+    <a href="day1-hello.html">← 前へ: Vue.js とは</a>
+    <a href="index.html">トップ</a>
+    <a href="day3-events.html">次へ: イベント処理 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明 -->
+  <div class="left-panel">
+    <h2>データバインディングとは？</h2>
+
+    <p>
+      データバインディングとは、<strong>JavaScriptのデータとHTMLの表示を連動させる</strong>仕組みです。
+      Vue.jsでは、データが変わると自動的にHTMLが更新されます。これを<strong>リアクティブ</strong>と呼びます。
+    </p>
+
+    <div class="point-box">
+      <strong>リアクティブとは？</strong><br>
+      データが変化すると、それを使っているすべての場所が自動的に更新される性質のことです。
+      手動でDOMを操作する必要がありません。
+    </div>
+
+    <h3>v-bind でHTML属性にデータをバインド</h3>
+
+    <p>
+      <code>{{ }}</code> はテキストコンテンツに使いますが、
+      <strong>HTML属性</strong>にデータを埋め込むには <code>v-bind</code> を使います。
+    </p>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- v-bind を使う書き方 --&gt;</span>
+<span class="tag">&lt;a</span> <span class="attr">v-bind:href</span>=<span class="value">"url"</span><span class="tag">&gt;</span>リンク<span class="tag">&lt;/a&gt;</span>
+<span class="tag">&lt;img</span> <span class="attr">v-bind:src</span>=<span class="value">"imageUrl"</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- : を使った短縮記法（こちらをよく使う）--&gt;</span>
+<span class="tag">&lt;a</span> <span class="attr">:href</span>=<span class="value">"url"</span><span class="tag">&gt;</span>リンク<span class="tag">&lt;/a&gt;</span>
+<span class="tag">&lt;img</span> <span class="attr">:src</span>=<span class="value">"imageUrl"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;button</span> <span class="attr">:disabled</span>=<span class="value">"isLoading"</span><span class="tag">&gt;</span>送信<span class="tag">&lt;/button&gt;</span>
+    </div>
+
+    <div class="point-box">
+      <strong>v-bind の短縮記法</strong><br>
+      <code>v-bind:href</code> は <code>:href</code> と書けます。
+      コロン1文字が v-bind の省略形です。実務ではほぼ必ず短縮形を使います。
+    </div>
+
+    <h3>v-bind:class でクラスを動的切り替え</h3>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- isActive が true なら 'active' クラスが付く --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">:class</span>=<span class="value">"{ active: isActive }"</span><span class="tag">&gt;</span>
+  コンテンツ
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="comment">&lt;!-- 複数のクラスを条件で切り替え --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">:class</span>=<span class="value">"{ active: isActive, error: hasError }"</span><span class="tag">&gt;</span>
+  コンテンツ
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="comment">&lt;!-- 変数でクラス名を直接指定 --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">:class</span>=<span class="value">"buttonClass"</span><span class="tag">&gt;</span>ボタン<span class="tag">&lt;/div&gt;</span>
+    </div>
+
+    <h3>v-bind:style でスタイルを動的変更</h3>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- スタイルをオブジェクトで指定 --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">:style</span>=<span class="value">"{ color: textColor, fontSize: fontSize + 'px' }"</span><span class="tag">&gt;</span>
+  テキスト
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="comment">// data() での定義</span>
+data() {
+  <span class="keyword">return</span> {
+    textColor: <span class="string">'#42b883'</span>,
+    fontSize: 20
+  }
+}
+    </div>
+
+    <h3>v-model で双方向バインディング</h3>
+
+    <p>
+      <code>v-model</code> は、フォーム要素（input, textarea, select）と
+      データを<strong>双方向に</strong>連携させます。
+      ユーザーが入力すると自動的にデータが更新され、画面も更新されます。
+    </p>
+
+    <div class="code-block">
+<span class="tag">&lt;input</span> <span class="attr">v-model</span>=<span class="value">"name"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;p&gt;</span>こんにちは、{{ name }}さん！<span class="tag">&lt;/p&gt;</span>
+
+<span class="comment">&lt;!-- チェックボックスとの連携 --&gt;</span>
+<span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"checkbox"</span> <span class="attr">v-model</span>=<span class="value">"agreed"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;p&gt;</span>同意: {{ agreed }}<span class="tag">&lt;/p&gt;</span>
+
+<span class="comment">&lt;!-- セレクトボックスとの連携 --&gt;</span>
+<span class="tag">&lt;select</span> <span class="attr">v-model</span>=<span class="value">"selected"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;option&gt;</span>赤<span class="tag">&lt;/option&gt;</span>
+  <span class="tag">&lt;option&gt;</span>青<span class="tag">&lt;/option&gt;</span>
+<span class="tag">&lt;/select&gt;</span>
+    </div>
+
+    <div class="warning-box">
+      <strong>v-bind と v-model の違い</strong><br>
+      <code>v-bind</code>（:）は<strong>一方向</strong>（データ → 画面）<br>
+      <code>v-model</code> は<strong>双方向</strong>（データ ⇔ 画面）<br>
+      フォームには v-model、表示だけには v-bind/:を使います。
+    </div>
+
+  </div><!-- /.left-panel -->
+
+  <!-- 右パネル: デモ + 練習問題 -->
+  <div class="right-panel">
+    <h2>動くデモ &amp; 練習問題</h2>
+
+    <!-- デモ1: v-model 双方向バインディング -->
+    <div class="problem">
+      <h3>デモ 1: v-model — リアルタイム双方向バインディング</h3>
+      <p>テキストを入力すると、下の表示がリアルタイムに変わります。</p>
+
+      <div class="demo-area">
+        <div id="demo1">
+          <div style="margin-bottom:10px;">
+            <label>名前を入力: </label>
+            <input v-model="name" placeholder="名前を入力してください" style="padding:8px 12px; border:1px solid #ddd; border-radius:4px; font-size:14px; width:200px;">
+          </div>
+          <div class="highlight-box">
+            こんにちは、<strong>{{ name || '（名前未入力）' }}</strong> さん！
+          </div>
+          <div style="margin-top:10px; font-size:0.9em; color:#888;">
+            文字数: {{ name.length }} 文字
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- デモ2: v-bind:class 動的クラス切り替え -->
+    <div class="problem">
+      <h3>デモ 2: v-bind:class — クラスを動的に切り替え</h3>
+      <p>ボタンをクリックすると、クラスが切り替わりスタイルが変化します。</p>
+
+      <div class="demo-area">
+        <div id="demo2">
+          <button @click="isActive = !isActive"
+                  style="padding:8px 16px; border:none; border-radius:4px; cursor:pointer; font-size:14px;"
+                  :style="{ background: isActive ? '#42b883' : '#ccc', color: isActive ? 'white' : '#555' }">
+            {{ isActive ? 'ON（クリックでOFF）' : 'OFF（クリックでON）' }}
+          </button>
+          <div style="margin-top:15px; padding:15px; border-radius:8px; text-align:center; font-weight:bold;"
+               :style="{ background: isActive ? '#e8f5e9' : '#f5f5f5', color: isActive ? '#2e7d32' : '#999', border: isActive ? '2px solid #42b883' : '2px solid #ddd' }">
+            状態: {{ isActive ? '✓ アクティブ' : '✗ 非アクティブ' }}
+          </div>
+          <p style="font-size:0.85em; color:#888; margin-top:8px;">
+            isActive の値: <strong>{{ isActive }}</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 練習問題1 -->
+    <div class="problem">
+      <h3>問題 1: v-bind の使い方を選ぼう</h3>
+      <div class="problem-desc">
+        画像のsrc属性に変数 <code>imgUrl</code> を使うとき、
+        正しい書き方はどれですか？
+        <div class="code-block" style="font-size:13px;">
+<span class="comment">// A</span>
+&lt;img src="{{ imgUrl }}"&gt;
+
+<span class="comment">// B</span>
+&lt;img v-bind:src="imgUrl"&gt;
+
+<span class="comment">// C</span>
+&lt;img :src="imgUrl"&gt;
+
+<span class="comment">// D（BとCは同じ意味）</span>
+BとCの両方が正しい
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <strong>D: B と C の両方が正しい</strong><br>
+          <code>v-bind:src="imgUrl"</code> と <code>:src="imgUrl"</code> は同じ意味です。<br>
+          Aの <code>src="{{ imgUrl }}"</code> は間違いです。
+          HTML属性の中では <code>{{ }}</code> は使えません。
+          属性には必ず <code>v-bind:</code> または <code>:</code> を使います。
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題2 -->
+    <div class="problem">
+      <h3>問題 2: v-model の穴埋め</h3>
+      <div class="problem-desc">
+        テキストエリアと段落を双方向バインディングするコードを完成させましょう。
+        <div class="code-block" style="font-size:13px;">
+&lt;textarea <span class="attr">___</span>=<span class="value">"message"</span>&gt;&lt;/textarea&gt;
+&lt;p&gt;入力内容: {{ <span class="attr">___</span> }}&lt;/p&gt;
+
+data() {
+  return { <span class="attr">message</span>: <span class="string">''</span> }
+}
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <code>&lt;textarea <strong>v-model</strong>="message"&gt;&lt;/textarea&gt;</code><br>
+          <code>&lt;p&gt;入力内容: {{ <strong>message</strong> }}&lt;/p&gt;</code><br><br>
+          テキストエリアに <code>v-model="message"</code> を指定します。
+          テンプレート側は通常の <code>{{ message }}</code> でOKです。
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題3 -->
+    <div class="problem">
+      <h3>問題 3: v-bind と v-model の使い分け</h3>
+      <div class="problem-desc">
+        以下のそれぞれのケースで v-bind と v-model どちらを使うべきですか？
+        <ol>
+          <li>ユーザーが入力するテキストフィールド</li>
+          <li>画像のsrc属性にURLを設定する</li>
+          <li>プルダウンメニューの選択値を取得する</li>
+          <li>ボタンのdisabled属性を条件で切り替える</li>
+        </ol>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <ol>
+            <li><strong>v-model</strong>（ユーザー入力 → 双方向）</li>
+            <li><strong>v-bind（:src）</strong>（属性設定 → 一方向）</li>
+            <li><strong>v-model</strong>（ユーザー選択 → 双方向）</li>
+            <li><strong>v-bind（:disabled）</strong>（属性設定 → 一方向）</li>
+          </ol>
+          ポイント: <strong>ユーザーが操作するフォーム要素 → v-model、HTMLの属性に値を設定 → v-bind（:）</strong>
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題4 -->
+    <div class="problem">
+      <h3>問題 4: 応用 — カラーピッカーを作ろう</h3>
+      <div class="problem-desc">
+        以下のコードを見てください。何が表示されますか？また、color の値を変えると何が変わりますか？
+        <div class="code-block" style="font-size:13px;">
+&lt;div :style="{ background: color, padding: '20px', borderRadius: '8px' }"&gt;
+  選択中の色: {{ color }}
+&lt;/div&gt;
+&lt;input type="color" v-model="color"&gt;
+
+data() {
+  return { color: <span class="string">'#42b883'</span> }
+}
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <strong>緑色の背景を持つdivが表示される</strong>。
+          カラーピッカー（input type="color"）で色を選ぶと、
+          <code>v-model</code> によってcolorが更新され、
+          <code>:style</code> の背景色がリアルタイムに変わります。<br><br>
+          これが「データバインディング + リアクティブ」の力です。
+          DOMを一切手動操作していません！
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /.right-panel -->
+
+</div><!-- /.container -->
+
+<!-- Vue.js CDN -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+  // デモ1: v-model 双方向バインディング
+  Vue.createApp({
+    data() {
+      return {
+        name: ''
+      }
+    }
+  }).mount('#demo1')
+
+  // デモ2: v-bind:class / v-bind:style 動的切り替え
+  Vue.createApp({
+    data() {
+      return {
+        isActive: false
+      }
+    }
+  }).mount('#demo2')
+</script>
+
+</body>
+</html>

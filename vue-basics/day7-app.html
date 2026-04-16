@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 7: 総合演習 — TODOアプリ | Vue.js 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #42b883; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #35495e; border-bottom: 2px solid #42b883; padding-bottom: 10px; }
+    h3 { color: #42b883; margin-top: 25px; }
+    .code-block { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; overflow-x: auto; margin: 15px 0; line-height: 1.7; }
+    .code-block .comment { color: #78909c; }
+    .code-block .tag { color: #82b1ff; }
+    .code-block .attr { color: #c3e88d; }
+    .code-block .value { color: #f78c6c; }
+    .code-block .keyword { color: #82b1ff; }
+    .code-block .string { color: #c3e88d; }
+    .point-box { background: #e8f5e9; border-left: 4px solid #42b883; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #1b5e20; }
+    .step-box { background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 15px; margin: 12px 0; border-radius: 0 8px 8px 0; }
+    .step-box strong { color: #6a1b9a; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; }
+    .demo-area { background: #fafafa; border: 2px solid #42b883; border-radius: 8px; padding: 20px; margin: 15px 0; }
+    /* TODOアプリのスタイル */
+    .todo-app { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.12); max-width: 500px; margin: 0 auto; }
+    .todo-header { background: #42b883; color: white; padding: 20px 25px; }
+    .todo-header h2 { margin: 0; font-size: 1.3em; border: none; color: white; }
+    .todo-stats { display: flex; gap: 15px; margin-top: 8px; font-size: 0.9em; opacity: 0.9; }
+    .todo-input-area { padding: 20px 25px; border-bottom: 1px solid #eee; }
+    .todo-input-row { display: flex; gap: 8px; }
+    .todo-input-row input[type="text"] { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .todo-input-row input[type="text"]:focus { outline: none; border-color: #42b883; box-shadow: 0 0 0 2px rgba(66,184,131,0.15); }
+    .todo-add-btn { padding: 10px 18px; background: #42b883; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .todo-add-btn:hover { background: #35a371; }
+    .todo-filters { padding: 12px 25px; display: flex; gap: 8px; border-bottom: 1px solid #eee; }
+    .filter-btn { padding: 5px 14px; border: 1px solid #ddd; background: white; border-radius: 20px; cursor: pointer; font-size: 0.85em; }
+    .filter-btn.active { background: #42b883; color: white; border-color: #42b883; }
+    .todo-list { list-style: none; margin: 0; padding: 0; }
+    .todo-item { display: flex; align-items: center; padding: 14px 25px; border-bottom: 1px solid #f5f5f5; gap: 12px; }
+    .todo-item:last-child { border-bottom: none; }
+    .todo-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #42b883; cursor: pointer; flex-shrink: 0; }
+    .todo-text { flex: 1; font-size: 14px; }
+    .todo-text.done { text-decoration: line-through; color: #bbb; }
+    .todo-delete-btn { padding: 4px 10px; background: none; border: 1px solid #ef9a9a; color: #ef5350; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+    .todo-delete-btn:hover { background: #ffebee; }
+    .todo-footer { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; background: #fafafa; }
+    .todo-footer span { font-size: 0.9em; color: #888; }
+    .clear-btn { padding: 6px 14px; background: #ef5350; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em; }
+    .clear-btn:hover { background: #e53935; }
+    .empty-state { padding: 30px; text-align: center; color: #bbb; }
+    /* チャレンジ課題スタイル */
+    .challenge-box { background: #fff8e1; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .challenge-box strong { color: #e65100; }
+    .challenge-list { list-style: none; padding: 0; margin: 10px 0 0; }
+    .challenge-list li { padding: 8px 0; border-bottom: 1px solid #ffe0b2; display: flex; gap: 10px; align-items: flex-start; }
+    .challenge-list li:last-child { border-bottom: none; }
+    .challenge-num { background: #ff9800; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: bold; flex-shrink: 0; }
+    /* 完了メッセージ */
+    .completion-banner { background: linear-gradient(135deg, #42b883, #35495e); color: white; border-radius: 12px; padding: 30px; text-align: center; margin-top: 20px; box-shadow: 0 4px 20px rgba(66,184,131,0.3); }
+    .completion-banner h2 { margin: 0 0 10px; font-size: 1.5em; border: none; color: white; }
+    .completion-banner p { margin: 0; opacity: 0.9; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Day 7: 総合演習 — TODOアプリを作ろう</h1>
+  <div class="nav">
+    <a href="day6-computed.html">← 前へ: 算出プロパティとウォッチャー</a>
+    <a href="index.html">← トップに戻る</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明 -->
+  <div class="left-panel">
+    <h2>今日作るもの</h2>
+
+    <p>
+      Day 1〜6 で学んだすべての機能を使って、<strong>本格的なTODOアプリ</strong>を作ります。
+      右パネルで実際に動くデモを確認しながら、コードを読み解いていきましょう。
+    </p>
+
+    <div class="point-box">
+      <strong>使う機能一覧</strong><br>
+      ・<code>v-model</code> — テキスト入力<br>
+      ・<code>v-for</code> — タスクリストの繰り返し表示<br>
+      ・<code>v-if / v-show</code> — 条件による表示切り替え<br>
+      ・<code>@click / @keyup.enter</code> — イベント処理<br>
+      ・<code>computed</code> — 残りタスク数・フィルタリング<br>
+      ・<code>watch</code> — ローカルストレージ自動保存
+    </div>
+
+    <h3>実装のステップ</h3>
+
+    <div class="step-box">
+      <strong>Step 1: データ設計</strong><br>
+      どんなデータが必要か考える。タスクの配列、入力中のテキスト、フィルター状態など。
+    </div>
+    <div class="step-box">
+      <strong>Step 2: タスクの追加</strong><br>
+      <code>v-model</code> で入力を受け取り、ボタン or Enter で配列に追加する。
+    </div>
+    <div class="step-box">
+      <strong>Step 3: タスクの表示</strong><br>
+      <code>v-for</code> でタスク配列をループして一覧表示する。
+    </div>
+    <div class="step-box">
+      <strong>Step 4: 完了チェック</strong><br>
+      チェックボックスと <code>v-model</code> で done フラグを切り替える。
+    </div>
+    <div class="step-box">
+      <strong>Step 5: 削除 &amp; 一括削除</strong><br>
+      methods で配列から対象を filter で除去する。
+    </div>
+    <div class="step-box">
+      <strong>Step 6: computedでフィルタリング</strong><br>
+      「全件 / 未完了 / 完了済み」の3種類を computed で絞り込む。
+    </div>
+    <div class="step-box">
+      <strong>Step 7: watchで自動保存</strong><br>
+      todos 配列を watch して変化のたびに localStorage に保存する。
+    </div>
+
+    <h3>完成コードの全体像</h3>
+
+    <div class="code-block">
+<span class="comment">// ===== data =====</span>
+data() {
+  <span class="keyword">return</span> {
+    newTask: <span class="string">''</span>,        <span class="comment">// 入力中のタスク名</span>
+    filter: <span class="string">'all'</span>,     <span class="comment">// 'all' | 'active' | 'done'</span>
+    nextId: 1,
+    todos: []          <span class="comment">// タスクの配列</span>
+  }
+},
+
+<span class="comment">// ===== computed =====</span>
+computed: {
+  <span class="comment">// フィルタ済みのタスク一覧</span>
+  filteredTodos() {
+    <span class="keyword">if</span> (<span class="keyword">this</span>.filter === <span class="string">'active'</span>) {
+      <span class="keyword">return</span> <span class="keyword">this</span>.todos.filter(t => !t.done)
+    } <span class="keyword">else if</span> (<span class="keyword">this</span>.filter === <span class="string">'done'</span>) {
+      <span class="keyword">return</span> <span class="keyword">this</span>.todos.filter(t => t.done)
+    }
+    <span class="keyword">return</span> <span class="keyword">this</span>.todos
+  },
+  <span class="comment">// 残りタスク数（未完了のみカウント）</span>
+  activeCount() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.todos.filter(t => !t.done).length
+  },
+  <span class="comment">// 完了済みタスク数</span>
+  doneCount() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.todos.filter(t => t.done).length
+  }
+},
+
+<span class="comment">// ===== methods =====</span>
+methods: {
+  addTask() {
+    <span class="keyword">if</span> (!<span class="keyword">this</span>.newTask.trim()) <span class="keyword">return</span>
+    <span class="keyword">this</span>.todos.push({
+      id: <span class="keyword">this</span>.nextId++,
+      text: <span class="keyword">this</span>.newTask.trim(),
+      done: <span class="keyword">false</span>
+    })
+    <span class="keyword">this</span>.newTask = <span class="string">''</span>
+  },
+  removeTask(id) {
+    <span class="keyword">this</span>.todos = <span class="keyword">this</span>.todos.filter(t => t.id !== id)
+  },
+  clearDone() {
+    <span class="keyword">this</span>.todos = <span class="keyword">this</span>.todos.filter(t => !t.done)
+  }
+},
+
+<span class="comment">// ===== watch =====</span>
+watch: {
+  todos: {
+    handler(newVal) {
+      localStorage.setItem(<span class="string">'todos'</span>, JSON.stringify(newVal))
+    },
+    deep: <span class="keyword">true</span>   <span class="comment">// オブジェクトの深い変化も監視</span>
+  }
+}
+    </div>
+
+  </div><!-- /.left-panel -->
+
+  <!-- 右パネル: 完全動作するTODOアプリ + チャレンジ -->
+  <div class="right-panel">
+    <h2>完成デモ &amp; チャレンジ課題</h2>
+
+    <!-- TODOアプリ本体 -->
+    <div class="problem">
+      <h3>完全動作するTODOアプリ</h3>
+      <p>
+        タスクを入力して追加してみましょう。チェックで完了、ゴミ箱で削除、
+        フィルターで絞り込みができます。<strong>ページをリロードしても消えません！</strong>
+        （ローカルストレージに自動保存）
+      </p>
+
+      <div class="demo-area" style="padding:10px;">
+        <div id="todo-app">
+
+          <div class="todo-app">
+            <!-- ヘッダー -->
+            <div class="todo-header">
+              <h2>My TODO List</h2>
+              <div class="todo-stats">
+                <span>残り {{ activeCount }} 件</span>
+                <span>完了 {{ doneCount }} 件</span>
+                <span>合計 {{ todos.length }} 件</span>
+              </div>
+            </div>
+
+            <!-- 入力エリア -->
+            <div class="todo-input-area">
+              <div class="todo-input-row">
+                <input type="text"
+                       v-model="newTask"
+                       @keyup.enter="addTask"
+                       placeholder="新しいタスクを入力... (Enter でも追加)">
+                <button class="todo-add-btn" @click="addTask">追加</button>
+              </div>
+            </div>
+
+            <!-- フィルターボタン -->
+            <div class="todo-filters">
+              <button class="filter-btn"
+                      :class="{ active: filter === 'all' }"
+                      @click="filter = 'all'">
+                すべて ({{ todos.length }})
+              </button>
+              <button class="filter-btn"
+                      :class="{ active: filter === 'active' }"
+                      @click="filter = 'active'">
+                未完了 ({{ activeCount }})
+              </button>
+              <button class="filter-btn"
+                      :class="{ active: filter === 'done' }"
+                      @click="filter = 'done'">
+                完了済み ({{ doneCount }})
+              </button>
+            </div>
+
+            <!-- タスクリスト -->
+            <ul class="todo-list">
+              <li v-if="filteredTodos.length === 0" class="empty-state">
+                <span v-if="filter === 'all'">タスクがありません。追加してみましょう！</span>
+                <span v-else-if="filter === 'active'">未完了のタスクはありません</span>
+                <span v-else>完了済みのタスクはありません</span>
+              </li>
+
+              <li v-for="todo in filteredTodos"
+                  :key="todo.id"
+                  class="todo-item">
+                <input type="checkbox" v-model="todo.done">
+                <span class="todo-text" :class="{ done: todo.done }">
+                  {{ todo.text }}
+                </span>
+                <button class="todo-delete-btn" @click="removeTask(todo.id)">
+                  削除
+                </button>
+              </li>
+            </ul>
+
+            <!-- フッター -->
+            <div class="todo-footer" v-if="todos.length > 0">
+              <span>ローカルストレージに自動保存中</span>
+              <button class="clear-btn"
+                      @click="clearDone"
+                      v-if="doneCount > 0">
+                完了済みを全削除 ({{ doneCount }})
+              </button>
+            </div>
+          </div>
+
+        </div><!-- /#todo-app -->
+      </div>
+    </div>
+
+    <!-- チャレンジ課題 -->
+    <div class="problem">
+      <h3>チャレンジ課題</h3>
+      <p>TODOアプリを拡張してみましょう。難易度順に挑戦してください。</p>
+
+      <div class="challenge-box">
+        <strong>チャレンジ課題一覧</strong>
+        <ul class="challenge-list">
+          <li>
+            <span class="challenge-num">1</span>
+            <div>
+              <strong>タスクに優先度を追加する</strong><br>
+              <small>タスクに「高 / 中 / 低」の優先度フィールドを追加し、
+              追加フォームにセレクトボックスを設ける。
+              表示時に優先度を色分けする（高=赤、中=橙、低=青など）。</small>
+            </div>
+          </li>
+          <li>
+            <span class="challenge-num">2</span>
+            <div>
+              <strong>優先度でフィルタリングできるようにする</strong><br>
+              <small>computed を使って、優先度で絞り込める機能を追加する。
+              フィルターボタンに優先度ボタンを追加し、
+              <code>filteredTodos</code> に優先度フィルタの条件を組み込む。</small>
+            </div>
+          </li>
+          <li>
+            <span class="challenge-num">3</span>
+            <div>
+              <strong>タスクの編集機能を追加する</strong><br>
+              <small>各タスクに「編集」ボタンを追加。
+              クリックするとタスクのテキストがインライン編集できる input に変わり、
+              Enterまたはフォーカス離脱で確定する。
+              <code>v-if</code> で表示と編集を切り替える。</small>
+            </div>
+          </li>
+          <li>
+            <span class="challenge-num">4</span>
+            <div>
+              <strong>ドラッグ &amp; ドロップで並び替え（上級）</strong><br>
+              <small>HTML5の Drag and Drop API を使って、
+              タスクの順番を入れ替えられるようにする。
+              vue の @dragstart / @dragover / @drop イベントを活用する。</small>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 完了メッセージ -->
+    <div class="completion-banner">
+      <h2>Vue.js 基礎コース終了！🎉</h2>
+      <p>
+        おめでとうございます！Day 1 から Day 7 まで、<br>
+        Vue.js の基本的な機能をすべて学びました。<br><br>
+        次のステップ: Vue Router でページ遷移 / Pinia で状態管理 /<br>
+        Vite + Vue.js で本格的なプロジェクト構成へ
+      </p>
+    </div>
+
+  </div><!-- /.right-panel -->
+
+</div><!-- /.container -->
+
+<!-- Vue.js CDN -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+  Vue.createApp({
+    data() {
+      // ローカルストレージから保存済みタスクを復元する
+      const saved = localStorage.getItem('vue-todos')
+      const savedId = parseInt(localStorage.getItem('vue-todos-nextId') || '1', 10)
+      return {
+        newTask: '',
+        filter: 'all',
+        nextId: savedId,
+        todos: saved ? JSON.parse(saved) : [
+          { id: 1, text: 'Day 7 のTODOアプリを動かしてみる', done: true },
+          { id: 2, text: 'チャレンジ課題に挑戦する', done: false },
+          { id: 3, text: 'Vue Routerを学ぶ', done: false }
+        ]
+      }
+    },
+
+    computed: {
+      // フィルター条件に応じたタスク一覧を返す
+      filteredTodos() {
+        if (this.filter === 'active') {
+          return this.todos.filter(t => !t.done)
+        } else if (this.filter === 'done') {
+          return this.todos.filter(t => t.done)
+        }
+        return this.todos
+      },
+      // 未完了タスクの件数
+      activeCount() {
+        return this.todos.filter(t => !t.done).length
+      },
+      // 完了済みタスクの件数
+      doneCount() {
+        return this.todos.filter(t => t.done).length
+      }
+    },
+
+    methods: {
+      // タスクを追加する
+      addTask() {
+        if (!this.newTask.trim()) return
+        this.todos.push({
+          id: this.nextId++,
+          text: this.newTask.trim(),
+          done: false
+        })
+        this.newTask = ''
+      },
+      // 指定IDのタスクを削除する
+      removeTask(id) {
+        this.todos = this.todos.filter(t => t.id !== id)
+      },
+      // 完了済みタスクをすべて削除する
+      clearDone() {
+        this.todos = this.todos.filter(t => !t.done)
+      }
+    },
+
+    watch: {
+      // todos が変化したらローカルストレージに保存する
+      todos: {
+        handler(newVal) {
+          localStorage.setItem('vue-todos', JSON.stringify(newVal))
+        },
+        deep: true  // オブジェクト内部の変化（done の変更など）も検知する
+      },
+      // nextId も保存する
+      nextId(val) {
+        localStorage.setItem('vue-todos-nextId', String(val))
+      }
+    }
+  }).mount('#todo-app')
+</script>
+
+</body>
+</html>

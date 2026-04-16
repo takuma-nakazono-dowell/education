@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 3: イベント処理 | Vue.js 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #42b883; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #35495e; border-bottom: 2px solid #42b883; padding-bottom: 10px; }
+    h3 { color: #42b883; margin-top: 25px; }
+    .code-block { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; }
+    .code-block .comment { color: #78909c; }
+    .code-block .tag { color: #82b1ff; }
+    .code-block .attr { color: #c3e88d; }
+    .code-block .value { color: #f78c6c; }
+    .code-block .keyword { color: #82b1ff; }
+    .code-block .string { color: #c3e88d; }
+    .point-box { background: #e8f5e9; border-left: 4px solid #42b883; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #1b5e20; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .demo-area { background: #fafafa; border: 2px solid #42b883; border-radius: 8px; padding: 20px; margin: 15px 0; }
+    .demo-area label { font-weight: bold; color: #35495e; margin-right: 10px; }
+    .demo-area input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .demo-area button { padding: 8px 16px; background: #42b883; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+    .demo-area button:hover { background: #35a371; }
+    .demo-output { margin-top: 10px; padding: 10px; background: white; border-radius: 4px; min-height: 30px; border: 1px solid #ddd; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: #42b883; font-weight: bold; padding: 8px 12px; background: #e8f5e9; border-radius: 4px; }
+    summary:hover { background: #c8e6c9; }
+    details > div { background: #f9fbe7; border: 1px solid #c8e6c9; padding: 15px; border-radius: 0 0 8px 8px; margin-top: 4px; }
+    /* イベント修飾子リスト */
+    .modifier-list { list-style: none; padding: 0; margin: 10px 0; }
+    .modifier-list li { padding: 6px 10px; border-bottom: 1px solid #eee; }
+    .modifier-list li:last-child { border-bottom: none; }
+    .modifier-list code { background: #263238; color: #c3e88d; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Day 3: イベント処理</h1>
+  <div class="nav">
+    <a href="day2-data-binding.html">← 前へ: データバインディング</a>
+    <a href="index.html">トップ</a>
+    <a href="day4-conditions-loops.html">次へ: 条件とリスト →</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明 -->
+  <div class="left-panel">
+    <h2>イベント処理</h2>
+
+    <p>
+      ユーザーのクリックやキー入力などの操作に反応する処理を<strong>イベント処理</strong>と呼びます。
+      Vue.jsでは <code>v-on</code> ディレクティブ（または <code>@</code> の短縮形）を使います。
+    </p>
+
+    <h3>v-on:click → @click</h3>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- v-on を使った書き方 --&gt;</span>
+<span class="tag">&lt;button</span> <span class="attr">v-on:click</span>=<span class="value">"count++"</span><span class="tag">&gt;</span>増やす<span class="tag">&lt;/button&gt;</span>
+
+<span class="comment">&lt;!-- @ を使った短縮記法（こちらをよく使う）--&gt;</span>
+<span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="value">"count++"</span><span class="tag">&gt;</span>増やす<span class="tag">&lt;/button&gt;</span>
+
+<span class="comment">&lt;!-- メソッドを呼び出す場合 --&gt;</span>
+<span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="value">"increment"</span><span class="tag">&gt;</span>増やす<span class="tag">&lt;/button&gt;</span>
+    </div>
+
+    <h3>methods オプションでメソッドを定義</h3>
+
+    <p>複雑な処理は <code>methods</code> にまとめて書きます。</p>
+
+    <div class="code-block">
+Vue.createApp({
+  <span class="keyword">data</span>() {
+    <span class="keyword">return</span> { count: 0 }
+  },
+  methods: {
+    <span class="comment">// this でデータにアクセスできる</span>
+    increment() {
+      <span class="keyword">this</span>.count++
+    },
+    decrement() {
+      <span class="keyword">if</span> (<span class="keyword">this</span>.count > 0) <span class="keyword">this</span>.count--
+    },
+    reset() {
+      <span class="keyword">this</span>.count = 0
+    }
+  }
+}).mount(<span class="string">'#app'</span>)
+    </div>
+
+    <div class="point-box">
+      <strong>this とは？</strong><br>
+      <code>methods</code> の中で <code>this</code> を使うと、
+      <code>data()</code> で定義したデータや他のメソッドにアクセスできます。
+      <code>this.count</code> で count データを参照・変更できます。
+    </div>
+
+    <h3>イベントオブジェクト $event</h3>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- $event でイベントオブジェクトを受け取る --&gt;</span>
+<span class="tag">&lt;input</span> <span class="attr">@input</span>=<span class="value">"onInput($event)"</span><span class="tag">&gt;</span>
+
+methods: {
+  onInput(event) {
+    <span class="comment">// event.target.value で入力値を取得</span>
+    console.log(event.target.value)
+  }
+}
+
+<span class="comment">&lt;!-- 引数なしの場合は自動で渡される --&gt;</span>
+<span class="tag">&lt;input</span> <span class="attr">@input</span>=<span class="value">"onInput"</span><span class="tag">&gt;</span>
+<span class="comment">// ↑ この場合 onInput(event) の event に自動で入る</span>
+    </div>
+
+    <h3>@input でリアルタイム入力検知</h3>
+
+    <div class="code-block">
+<span class="tag">&lt;input</span> <span class="attr">@input</span>=<span class="value">"text = $event.target.value"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;p&gt;</span>文字数: {{ text.length }}<span class="tag">&lt;/p&gt;</span>
+
+<span class="comment">&lt;!-- v-model を使えばもっとシンプルに --&gt;</span>
+<span class="tag">&lt;input</span> <span class="attr">v-model</span>=<span class="value">"text"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;p&gt;</span>文字数: {{ text.length }}<span class="tag">&lt;/p&gt;</span>
+    </div>
+
+    <h3>@submit.prevent でフォーム送信防止</h3>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- .prevent は event.preventDefault() と同じ --&gt;</span>
+<span class="tag">&lt;form</span> <span class="attr">@submit.prevent</span>=<span class="value">"handleSubmit"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;input</span> <span class="attr">v-model</span>=<span class="value">"name"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"submit"</span><span class="tag">&gt;</span>送信<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span>
+    </div>
+
+    <h3>キー修飾子</h3>
+
+    <ul class="modifier-list">
+      <li><code>@keyup.enter</code> — Enterキーを離したとき</li>
+      <li><code>@keyup.esc</code> — Escキーを離したとき</li>
+      <li><code>@keydown.tab</code> — Tabキーを押したとき</li>
+      <li><code>@click.stop</code> — クリックイベントの伝播を停止</li>
+      <li><code>@click.prevent</code> — デフォルト動作を防止</li>
+      <li><code>@click.once</code> — 1回だけ発火する</li>
+    </ul>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- Enterキーで検索を実行 --&gt;</span>
+<span class="tag">&lt;input</span> <span class="attr">v-model</span>=<span class="value">"searchText"</span>
+       <span class="attr">@keyup.enter</span>=<span class="value">"search"</span>
+       <span class="attr">placeholder</span>=<span class="value">"Enterで検索"</span><span class="tag">&gt;</span>
+    </div>
+
+  </div><!-- /.left-panel -->
+
+  <!-- 右パネル: デモ + 練習問題 -->
+  <div class="right-panel">
+    <h2>動くデモ &amp; 練習問題</h2>
+
+    <!-- デモ1: カウンター -->
+    <div class="problem">
+      <h3>デモ 1: カウンター（+ボタン / −ボタン）</h3>
+      <p>@click でクリックイベントを処理し、メソッドを呼び出しています。</p>
+
+      <div class="demo-area">
+        <div id="demo1">
+          <div style="text-align:center; padding:10px;">
+            <div style="font-size:3em; font-weight:bold; color:#42b883; margin-bottom:15px;">
+              {{ count }}
+            </div>
+            <button @click="decrement"
+                    style="padding:10px 24px; font-size:1.2em; background:#e53935; color:white; border:none; border-radius:4px; cursor:pointer; margin-right:10px;">
+              −
+            </button>
+            <button @click="reset"
+                    style="padding:10px 16px; font-size:1em; background:#888; color:white; border:none; border-radius:4px; cursor:pointer; margin-right:10px;">
+              リセット
+            </button>
+            <button @click="increment"
+                    style="padding:10px 24px; font-size:1.2em; background:#42b883; color:white; border:none; border-radius:4px; cursor:pointer;">
+              ＋
+            </button>
+          </div>
+          <p style="text-align:center; font-size:0.85em; color:#888; margin:10px 0 0;">
+            ※ 0未満にはなりません（decrement内でチェック）
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- デモ2: 文字数カウント -->
+    <div class="problem">
+      <h3>デモ 2: リアルタイム文字数カウント</h3>
+      <p>@input イベントで文字入力のたびに文字数を更新します。</p>
+
+      <div class="demo-area">
+        <div id="demo2">
+          <textarea v-model="text"
+                    placeholder="ここにテキストを入力してください..."
+                    style="width:100%; height:80px; padding:10px; border:1px solid #ddd; border-radius:4px; font-size:14px; resize:vertical;"
+                    :style="{ borderColor: text.length > maxLen ? '#f44336' : '#ddd' }">
+          </textarea>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <span style="font-size:0.9em; color:#888;">
+              {{ text.length }} / {{ maxLen }} 文字
+            </span>
+            <span v-if="text.length > maxLen"
+                  style="color:#f44336; font-size:0.9em; font-weight:bold;">
+              ⚠ 文字数オーバー！
+            </span>
+            <span v-else-if="text.length > 0"
+                  style="color:#42b883; font-size:0.9em;">
+              OK
+            </span>
+          </div>
+          <div style="margin-top:8px; background:white; border-radius:4px; padding:8px; border:1px solid #eee; font-size:0.85em; color:#666;">
+            プレビュー: {{ text || '（未入力）' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- デモ3: フォーム送信 -->
+    <div class="problem">
+      <h3>デモ 3: フォーム送信（@submit.prevent）</h3>
+      <p>名前を入力してEnterキーまたは「ようこそ！」ボタンを押してみましょう。</p>
+
+      <div class="demo-area">
+        <div id="demo3">
+          <form @submit.prevent="handleSubmit">
+            <div style="display:flex; gap:10px; align-items:center;">
+              <input v-model="inputName"
+                     placeholder="名前を入力（Enterでも可）"
+                     @keyup.enter="handleSubmit"
+                     style="flex:1; padding:8px 12px; border:1px solid #ddd; border-radius:4px; font-size:14px;">
+              <button type="submit"
+                      style="padding:8px 16px; background:#42b883; color:white; border:none; border-radius:4px; cursor:pointer; white-space:nowrap;">
+                ようこそ！
+              </button>
+            </div>
+          </form>
+          <div v-if="welcomeMsg"
+               style="margin-top:15px; background:#e8f5e9; border:2px solid #42b883; border-radius:8px; padding:15px; text-align:center; font-size:1.1em; font-weight:bold; color:#2e7d32;">
+            {{ welcomeMsg }}
+          </div>
+          <div v-if="history.length > 0" style="margin-top:10px;">
+            <p style="font-size:0.85em; color:#888; margin:0 0 5px;">送信履歴:</p>
+            <ul style="margin:0; padding-left:20px; font-size:0.9em; color:#666;">
+              <li v-for="item in history" :key="item">{{ item }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 練習問題1 -->
+    <div class="problem">
+      <h3>問題 1: @click の書き方</h3>
+      <div class="problem-desc">
+        ボタンをクリックしたとき <code>sayHello</code> メソッドを呼ぶコードで、
+        正しい短縮記法はどれですか？
+        <div class="code-block" style="font-size:13px;">
+<span class="comment">// A</span> &lt;button onclick="sayHello"&gt;
+<span class="comment">// B</span> &lt;button v-on:click="sayHello"&gt;
+<span class="comment">// C</span> &lt;button @click="sayHello"&gt;
+<span class="comment">// D</span> BとCは同じ意味で両方正しい
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <strong>D: B と C の両方が正しい</strong><br>
+          <code>v-on:click</code> と <code>@click</code> は同じ意味です。
+          Aの <code>onclick</code>（VanillaJS）はVueアプリ内でも使えますが、
+          Vueのリアクティブ機能と連携しないため使いません。
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題2 -->
+    <div class="problem">
+      <h3>問題 2: methods の this</h3>
+      <div class="problem-desc">
+        以下のコードで <code>this.message</code> はどのデータを参照しますか？
+        <div class="code-block" style="font-size:13px;">
+Vue.createApp({
+  data() {
+    return {
+      message: <span class="string">'Hello!'</span>,
+      count: 0
+    }
+  },
+  methods: {
+    showMessage() {
+      alert(<span class="keyword">this</span>.message) <span class="comment">// ← これは？</span>
+    }
+  }
+})
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <code>this.message</code> は <code>data()</code> で定義した
+          <strong>"Hello!"</strong> を参照します。<br><br>
+          methods の中では <code>this</code> がVueインスタンスを指すため、
+          <code>this.データ名</code> でデータに、
+          <code>this.メソッド名()</code> で他のメソッドにアクセスできます。
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題3 -->
+    <div class="problem">
+      <h3>問題 3: 修飾子の使い方</h3>
+      <div class="problem-desc">
+        フォームをサブミットしたとき、ページのリロードを防ぎながら
+        <code>onSubmit</code> メソッドを呼ぶ正しい書き方はどれですか？
+        <div class="code-block" style="font-size:13px;">
+<span class="comment">// A</span> &lt;form @submit="onSubmit"&gt;
+<span class="comment">// B</span> &lt;form @submit.prevent="onSubmit"&gt;
+<span class="comment">// C</span> &lt;form @submit.stop="onSubmit"&gt;
+<span class="comment">// D</span> &lt;form v-on:submit.prevent="onSubmit"&gt;
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <strong>B と D の両方が正しい（短縮形の違いだけ）</strong><br>
+          <code>.prevent</code> 修飾子は <code>event.preventDefault()</code> を自動で呼んでくれます。
+          フォームのデフォルト動作（ページリロード）を防ぎながら、
+          Vueのメソッドで処理できます。<br><br>
+          Aは修飾子なしなのでページがリロードされてしまいます。
+          Cの <code>.stop</code> はイベントの伝播を止めるものでフォーム送信防止には使いません。
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題4 -->
+    <div class="problem">
+      <h3>問題 4: デモ改造チャレンジ</h3>
+      <div class="problem-desc">
+        デモ1のカウンターに「×2」ボタンを追加するには、どのようなコードを書けばよいですか？
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <strong>HTMLに追加:</strong>
+          <div class="code-block" style="font-size:13px;">
+&lt;button <span class="attr">@click</span>=<span class="value">"double"</span>&gt;×2&lt;/button&gt;
+          </div>
+          <strong>methods に追加:</strong>
+          <div class="code-block" style="font-size:13px;">
+double() {
+  <span class="keyword">this</span>.count *= 2
+}
+          </div>
+          <code>this.count *= 2</code> は <code>this.count = this.count * 2</code> と同じ意味です。
+          methodsに新しいメソッドを追加し、ボタンの@clickで呼び出すだけです。
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /.right-panel -->
+
+</div><!-- /.container -->
+
+<!-- Vue.js CDN -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+  // デモ1: カウンター
+  Vue.createApp({
+    data() {
+      return { count: 0 }
+    },
+    methods: {
+      increment() { this.count++ },
+      decrement() { if (this.count > 0) this.count-- },
+      reset() { this.count = 0 }
+    }
+  }).mount('#demo1')
+
+  // デモ2: 文字数カウント
+  Vue.createApp({
+    data() {
+      return {
+        text: '',
+        maxLen: 100
+      }
+    }
+  }).mount('#demo2')
+
+  // デモ3: フォーム送信
+  Vue.createApp({
+    data() {
+      return {
+        inputName: '',
+        welcomeMsg: '',
+        history: []
+      }
+    },
+    methods: {
+      handleSubmit() {
+        if (!this.inputName.trim()) return
+        this.welcomeMsg = `${this.inputName} さん、ようこそ！`
+        this.history.push(this.inputName)
+        this.inputName = ''
+      }
+    }
+  }).mount('#demo3')
+</script>
+
+</body>
+</html>

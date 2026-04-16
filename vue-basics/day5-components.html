@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 5: コンポーネント | Vue.js 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #42b883; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #35495e; border-bottom: 2px solid #42b883; padding-bottom: 10px; }
+    h3 { color: #42b883; margin-top: 25px; }
+    .code-block { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; }
+    .code-block .comment { color: #78909c; }
+    .code-block .tag { color: #82b1ff; }
+    .code-block .attr { color: #c3e88d; }
+    .code-block .value { color: #f78c6c; }
+    .code-block .keyword { color: #82b1ff; }
+    .code-block .string { color: #c3e88d; }
+    .point-box { background: #e8f5e9; border-left: 4px solid #42b883; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #1b5e20; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .demo-area { background: #fafafa; border: 2px solid #42b883; border-radius: 8px; padding: 20px; margin: 15px 0; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: #42b883; font-weight: bold; padding: 8px 12px; background: #e8f5e9; border-radius: 4px; }
+    summary:hover { background: #c8e6c9; }
+    details > div { background: #f9fbe7; border: 1px solid #c8e6c9; padding: 15px; border-radius: 0 0 8px 8px; margin-top: 4px; }
+    /* コンポーネントの図 */
+    .component-diagram { background: #f5f5f5; border-radius: 8px; padding: 20px; margin: 15px 0; text-align: center; font-size: 0.9em; }
+    .comp-box { display: inline-block; background: #e8f5e9; border: 2px solid #42b883; border-radius: 8px; padding: 10px 20px; margin: 5px; }
+    .comp-arrow { color: #42b883; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Day 5: コンポーネント</h1>
+  <div class="nav">
+    <a href="day4-conditions-loops.html">← 前へ: 条件とリスト</a>
+    <a href="index.html">トップ</a>
+    <a href="day6-computed.html">次へ: 算出プロパティとウォッチャー →</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明 -->
+  <div class="left-panel">
+    <h2>コンポーネントとは？</h2>
+
+    <p>
+      コンポーネントとは、<strong>UIを再利用可能な部品に分割する</strong>仕組みです。
+      同じようなHTMLを何度も書く代わりに、コンポーネントとして定義して使い回せます。
+    </p>
+
+    <div class="component-diagram">
+      <div style="margin-bottom:10px; font-weight:bold; color:#35495e;">親コンポーネント（Vueアプリ）</div>
+      <div>
+        <div class="comp-box">user-card<br><small>name="田中"</small></div>
+        <div class="comp-box">user-card<br><small>name="山田"</small></div>
+        <div class="comp-box">user-card<br><small>name="佐藤"</small></div>
+      </div>
+      <div style="font-size:0.85em; color:#888; margin-top:8px;">
+        同じコンポーネントを、異なるデータ（props）で使い回す
+      </div>
+    </div>
+
+    <div class="point-box">
+      <strong>コンポーネントのメリット</strong><br>
+      ・同じUIを何度も書かなくていい（再利用性）<br>
+      ・コードをパーツに分けて管理しやすくなる（保守性）<br>
+      ・大きなプロジェクトでも構造を整理できる
+    </div>
+
+    <h3>app.component() でグローバルコンポーネントを定義</h3>
+
+    <div class="code-block">
+<span class="keyword">const</span> app = Vue.createApp({ ... })
+
+<span class="comment">// コンポーネントの定義</span>
+app.component(<span class="string">'user-card'</span>, {
+  <span class="comment">// props: 親から受け取るデータを宣言する</span>
+  props: [<span class="string">'name'</span>, <span class="string">'age'</span>],
+  <span class="comment">// template: このコンポーネントのHTML</span>
+  template: <span class="string">`
+    &lt;div class="card"&gt;
+      &lt;h3&gt;{{ name }}&lt;/h3&gt;
+      &lt;p&gt;{{ age }}歳&lt;/p&gt;
+    &lt;/div&gt;
+  `</span>
+})
+
+app.mount(<span class="string">'#app'</span>)
+    </div>
+
+    <h3>コンポーネントを使う（HTML側）</h3>
+
+    <div class="code-block">
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="value">"app"</span><span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- コンポーネントタグを使う --&gt;</span>
+  <span class="tag">&lt;user-card</span> <span class="attr">name</span>=<span class="value">"田中太郎"</span> <span class="attr">age</span>=<span class="value">"25"</span><span class="tag">&gt;&lt;/user-card&gt;</span>
+  <span class="tag">&lt;user-card</span> <span class="attr">name</span>=<span class="value">"山田花子"</span> <span class="attr">age</span>=<span class="value">"22"</span><span class="tag">&gt;&lt;/user-card&gt;</span>
+
+  <span class="comment">&lt;!-- 動的なデータを渡す場合は v-bind を使う --&gt;</span>
+  <span class="tag">&lt;user-card</span>
+    <span class="attr">v-for</span>=<span class="value">"user in users"</span>
+    <span class="attr">:key</span>=<span class="value">"user.id"</span>
+    <span class="attr">:name</span>=<span class="value">"user.name"</span>
+    <span class="attr">:age</span>=<span class="value">"user.age"</span>
+  <span class="tag">&gt;&lt;/user-card&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+    </div>
+
+    <h3>props で親から子へデータを渡す</h3>
+
+    <div class="code-block">
+<span class="comment">// 型定義付きのprops（推奨）</span>
+props: {
+  name: {
+    type: String,    <span class="comment">// 型チェック</span>
+    required: <span class="keyword">true</span>   <span class="comment">// 必須かどうか</span>
+  },
+  age: {
+    type: Number,
+    default: 0       <span class="comment">// デフォルト値</span>
+  },
+  isAdmin: {
+    type: Boolean,
+    default: <span class="keyword">false</span>
+  }
+}
+    </div>
+
+    <div class="point-box">
+      <strong>props の流れ（一方向）</strong><br>
+      親 → 子 への一方向のデータフローです。
+      子コンポーネントは受け取ったpropsを<strong>直接変更してはいけません</strong>。
+      変更が必要な場合は $emit でイベントを発火して親に通知します。
+    </div>
+
+    <h3>$emit でカスタムイベントを発火（子→親）</h3>
+
+    <div class="code-block">
+<span class="comment">// 子コンポーネント</span>
+app.component(<span class="string">'like-button'</span>, {
+  props: [<span class="string">'label'</span>],
+  data() {
+    <span class="keyword">return</span> { count: 0 }
+  },
+  methods: {
+    handleClick() {
+      <span class="keyword">this</span>.count++
+      <span class="comment">// 親に 'liked' イベントを発火（カウントを渡す）</span>
+      <span class="keyword">this</span>.$emit(<span class="string">'liked'</span>, <span class="keyword">this</span>.count)
+    }
+  },
+  template: <span class="string">`
+    &lt;button @click="handleClick"&gt;
+      ♡ {{ label }} ({{ count }})
+    &lt;/button&gt;
+  `</span>
+})
+
+<span class="comment">// 親側でイベントを受け取る</span>
+<span class="tag">&lt;like-button</span>
+  <span class="attr">label</span>=<span class="value">"いいね"</span>
+  <span class="attr">@liked</span>=<span class="value">"onLiked"</span>
+<span class="tag">&gt;&lt;/like-button&gt;</span>
+    </div>
+
+    <div class="warning-box">
+      <strong>命名規則: ケバブケース</strong><br>
+      コンポーネント名とカスタムイベント名はHTMLでは
+      <code>kebab-case</code>（ハイフン区切り）で書きます。<br>
+      例: <code>user-card</code>、<code>@liked</code>、<code>@item-selected</code>
+    </div>
+
+  </div><!-- /.left-panel -->
+
+  <!-- 右パネル: デモ + 練習問題 -->
+  <div class="right-panel">
+    <h2>動くデモ &amp; 練習問題</h2>
+
+    <!-- デモ1: user-cardコンポーネント -->
+    <div class="problem">
+      <h3>デモ 1: user-card コンポーネントで3人表示</h3>
+      <p>
+        <code>user-card</code> コンポーネントを定義して、
+        v-for で3人分表示しています。
+      </p>
+
+      <div class="demo-area">
+        <div id="demo1">
+          <user-card
+            v-for="user in users"
+            :key="user.id"
+            :name="user.name"
+            :role="user.role"
+            :avatar="user.avatar">
+          </user-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- デモ2: likeボタンコンポーネント -->
+    <div class="problem">
+      <h3>デモ 2: like-button コンポーネント（$emit で親に通知）</h3>
+      <p>
+        各ボタンが独立したカウントを持ちます。
+        クリックすると <code>$emit</code> で親コンポーネントにカウントを通知し、
+        親の「合計いいね数」を更新します。
+      </p>
+
+      <div class="demo-area">
+        <div id="demo2">
+          <p style="font-size:0.9em; color:#666; margin-top:0;">各記事にいいねしてみてください：</p>
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div v-for="post in posts" :key="post.id"
+                 style="background:white; border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid #eee;">
+              <span>{{ post.title }}</span>
+              <like-button :post-id="post.id" @liked="onLiked"></like-button>
+            </div>
+          </div>
+
+          <div style="margin-top:15px; background:#e8f5e9; border-radius:8px; padding:12px; text-align:center;">
+            合計いいね数: <strong style="font-size:1.3em; color:#2e7d32;">{{ totalLikes }}</strong> 件
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 練習問題1 -->
+    <div class="problem">
+      <h3>問題 1: props の受け渡し</h3>
+      <div class="problem-desc">
+        以下のコンポーネント定義で、HTMLから正しく props を渡している書き方はどれですか？
+        <div class="code-block" style="font-size:13px;">
+app.component(<span class="string">'product-card'</span>, {
+  props: [<span class="string">'title'</span>, <span class="string">'price'</span>],
+  template: <span class="string">`&lt;div&gt;{{ title }}: {{ price }}円&lt;/div&gt;`</span>
+})
+
+<span class="comment">// 使い方 A（静的文字列）</span>
+&lt;product-card title="りんご" price="150"&gt;&lt;/product-card&gt;
+
+<span class="comment">// 使い方 B（動的バインディング）</span>
+&lt;product-card :title="product.name" :price="product.price"&gt;&lt;/product-card&gt;
+
+<span class="comment">// 使い方 C（{{ }} をHTML属性に使う）</span>
+&lt;product-card title="{{ product.name }}" price="{{ product.price }}"&gt;&lt;/product-card&gt;
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <strong>A と B の両方が正しい（Cは間違い）</strong><br><br>
+          <strong>A</strong>: 固定値を渡す場合は属性にそのまま書けます。ただし数値も文字列になります。<br>
+          <strong>B</strong>: <code>:title</code> でデータを動的に渡します。数値は数値として渡せます。<br>
+          <strong>C</strong>: HTML属性内で <code>{{ }}</code> は使えません。必ず <code>:</code>（v-bind）を使います。
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題2 -->
+    <div class="problem">
+      <h3>問題 2: $emit の流れ</h3>
+      <div class="problem-desc">
+        子コンポーネントが <code>this.$emit('delete', item.id)</code> を実行したとき、
+        親側でこのイベントを受け取るには何と書きますか？
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <div class="code-block" style="font-size:13px; background:#1a1a2e;">
+<span class="comment">&lt;!-- 親テンプレート --&gt;</span>
+&lt;my-component <span class="attr">@delete</span>=<span class="value">"handleDelete"</span>&gt;&lt;/my-component&gt;
+
+<span class="comment">// 親の methods</span>
+handleDelete(itemId) {
+  <span class="comment">// itemId に子から渡された item.id が入る</span>
+  console.log('削除:', itemId)
+}
+          </div>
+          イベント名 <code>'delete'</code> を <code>@delete</code> でリッスンし、
+          メソッドで受け取ります。
+          <code>$emit</code> の第2引数以降がメソッドの引数として渡されます。
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題3 -->
+    <div class="problem">
+      <h3>問題 3: props の型定義の使い分け</h3>
+      <div class="problem-desc">
+        以下のprops定義の違いを説明してください。
+        <div class="code-block" style="font-size:13px;">
+<span class="comment">// 書き方 A（配列形式）</span>
+props: [<span class="string">'name'</span>, <span class="string">'age'</span>]
+
+<span class="comment">// 書き方 B（オブジェクト形式）</span>
+props: {
+  name: { type: String, required: <span class="keyword">true</span> },
+  age: { type: Number, default: 0 }
+}
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <strong>書き方 A（配列形式）</strong>: シンプルだが型チェックなし。
+          プロトタイプや小規模では問題ないが、間違った型のデータを渡しても警告が出ない。<br><br>
+          <strong>書き方 B（オブジェクト形式）</strong>: 型・必須/任意・デフォルト値を指定できる。
+          間違った型のpropsを渡したとき開発者コンソールに警告を出してくれる。<br><br>
+          <strong>推奨は B</strong>。チームで開発する場合や、中規模以上のプロジェクトでは型定義付きを使いましょう。
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /.right-panel -->
+
+</div><!-- /.container -->
+
+<!-- Vue.js CDN -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+  /* ============================================
+     デモ1: user-card コンポーネント
+  ============================================ */
+  const app1 = Vue.createApp({
+    data() {
+      return {
+        users: [
+          { id: 1, name: '田中 太郎', role: 'エンジニア', avatar: '👨‍💻' },
+          { id: 2, name: '山田 花子', role: 'デザイナー', avatar: '👩‍🎨' },
+          { id: 3, name: '佐藤 次郎', role: 'ディレクター', avatar: '👨‍💼' }
+        ]
+      }
+    }
+  })
+
+  // user-card コンポーネントの定義
+  app1.component('user-card', {
+    props: {
+      name: { type: String, required: true },
+      role: { type: String, default: 'メンバー' },
+      avatar: { type: String, default: '👤' }
+    },
+    template: `
+      <div style="background:white; border-radius:10px; padding:15px; margin-bottom:10px;
+                  border:1px solid #e0e0e0; display:flex; align-items:center; gap:15px;
+                  box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="font-size:2em;">{{ avatar }}</div>
+        <div>
+          <div style="font-weight:bold; color:#35495e;">{{ name }}</div>
+          <div style="font-size:0.85em; color:#42b883;">{{ role }}</div>
+        </div>
+      </div>
+    `
+  })
+
+  app1.mount('#demo1')
+
+  /* ============================================
+     デモ2: like-button コンポーネント（$emit）
+  ============================================ */
+  const app2 = Vue.createApp({
+    data() {
+      return {
+        totalLikes: 0,
+        posts: [
+          { id: 1, title: 'Vue.jsを学び始めた話' },
+          { id: 2, title: '初めてのコンポーネント設計' },
+          { id: 3, title: 'propsと$emitの理解' }
+        ]
+      }
+    },
+    methods: {
+      // 子コンポーネントから 'liked' イベントを受け取る
+      onLiked() {
+        this.totalLikes++
+      }
+    }
+  })
+
+  // like-button コンポーネントの定義
+  app2.component('like-button', {
+    props: ['postId'],
+    data() {
+      return { count: 0 }
+    },
+    methods: {
+      handleClick() {
+        this.count++
+        // 親に 'liked' イベントを発火する
+        this.$emit('liked', this.postId)
+      }
+    },
+    template: `
+      <button @click="handleClick"
+              style="padding:6px 14px; border:none; border-radius:20px; cursor:pointer;
+                     font-size:0.9em; transition:all 0.2s;"
+              :style="{ background: count > 0 ? '#e8f5e9' : '#f5f5f5',
+                        color: count > 0 ? '#42b883' : '#888',
+                        border: count > 0 ? '1px solid #42b883' : '1px solid #ddd' }">
+        ♡ いいね {{ count > 0 ? '(' + count + ')' : '' }}
+      </button>
+    `
+  })
+
+  app2.mount('#demo2')
+</script>
+
+</body>
+</html>

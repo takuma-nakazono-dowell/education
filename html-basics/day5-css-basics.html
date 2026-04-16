@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 5: CSS 基礎 - HTML基礎</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #2196F3;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #1565c0; border-bottom: 2px solid #2196F3; padding-bottom: 10px; }
+        h3 { color: #2196F3; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .comment { color: #78909c; }
+        .code-block .tag { color: #82b1ff; }
+        .code-block .attr { color: #c3e88d; }
+        .code-block .value { color: #f78c6c; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        .warning-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box strong { color: #c62828; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #2196F3; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #1976D2; }
+        .preview-area {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 5: CSS 基礎</h1>
+        <div class="nav">
+            <a href="day4-forms.html">← 前へ: フォーム</a>
+            <a href="day6-layout.html">次へ: レイアウト →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 左パネル：説明 -->
+        <div class="left-panel">
+            <h2>CSSとは</h2>
+            <p>CSS（Cascading Style Sheets）はHTMLの見た目を定義する言語です。色・フォント・余白・レイアウトなどを指定できます。</p>
+
+            <h3>CSSの書き方 3種類</h3>
+
+            <div class="code-block">
+<span class="comment">/* 1. インライン: タグに直接書く（優先度が高いが管理しにくい）*/</span>
+<span class="tag">&lt;p</span> <span class="attr">style</span>=<span class="value">"color: red; font-size: 20px;"</span><span class="tag">&gt;</span>テキスト<span class="tag">&lt;/p&gt;</span>
+
+<span class="comment">/* 2. styleタグ: HTML内のheadに書く */</span>
+<span class="tag">&lt;style&gt;</span>
+  p { color: blue; }
+<span class="tag">&lt;/style&gt;</span>
+
+<span class="comment">/* 3. 外部ファイル: .cssファイルを読み込む（最も推奨）*/</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"stylesheet"</span> <span class="attr">href</span>=<span class="value">"style.css"</span><span class="tag">&gt;</span>
+            </div>
+
+            <h3>セレクタの種類</h3>
+
+            <div class="code-block">
+<span class="comment">/* 要素セレクタ: タグ名で指定 */</span>
+p { color: black; }
+
+<span class="comment">/* クラスセレクタ: .クラス名 */</span>
+.highlight { background: yellow; }
+
+<span class="comment">/* IDセレクタ: #ID名（ページ内で1つ）*/</span>
+#header { background: navy; }
+
+<span class="comment">/* 子孫セレクタ: 半角スペースで区切る */</span>
+.card p { font-size: 14px; }
+
+<span class="comment">/* 複数指定: カンマで区切る */</span>
+h1, h2 { color: #333; }
+            </div>
+
+            <h3>テキスト関連プロパティ</h3>
+
+            <div class="code-block">
+p {
+  color: #333;              <span class="comment">/* 文字色 */</span>
+  font-size: 16px;          <span class="comment">/* 文字サイズ */</span>
+  font-weight: bold;        <span class="comment">/* 太字 */</span>
+  font-family: 'Meiryo';   <span class="comment">/* フォント */</span>
+  text-align: center;       <span class="comment">/* 中央揃え */</span>
+  line-height: 1.8;         <span class="comment">/* 行間 */</span>
+  text-decoration: none;    <span class="comment">/* 下線なし */</span>
+}
+            </div>
+
+            <h3>背景プロパティ</h3>
+
+            <div class="code-block">
+div {
+  background-color: #e3f2fd;        <span class="comment">/* 背景色 */</span>
+  background-image: url('bg.jpg');  <span class="comment">/* 背景画像 */</span>
+  background-size: cover;           <span class="comment">/* 背景サイズ */</span>
+}
+            </div>
+
+            <h3>ボックスモデル</h3>
+            <p>すべての要素はボックス（箱）として扱われます。中から順に content → padding → border → margin です。</p>
+
+            <div class="code-block">
+.box {
+  width: 200px;            <span class="comment">/* コンテンツの幅 */</span>
+  height: 100px;           <span class="comment">/* コンテンツの高さ */</span>
+  padding: 15px;           <span class="comment">/* 内側の余白 */</span>
+  border: 2px solid blue;  <span class="comment">/* 境界線 */</span>
+  margin: 20px;            <span class="comment">/* 外側の余白 */</span>
+}
+
+<span class="comment">/* borderの個別指定 */</span>
+.box {
+  border-width: 2px;
+  border-style: solid;     <span class="comment">/* solid/dashed/dotted */</span>
+  border-color: #2196F3;
+  border-radius: 8px;      <span class="comment">/* 角を丸める */</span>
+}
+            </div>
+
+            <div class="point-box">
+                <strong>box-sizing: border-box</strong><br>
+                通常、paddingとborderはwidthに加算されます。<br>
+                <code>box-sizing: border-box</code> を設定すると、widthにpadding/borderを含めて計算できます。
+            </div>
+        </div>
+
+        <!-- 右パネル：練習問題 -->
+        <div class="right-panel">
+            <h2>練習問題</h2>
+
+            <div class="problem">
+                <h3>問1: styleタグでpタグをスタイリング</h3>
+                <div class="problem-desc">
+                    <p>styleタグを使って、pタグにcolor（赤）とfont-size（20px）を設定してください。</p>
+                </div>
+                <textarea id="code1">&lt;!-- styleタグでpタグをスタイリングしてください --&gt;
+</textarea>
+                <br>
+                <button class="btn" onclick="showPreview('code1', 'preview1')">プレビュー</button>
+                <div class="preview-area" id="preview1"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問2: クラスセレクタで2種類のスタイル</h3>
+                <div class="problem-desc">
+                    <p>2つの異なるクラスを定義して、それぞれ別のpタグに適用してください。</p>
+                    <p>例: .info（青背景）と .warning（赤背景）</p>
+                </div>
+                <textarea id="code2">&lt;!-- クラスセレクタで2種類のスタイルを作ってください --&gt;
+</textarea>
+                <br>
+                <button class="btn" onclick="showPreview('code2', 'preview2')">プレビュー</button>
+                <div class="preview-area" id="preview2"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問3: ボックスにpadding・border・margin</h3>
+                <div class="problem-desc">
+                    <p>divにpadding・border・marginを設定して、箱らしいデザインにしてください。</p>
+                </div>
+                <textarea id="code3">&lt;!-- ボックスのスタイルを設定してください --&gt;
+</textarea>
+                <br>
+                <button class="btn" onclick="showPreview('code3', 'preview3')">プレビュー</button>
+                <div class="preview-area" id="preview3"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問4: カードデザインを作る</h3>
+                <div class="problem-desc">
+                    <p>背景色と文字色を組み合わせてカード風のデザインを作ってください。</p>
+                    <ul>
+                        <li>角丸（border-radius）</li>
+                        <li>影（box-shadow: 0 2px 8px rgba(0,0,0,0.1)）</li>
+                        <li>padding で内側に余白</li>
+                    </ul>
+                </div>
+                <textarea id="code4">&lt;!-- カードデザインを作ってください --&gt;
+</textarea>
+                <br>
+                <button class="btn" onclick="showPreview('code4', 'preview4')">プレビュー</button>
+                <div class="preview-area" id="preview4"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問5: スタイリングしたページを作る</h3>
+                <div class="problem-desc">
+                    <p>見出し・段落・ボタンをCSSでスタイリングした小さなページを作ってください。</p>
+                    <ul>
+                        <li>h1に色とborderを設定</li>
+                        <li>pにfont-sizeとline-heightを設定</li>
+                        <li>buttonに背景色・文字色・padding・border-radiusを設定</li>
+                    </ul>
+                </div>
+                <textarea id="code5" style="height: 180px;">&lt;!-- スタイリングしたページを作ってください --&gt;
+</textarea>
+                <br>
+                <button class="btn" onclick="showPreview('code5', 'preview5')">プレビュー</button>
+                <div class="preview-area" id="preview5"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* プレビュー表示: textareaのHTMLをそのままレンダリング */
+        function showPreview(codeId, previewId) {
+            const code = document.getElementById(codeId).value;
+            document.getElementById(previewId).innerHTML = code;
+        }
+    </script>
+</body>
+</html>

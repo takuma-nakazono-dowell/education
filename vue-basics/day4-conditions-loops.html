@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 4: 条件とリスト | Vue.js 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #42b883; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #35495e; border-bottom: 2px solid #42b883; padding-bottom: 10px; }
+    h3 { color: #42b883; margin-top: 25px; }
+    .code-block { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; }
+    .code-block .comment { color: #78909c; }
+    .code-block .tag { color: #82b1ff; }
+    .code-block .attr { color: #c3e88d; }
+    .code-block .value { color: #f78c6c; }
+    .code-block .keyword { color: #82b1ff; }
+    .code-block .string { color: #c3e88d; }
+    .point-box { background: #e8f5e9; border-left: 4px solid #42b883; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #1b5e20; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .demo-area { background: #fafafa; border: 2px solid #42b883; border-radius: 8px; padding: 20px; margin: 15px 0; }
+    .demo-area label { font-weight: bold; color: #35495e; margin-right: 10px; }
+    .demo-area input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .demo-area button { padding: 8px 16px; background: #42b883; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+    .demo-area button:hover { background: #35a371; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: #42b883; font-weight: bold; padding: 8px 12px; background: #e8f5e9; border-radius: 4px; }
+    summary:hover { background: #c8e6c9; }
+    details > div { background: #f9fbe7; border: 1px solid #c8e6c9; padding: 15px; border-radius: 0 0 8px 8px; margin-top: 4px; }
+    /* 比較表 */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+    .compare-table th { background: #35495e; color: white; padding: 10px; text-align: left; }
+    .compare-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+    .compare-table tr:nth-child(even) td { background: #f5f5f5; }
+    /* TODOリストスタイル */
+    .todo-item { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
+    .todo-item:last-child { border-bottom: none; }
+    .todo-done { text-decoration: line-through; color: #aaa; }
+    /* 商品リストスタイル */
+    .product-badge-ok { background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; }
+    .product-badge-ng { background: #ffebee; color: #c62828; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Day 4: 条件とリスト</h1>
+  <div class="nav">
+    <a href="day3-events.html">← 前へ: イベント処理</a>
+    <a href="index.html">トップ</a>
+    <a href="day5-components.html">次へ: コンポーネント →</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明 -->
+  <div class="left-panel">
+    <h2>条件とリスト</h2>
+
+    <p>
+      Vueの<strong>ディレクティブ</strong>を使うと、条件に応じた表示の切り替えや、
+      配列データをリスト表示する処理をHTMLに直接書けます。
+    </p>
+
+    <h3>v-if / v-else-if / v-else</h3>
+
+    <p>条件によって要素を表示・非表示にします。<strong>DOMから要素自体を削除</strong>します。</p>
+
+    <div class="code-block">
+<span class="tag">&lt;div</span> <span class="attr">v-if</span>=<span class="value">"score >= 90"</span><span class="tag">&gt;</span>A評価<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">v-else-if</span>=<span class="value">"score >= 70"</span><span class="tag">&gt;</span>B評価<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">v-else-if</span>=<span class="value">"score >= 50"</span><span class="tag">&gt;</span>C評価<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">v-else</span><span class="tag">&gt;</span>D評価（50未満）<span class="tag">&lt;/div&gt;</span>
+
+<span class="comment">// data: { score: 85 } → 「B評価」が表示される</span>
+    </div>
+
+    <div class="point-box">
+      <strong>v-if の特徴</strong><br>
+      条件が false の場合、要素はDOMから<strong>完全に削除</strong>されます。
+      要素を初期化しながら切り替えたい場合に適しています。
+    </div>
+
+    <h3>v-show との違い</h3>
+
+    <table class="compare-table">
+      <tr>
+        <th>ディレクティブ</th>
+        <th>false のとき</th>
+        <th>適した用途</th>
+      </tr>
+      <tr>
+        <td><code>v-if</code></td>
+        <td>DOMから削除（HTML上に存在しない）</td>
+        <td>初期表示で非表示にしたい場合</td>
+      </tr>
+      <tr>
+        <td><code>v-show</code></td>
+        <td><code>display:none</code> で隠す（DOMには残る）</td>
+        <td>頻繁に表示/非表示を切り替える場合</td>
+      </tr>
+    </table>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- v-show は CSS で display を切り替えるだけ --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">v-show</span>=<span class="value">"isVisible"</span><span class="tag">&gt;</span>
+  このコンテンツはDOMに残ったまま表示/非表示が切り替わる
+<span class="tag">&lt;/div&gt;</span>
+    </div>
+
+    <h3>v-for でリスト表示</h3>
+
+    <p>配列の各要素を繰り返しレンダリングします。</p>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- 配列をループ --&gt;</span>
+<span class="tag">&lt;ul&gt;</span>
+  <span class="tag">&lt;li</span> <span class="attr">v-for</span>=<span class="value">"item in items"</span> <span class="attr">:key</span>=<span class="value">"item.id"</span><span class="tag">&gt;</span>
+    {{ item.name }} - {{ item.price }}円
+  <span class="tag">&lt;/li&gt;</span>
+<span class="tag">&lt;/ul&gt;</span>
+
+<span class="comment">// data: { items: [{ id:1, name:'りんご', price:150 }, ...] }</span>
+
+<span class="comment">&lt;!-- インデックス番号も取得できる --&gt;</span>
+<span class="tag">&lt;li</span> <span class="attr">v-for</span>=<span class="value">"(item, index) in items"</span> <span class="attr">:key</span>=<span class="value">"item.id"</span><span class="tag">&gt;</span>
+  {{ index + 1 }}. {{ item.name }}
+<span class="tag">&lt;/li&gt;</span>
+    </div>
+
+    <h3>:key 属性の重要性</h3>
+
+    <div class="warning-box">
+      <strong>:key は必須！</strong><br>
+      <code>v-for</code> を使うときは必ず <code>:key</code> を指定します。
+      VueがリストのどのDOM要素を更新すべきか識別するために使います。
+      keyには<strong>各アイテムで一意の値</strong>（IDなど）を使います。
+      配列のインデックス（index）は順序が変わると問題が起きるため非推奨です。
+    </div>
+
+    <h3>v-for でオブジェクトを繰り返す</h3>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- オブジェクトのプロパティをループ --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">v-for</span>=<span class="value">"(value, key) in userInfo"</span> <span class="attr">:key</span>=<span class="value">"key"</span><span class="tag">&gt;</span>
+  {{ key }}: {{ value }}
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="comment">// data: { userInfo: { name:'田中', age:25, city:'東京' } }</span>
+<span class="comment">// → name: 田中 / age: 25 / city: 東京</span>
+    </div>
+
+    <h3>v-if と v-for の組み合わせ</h3>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- フィルタリング表示（v-for の中で v-if を使う）--&gt;</span>
+<span class="tag">&lt;li</span> <span class="attr">v-for</span>=<span class="value">"item in items"</span> <span class="attr">:key</span>=<span class="value">"item.id"</span>
+    <span class="attr">v-if</span>=<span class="value">"item.inStock"</span><span class="tag">&gt;</span>
+  {{ item.name }}（在庫あり）
+<span class="tag">&lt;/li&gt;</span>
+
+<span class="comment">// ※ v-if と v-for を同じ要素に使うとき、</span>
+<span class="comment">//   実務では computed でフィルタ済み配列を作る方が推奨</span>
+    </div>
+
+  </div><!-- /.left-panel -->
+
+  <!-- 右パネル: デモ + 練習問題 -->
+  <div class="right-panel">
+    <h2>動くデモ &amp; 練習問題</h2>
+
+    <!-- デモ1: v-if / v-else -->
+    <div class="problem">
+      <h3>デモ 1: ログイン状態の切り替え（v-if / v-else）</h3>
+      <p>ボタンをクリックするとログイン状態が切り替わり、表示が変化します。</p>
+
+      <div class="demo-area">
+        <div id="demo1">
+          <button @click="isLoggedIn = !isLoggedIn"
+                  style="padding:8px 16px; background:#42b883; color:white; border:none; border-radius:4px; cursor:pointer; margin-bottom:15px;">
+            {{ isLoggedIn ? 'ログアウト' : 'ログイン' }}
+          </button>
+
+          <div v-if="isLoggedIn"
+               style="background:#e8f5e9; border:2px solid #42b883; border-radius:8px; padding:15px;">
+            <strong style="color:#2e7d32;">✓ ログイン中</strong>
+            <p style="margin:5px 0 0;">こんにちは、田中さん！ようこそ。</p>
+          </div>
+          <div v-else
+               style="background:#ffebee; border:2px solid #ef9a9a; border-radius:8px; padding:15px;">
+            <strong style="color:#c62828;">✗ ログアウト状態</strong>
+            <p style="margin:5px 0 0;">ログインしてください。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- デモ2: v-for TODOリスト -->
+    <div class="problem">
+      <h3>デモ 2: TODOリスト（v-for）</h3>
+      <p>配列データをv-forでループして表示。チェックで完了状態を切り替えます。</p>
+
+      <div class="demo-area">
+        <div id="demo2">
+          <div style="display:flex; gap:8px; margin-bottom:15px;">
+            <input v-model="newTask"
+                   @keyup.enter="addTask"
+                   placeholder="新しいタスクを入力..."
+                   style="flex:1; padding:8px 12px; border:1px solid #ddd; border-radius:4px; font-size:14px;">
+            <button @click="addTask"
+                    style="padding:8px 14px; background:#42b883; color:white; border:none; border-radius:4px; cursor:pointer;">
+              追加
+            </button>
+          </div>
+          <div style="background:white; border-radius:8px; overflow:hidden; border:1px solid #eee;">
+            <div v-if="todos.length === 0"
+                 style="padding:20px; text-align:center; color:#999;">
+              タスクがありません
+            </div>
+            <div v-for="todo in todos" :key="todo.id"
+                 class="todo-item">
+              <input type="checkbox" v-model="todo.done"
+                     style="margin-right:10px; width:16px; height:16px; accent-color:#42b883;">
+              <span :class="{ 'todo-done': todo.done }" style="flex:1;">
+                {{ todo.text }}
+              </span>
+              <button @click="removeTask(todo.id)"
+                      style="background:#ef5350; color:white; border:none; border-radius:3px; padding:3px 8px; cursor:pointer; font-size:0.8em;">
+                削除
+              </button>
+            </div>
+          </div>
+          <p style="font-size:0.85em; color:#888; margin-top:8px;">
+            合計: {{ todos.length }}件 / 完了: {{ todos.filter(t=>t.done).length }}件
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- デモ3: 商品フィルタリング -->
+    <div class="problem">
+      <h3>デモ 3: 商品リストのフィルタリング（v-if + v-for）</h3>
+      <p>ボタンで在庫ありのみ / 全件を切り替えます。</p>
+
+      <div class="demo-area">
+        <div id="demo3">
+          <div style="margin-bottom:12px;">
+            <button @click="showAll = true"
+                    :style="{ background: showAll ? '#42b883' : '#ddd', color: showAll ? 'white' : '#555' }"
+                    style="padding:6px 14px; border:none; border-radius:4px; cursor:pointer; margin-right:8px;">
+              全件表示
+            </button>
+            <button @click="showAll = false"
+                    :style="{ background: !showAll ? '#42b883' : '#ddd', color: !showAll ? 'white' : '#555' }"
+                    style="padding:6px 14px; border:none; border-radius:4px; cursor:pointer;">
+              在庫ありのみ
+            </button>
+          </div>
+
+          <div style="background:white; border-radius:8px; overflow:hidden; border:1px solid #eee;">
+            <template v-for="product in products" :key="product.id">
+              <div v-if="showAll || product.inStock"
+                   style="display:flex; justify-content:space-between; align-items:center; padding:10px 15px; border-bottom:1px solid #f0f0f0;">
+                <span :style="{ color: product.inStock ? '#333' : '#bbb' }">
+                  {{ product.name }} — {{ product.price.toLocaleString() }}円
+                </span>
+                <span :class="product.inStock ? 'product-badge-ok' : 'product-badge-ng'">
+                  {{ product.inStock ? '在庫あり' : '在庫なし' }}
+                </span>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 練習問題1 -->
+    <div class="problem">
+      <h3>問題 1: v-if と v-show の使い分け</h3>
+      <div class="problem-desc">
+        「ドロップダウンメニュー」のように頻繁に表示/非表示を切り替える場合、
+        v-if と v-show どちらが適していますか？その理由も答えてください。
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <strong>v-show が適しています。</strong><br><br>
+          理由: <code>v-if</code> は条件が変わるたびにDOMの要素を破棄・再生成するため、
+          頻繁な切り替えではコストがかかります。<br>
+          <code>v-show</code> は最初にDOMを生成し、その後は <code>display</code> プロパティで
+          表示/非表示を切り替えるだけなので、高速に動作します。<br><br>
+          <strong>目安:</strong> 頻繁に切り替える → v-show / 初期非表示・条件が滅多に変わらない → v-if
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題2 -->
+    <div class="problem">
+      <h3>問題 2: :key の重要性</h3>
+      <div class="problem-desc">
+        以下のコードで <code>:key</code> に <code>index</code> を使うと
+        どのような問題が起きる可能性がありますか？
+        <div class="code-block" style="font-size:13px;">
+&lt;li <span class="attr">v-for</span>=<span class="value">"(item, index) in items"</span>
+    <span class="attr">:key</span>=<span class="value">"index"</span>&gt;
+  {{ item.name }}
+&lt;/li&gt;
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          リストの先頭に新しいアイテムを<strong>挿入</strong>した場合、
+          すべての要素のインデックスがズレてしまいます。<br>
+          Vueはkeyが変わった要素を「別の要素」として扱うため、
+          不必要な再レンダリングが起きたり、
+          チェックボックスの状態がズレるなどのバグが発生します。<br><br>
+          <strong>対策:</strong> 各アイテム固有の <code>id</code> など、
+          変わらない一意の値をkeyに使います。
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題3 -->
+    <div class="problem">
+      <h3>問題 3: v-for の構文</h3>
+      <div class="problem-desc">
+        以下のデータから、名前と職業を表示するv-forを完成させてください。
+        <div class="code-block" style="font-size:13px;">
+<span class="comment">// data</span>
+users: [
+  { id: 1, name: <span class="string">'田中'</span>, job: <span class="string">'エンジニア'</span> },
+  { id: 2, name: <span class="string">'山田'</span>, job: <span class="string">'デザイナー'</span> },
+  { id: 3, name: <span class="string">'佐藤'</span>, job: <span class="string">'ディレクター'</span> }
+]
+
+<span class="comment">// 穴埋め</span>
+&lt;div <span class="attr">v-for</span>=<span class="value">"___ in ___"</span> <span class="attr">:key</span>=<span class="value">"___"</span>&gt;
+  {{ ___.name }}: {{ ___.job }}
+&lt;/div&gt;
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <div class="code-block" style="font-size:13px; background:#1a1a2e;">
+&lt;div <span class="attr">v-for</span>=<span class="value">"<strong>user</strong> in <strong>users</strong>"</span> <span class="attr">:key</span>=<span class="value">"<strong>user.id</strong>"</span>&gt;
+  {{ <strong>user</strong>.name }}: {{ <strong>user</strong>.job }}
+&lt;/div&gt;
+          </div>
+          <code>v-for="user in users"</code> で配列 users の各要素を user として取得。
+          <code>:key="user.id"</code> で一意のIDをkeyに指定します。
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /.right-panel -->
+
+</div><!-- /.container -->
+
+<!-- Vue.js CDN -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+  // デモ1: ログイン状態切り替え
+  Vue.createApp({
+    data() {
+      return { isLoggedIn: false }
+    }
+  }).mount('#demo1')
+
+  // デモ2: TODOリスト
+  Vue.createApp({
+    data() {
+      return {
+        newTask: '',
+        nextId: 4,
+        todos: [
+          { id: 1, text: 'Vue.jsの基礎を学ぶ', done: true },
+          { id: 2, text: 'デモを動かしてみる', done: false },
+          { id: 3, text: '練習問題を解く', done: false }
+        ]
+      }
+    },
+    methods: {
+      addTask() {
+        if (!this.newTask.trim()) return
+        this.todos.push({ id: this.nextId++, text: this.newTask, done: false })
+        this.newTask = ''
+      },
+      removeTask(id) {
+        this.todos = this.todos.filter(t => t.id !== id)
+      }
+    }
+  }).mount('#demo2')
+
+  // デモ3: 商品フィルタリング
+  Vue.createApp({
+    data() {
+      return {
+        showAll: true,
+        products: [
+          { id: 1, name: 'Tシャツ', price: 2980, inStock: true },
+          { id: 2, name: 'ジーンズ', price: 8800, inStock: false },
+          { id: 3, name: 'スニーカー', price: 12000, inStock: true },
+          { id: 4, name: 'キャップ', price: 3500, inStock: false },
+          { id: 5, name: 'バッグ', price: 15800, inStock: true }
+        ]
+      }
+    }
+  }).mount('#demo3')
+</script>
+
+</body>
+</html>

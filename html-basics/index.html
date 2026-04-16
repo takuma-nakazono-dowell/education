@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML 基礎学習</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        .info-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box h2 {
+            margin-top: 0;
+            color: #1565c0;
+        }
+        .section-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .section-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        .day-number {
+            background: #2196F3;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+        .section-content h3 {
+            margin: 0 0 5px 0;
+            color: #1565c0;
+        }
+        .section-content p {
+            margin: 0;
+            color: #666;
+            font-size: 0.95em;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .progress-section h2 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+        .checkbox-list {
+            list-style: none;
+            padding: 0;
+        }
+        .checkbox-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .checkbox-list label {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTML 基礎学習</h1>
+    <p class="subtitle">7日間で基礎をマスターしよう</p>
+
+    <div class="info-box">
+        <h2>この教材について</h2>
+        <p>HTMLの基礎を、ページ構造から順番に学んでいきます。</p>
+        <p>各日の教材には<strong>説明</strong>と<strong>練習問題</strong>があります。</p>
+        <p>分からないところは調べながら進めてOKです。ただしAIは使わないでください。</p>
+    </div>
+
+    <h2>カリキュラム</h2>
+
+    <div class="section-list">
+        <a href="day1-structure.html" class="section-card">
+            <div class="day-number">1</div>
+            <div class="section-content">
+                <h3>HTMLの基本構造</h3>
+                <p>タグ・要素・属性・DOCTYPE</p>
+            </div>
+        </a>
+
+        <a href="day2-text-links.html" class="section-card">
+            <div class="day-number">2</div>
+            <div class="section-content">
+                <h3>テキストとリンク</h3>
+                <p>見出し・段落・リンク・画像</p>
+            </div>
+        </a>
+
+        <a href="day3-lists-tables.html" class="section-card">
+            <div class="day-number">3</div>
+            <div class="section-content">
+                <h3>リストとテーブル</h3>
+                <p>ul・ol・li・table・tr・td</p>
+            </div>
+        </a>
+
+        <a href="day4-forms.html" class="section-card">
+            <div class="day-number">4</div>
+            <div class="section-content">
+                <h3>フォーム</h3>
+                <p>input・label・select・button・form</p>
+            </div>
+        </a>
+
+        <a href="day5-css-basics.html" class="section-card">
+            <div class="day-number">5</div>
+            <div class="section-content">
+                <h3>CSS 基礎</h3>
+                <p>セレクタ・プロパティ・色・フォント・余白</p>
+            </div>
+        </a>
+
+        <a href="day6-layout.html" class="section-card">
+            <div class="day-number">6</div>
+            <div class="section-content">
+                <h3>レイアウト</h3>
+                <p>Flexbox・position・レスポンシブ</p>
+            </div>
+        </a>
+
+        <a href="day7-dom.html" class="section-card">
+            <div class="day-number">7</div>
+            <div class="section-content">
+                <h3>DOM 操作</h3>
+                <p>getElementById・querySelector・イベント</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="progress-section">
+        <h2>進捗チェック</h2>
+        <ul class="checkbox-list">
+            <li><label><input type="checkbox"> Day 1: HTMLの基本構造</label></li>
+            <li><label><input type="checkbox"> Day 2: テキストとリンク</label></li>
+            <li><label><input type="checkbox"> Day 3: リストとテーブル</label></li>
+            <li><label><input type="checkbox"> Day 4: フォーム</label></li>
+            <li><label><input type="checkbox"> Day 5: CSS 基礎</label></li>
+            <li><label><input type="checkbox"> Day 6: レイアウト</label></li>
+            <li><label><input type="checkbox"> Day 7: DOM 操作</label></li>
+        </ul>
+    </div>
+</body>
+</html>

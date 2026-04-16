@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue.js 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', 'Meiryo', sans-serif;
+      margin: 0; padding: 0;
+      background-color: #f5f5f5;
+      color: #333; line-height: 1.6;
+    }
+    .header {
+      background: #42b883;
+      color: white;
+      padding: 30px 40px;
+      text-align: center;
+    }
+    .header h1 { margin: 0 0 10px; font-size: 2em; }
+    .header p { margin: 0; font-size: 1.1em; opacity: 0.9; }
+    .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+    .info-box {
+      background: #e8f5e9;
+      border-left: 4px solid #42b883;
+      padding: 20px 25px;
+      border-radius: 0 12px 12px 0;
+      margin-bottom: 40px;
+      font-size: 1.05em;
+    }
+    .info-box strong { color: #1b5e20; }
+    h2 {
+      color: #35495e;
+      border-bottom: 2px solid #42b883;
+      padding-bottom: 10px;
+      margin-bottom: 25px;
+    }
+    .curriculum { display: flex; flex-direction: column; gap: 15px; }
+    .section-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .section-card:hover {
+      box-shadow: 0 4px 16px rgba(66,184,131,0.25);
+      transform: translateY(-2px);
+    }
+    .day-number {
+      background: #42b883;
+      color: white;
+      font-weight: bold;
+      font-size: 0.85em;
+      padding: 6px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .card-content { flex: 1; }
+    .card-content .day-title {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #35495e;
+      margin-bottom: 4px;
+    }
+    .card-content .day-desc {
+      font-size: 0.9em;
+      color: #666;
+    }
+    .card-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card-right label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85em;
+      color: #888;
+      cursor: pointer;
+    }
+    .card-right input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #42b883;
+      cursor: pointer;
+    }
+    .arrow {
+      color: #42b883;
+      font-size: 1.3em;
+    }
+    .footer {
+      text-align: center;
+      padding: 30px;
+      color: #888;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Vue.js 基礎学習</h1>
+  <p>7日間でVue.jsの基礎をマスターしよう</p>
+</div>
+
+<div class="container">
+
+  <div class="info-box">
+    <strong>はじめに</strong><br>
+    この教材はHTML・JavaScriptの基礎を習得した方向けです。
+    Vue.js 3をCDNで読み込み、ブラウザだけで動かしながら学びます。
+    ビルドツールや環境構築は不要です。ファイルをブラウザで開くだけで始められます。
+  </div>
+
+  <h2>カリキュラム</h2>
+
+  <div class="curriculum">
+
+    <a class="section-card" href="day1-hello.html">
+      <div class="day-number">Day 1</div>
+      <div class="card-content">
+        <div class="day-title">Vue.js とは</div>
+        <div class="day-desc">CDN導入・Vueアプリの作り方・テンプレート構文 {{ }}</div>
+      </div>
+      <div class="card-right">
+        <label onclick="event.stopPropagation()">
+          <input type="checkbox" id="check1"> 完了
+        </label>
+        <span class="arrow">›</span>
+      </div>
+    </a>
+
+    <a class="section-card" href="day2-data-binding.html">
+      <div class="day-number">Day 2</div>
+      <div class="card-content">
+        <div class="day-title">データバインディング</div>
+        <div class="day-desc">data()・v-bind・{{ }}・リアクティブ・v-model</div>
+      </div>
+      <div class="card-right">
+        <label onclick="event.stopPropagation()">
+          <input type="checkbox" id="check2"> 完了
+        </label>
+        <span class="arrow">›</span>
+      </div>
+    </a>
+
+    <a class="section-card" href="day3-events.html">
+      <div class="day-number">Day 3</div>
+      <div class="card-content">
+        <div class="day-title">イベント処理</div>
+        <div class="day-desc">v-on・@click・methods・フォームイベント・キー修飾子</div>
+      </div>
+      <div class="card-right">
+        <label onclick="event.stopPropagation()">
+          <input type="checkbox" id="check3"> 完了
+        </label>
+        <span class="arrow">›</span>
+      </div>
+    </a>
+
+    <a class="section-card" href="day4-conditions-loops.html">
+      <div class="day-number">Day 4</div>
+      <div class="card-content">
+        <div class="day-title">条件とリスト</div>
+        <div class="day-desc">v-if・v-show・v-else・v-for・:key属性</div>
+      </div>
+      <div class="card-right">
+        <label onclick="event.stopPropagation()">
+          <input type="checkbox" id="check4"> 完了
+        </label>
+        <span class="arrow">›</span>
+      </div>
+    </a>
+
+    <a class="section-card" href="day5-components.html">
+      <div class="day-number">Day 5</div>
+      <div class="card-content">
+        <div class="day-title">コンポーネント</div>
+        <div class="day-desc">コンポーネント分割・props・カスタムイベント・$emit</div>
+      </div>
+      <div class="card-right">
+        <label onclick="event.stopPropagation()">
+          <input type="checkbox" id="check5"> 完了
+        </label>
+        <span class="arrow">›</span>
+      </div>
+    </a>
+
+    <a class="section-card" href="day6-computed.html">
+      <div class="day-number">Day 6</div>
+      <div class="card-content">
+        <div class="day-title">算出プロパティとウォッチャー</div>
+        <div class="day-desc">computed・watch・フィルタリング・キャッシュの仕組み</div>
+      </div>
+      <div class="card-right">
+        <label onclick="event.stopPropagation()">
+          <input type="checkbox" id="check6"> 完了
+        </label>
+        <span class="arrow">›</span>
+      </div>
+    </a>
+
+    <a class="section-card" href="day7-app.html">
+      <div class="day-number">Day 7</div>
+      <div class="card-content">
+        <div class="day-title">総合演習</div>
+        <div class="day-desc">TODOアプリを作る・全機能を統合・チャレンジ課題</div>
+      </div>
+      <div class="card-right">
+        <label onclick="event.stopPropagation()">
+          <input type="checkbox" id="check7"> 完了
+        </label>
+        <span class="arrow">›</span>
+      </div>
+    </a>
+
+  </div><!-- /.curriculum -->
+
+</div><!-- /.container -->
+
+<div class="footer">
+  Vue.js 基礎学習コース — HTML・JS基礎の次のステップ
+</div>
+
+<script>
+  // 進捗チェックボックスをローカルストレージに保存する
+  const checkboxIds = ['check1','check2','check3','check4','check5','check6','check7'];
+  checkboxIds.forEach(id => {
+    const el = document.getElementById(id);
+    // 保存済みの状態を復元
+    if (localStorage.getItem('vue-' + id) === 'true') {
+      el.checked = true;
+    }
+    // チェック状態が変わったら保存
+    el.addEventListener('change', () => {
+      localStorage.setItem('vue-' + id, el.checked);
+    });
+  });
+</script>
+
+</body>
+</html>

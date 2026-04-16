@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 6: 算出プロパティとウォッチャー | Vue.js 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #42b883; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #35495e; border-bottom: 2px solid #42b883; padding-bottom: 10px; }
+    h3 { color: #42b883; margin-top: 25px; }
+    .code-block { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; }
+    .code-block .comment { color: #78909c; }
+    .code-block .tag { color: #82b1ff; }
+    .code-block .attr { color: #c3e88d; }
+    .code-block .value { color: #f78c6c; }
+    .code-block .keyword { color: #82b1ff; }
+    .code-block .string { color: #c3e88d; }
+    .point-box { background: #e8f5e9; border-left: 4px solid #42b883; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #1b5e20; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .demo-area { background: #fafafa; border: 2px solid #42b883; border-radius: 8px; padding: 20px; margin: 15px 0; }
+    .demo-area label { font-weight: bold; color: #35495e; margin-right: 10px; }
+    .demo-area input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: #42b883; font-weight: bold; padding: 8px 12px; background: #e8f5e9; border-radius: 4px; }
+    summary:hover { background: #c8e6c9; }
+    details > div { background: #f9fbe7; border: 1px solid #c8e6c9; padding: 15px; border-radius: 0 0 8px 8px; margin-top: 4px; }
+    /* 比較テーブル */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+    .compare-table th { background: #35495e; color: white; padding: 10px; text-align: left; }
+    .compare-table td { padding: 10px; border-bottom: 1px solid #ddd; vertical-align: top; }
+    .compare-table tr:nth-child(even) td { background: #f9f9f9; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Day 6: 算出プロパティとウォッチャー</h1>
+  <div class="nav">
+    <a href="day5-components.html">← 前へ: コンポーネント</a>
+    <a href="index.html">トップ</a>
+    <a href="day7-app.html">次へ: 総合演習 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明 -->
+  <div class="left-panel">
+    <h2>computed（算出プロパティ）</h2>
+
+    <p>
+      <code>computed</code>（コンピューテッド）は、
+      <strong>他のデータをもとに自動計算される読み取り専用のプロパティ</strong>です。
+      依存するデータが変わると自動的に再計算されます。
+    </p>
+
+    <div class="code-block">
+Vue.createApp({
+  data() {
+    return {
+      firstName: <span class="string">'田中'</span>,
+      lastName: <span class="string">'太郎'</span>,
+      items: [
+        { name: <span class="string">'りんご'</span>, price: 150 },
+        { name: <span class="string">'バナナ'</span>, price: 80 }
+      ]
+    }
+  },
+  computed: {
+    <span class="comment">// 姓と名を結合するcomputedプロパティ</span>
+    fullName() {
+      <span class="keyword">return</span> <span class="keyword">this</span>.lastName + <span class="string">' '</span> + <span class="keyword">this</span>.firstName
+    },
+    <span class="comment">// 合計金額を計算</span>
+    totalPrice() {
+      <span class="keyword">return</span> <span class="keyword">this</span>.items.reduce((sum, item) => sum + item.price, 0)
+    }
+  }
+})
+    </div>
+
+    <div class="code-block">
+<span class="comment">&lt;!-- テンプレートで普通のデータと同じように使える --&gt;</span>
+<span class="tag">&lt;p&gt;</span>フルネーム: {{ fullName }}<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;p&gt;</span>合計: {{ totalPrice }}円<span class="tag">&lt;/p&gt;</span>
+    </div>
+
+    <h3>computed と methods の違い（キャッシュ）</h3>
+
+    <table class="compare-table">
+      <tr>
+        <th></th>
+        <th>computed</th>
+        <th>methods</th>
+      </tr>
+      <tr>
+        <td><strong>キャッシュ</strong></td>
+        <td>依存データが変わるまでキャッシュされる</td>
+        <td>呼ばれるたびに毎回実行される</td>
+      </tr>
+      <tr>
+        <td><strong>呼び方</strong></td>
+        <td><code>{{ fullName }}</code>（括弧なし）</td>
+        <td><code>{{ getFullName() }}</code>（括弧あり）</td>
+      </tr>
+      <tr>
+        <td><strong>適した用途</strong></td>
+        <td>値の計算・変換・フィルタリング</td>
+        <td>ボタンクリック・副作用のある処理</td>
+      </tr>
+    </table>
+
+    <div class="point-box">
+      <strong>キャッシュとは？</strong><br>
+      computedは依存するデータが変わらない限り、計算を再実行しません。
+      重い計算でも同じ結果が必要なときはキャッシュから返すので高速です。
+      methodsは呼ばれるたびに毎回計算します。
+    </div>
+
+    <div class="code-block">
+<span class="comment">// computedでリストをフィルタリング（実用的な例）</span>
+computed: {
+  filteredItems() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.items.filter(item =>
+      item.name.includes(<span class="keyword">this</span>.searchText)
+    )
+  }
+}
+
+<span class="comment">&lt;!-- テンプレートではシンプルに使える --&gt;</span>
+<span class="tag">&lt;li</span> <span class="attr">v-for</span>=<span class="value">"item in filteredItems"</span> <span class="attr">:key</span>=<span class="value">"item.id"</span><span class="tag">&gt;</span>
+  {{ item.name }}
+<span class="tag">&lt;/li&gt;</span>
+    </div>
+
+    <h2>watch（ウォッチャー）</h2>
+
+    <p>
+      <code>watch</code> は、<strong>特定のデータが変化したときに処理を実行する</strong>仕組みです。
+      computedと違い、副作用（API呼び出し・ローカルストレージ保存など）を伴う処理に使います。
+    </p>
+
+    <div class="code-block">
+watch: {
+  <span class="comment">// searchText が変わるたびに実行される</span>
+  searchText(newValue, oldValue) {
+    console.log(<span class="string">`変更: ${oldValue} → ${newValue}`</span>)
+    <span class="keyword">this</span>.fetchResults(newValue) <span class="comment">// API呼び出しなど</span>
+  },
+
+  <span class="comment">// オブジェクトの深い変化を監視（deep: true）</span>
+  userProfile: {
+    handler(newVal) {
+      localStorage.setItem(<span class="string">'profile'</span>, JSON.stringify(newVal))
+    },
+    deep: <span class="keyword">true</span>
+  }
+}
+    </div>
+
+    <h3>computed vs watch の使い分け</h3>
+
+    <table class="compare-table">
+      <tr>
+        <th>状況</th>
+        <th>使うべきもの</th>
+      </tr>
+      <tr>
+        <td>他のデータから値を計算・加工したい</td>
+        <td><strong>computed</strong></td>
+      </tr>
+      <tr>
+        <td>データ変化に応じてAPI呼び出しをしたい</td>
+        <td><strong>watch</strong></td>
+      </tr>
+      <tr>
+        <td>リストをフィルタリングしたい</td>
+        <td><strong>computed</strong></td>
+      </tr>
+      <tr>
+        <td>データをローカルストレージに保存したい</td>
+        <td><strong>watch</strong></td>
+      </tr>
+      <tr>
+        <td>入力値のバリデーション結果を表示</td>
+        <td><strong>computed</strong></td>
+      </tr>
+    </table>
+
+  </div><!-- /.left-panel -->
+
+  <!-- 右パネル: デモ + 練習問題 -->
+  <div class="right-panel">
+    <h2>動くデモ &amp; 練習問題</h2>
+
+    <!-- デモ1: computedでフルネーム生成 -->
+    <div class="problem">
+      <h3>デモ 1: computed — 姓・名からフルネームを自動生成</h3>
+      <p>姓か名を変えると、computedプロパティ <code>fullName</code> が自動更新されます。</p>
+
+      <div class="demo-area">
+        <div id="demo1">
+          <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <div>
+              <label style="display:block; font-size:0.85em; color:#666; margin-bottom:4px;">姓</label>
+              <input v-model="lastName"
+                     style="padding:8px 12px; border:1px solid #ddd; border-radius:4px; width:100px; font-size:14px;">
+            </div>
+            <div>
+              <label style="display:block; font-size:0.85em; color:#666; margin-bottom:4px;">名</label>
+              <input v-model="firstName"
+                     style="padding:8px 12px; border:1px solid #ddd; border-radius:4px; width:100px; font-size:14px;">
+            </div>
+          </div>
+          <div style="background:#e8f5e9; border-radius:8px; padding:15px;">
+            <span style="font-size:0.85em; color:#666;">computed: fullName =</span>
+            <div style="font-size:1.4em; font-weight:bold; color:#2e7d32; margin-top:4px;">
+              {{ fullName }}
+            </div>
+          </div>
+          <p style="font-size:0.85em; color:#888; margin-top:8px;">
+            姓: "{{ lastName }}" + 名: "{{ firstName }}" → フルネームを自動生成
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- デモ2: computedでリアルタイム検索 -->
+    <div class="problem">
+      <h3>デモ 2: computed — 商品リストのリアルタイム検索</h3>
+      <p>検索ボックスに入力するたびに、computed で絞り込まれたリストが表示されます。</p>
+
+      <div class="demo-area">
+        <div id="demo2">
+          <input v-model="searchText"
+                 placeholder="商品名を入力して検索..."
+                 style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:4px; font-size:14px; margin-bottom:10px;">
+
+          <div style="font-size:0.85em; color:#888; margin-bottom:8px;">
+            {{ filteredProducts.length }} 件 / 全{{ products.length }}件
+          </div>
+
+          <div style="background:white; border-radius:8px; overflow:hidden; border:1px solid #eee;">
+            <div v-if="filteredProducts.length === 0"
+                 style="padding:15px; text-align:center; color:#bbb;">
+              該当する商品が見つかりません
+            </div>
+            <div v-for="p in filteredProducts" :key="p.id"
+                 style="display:flex; justify-content:space-between; padding:10px 15px; border-bottom:1px solid #f5f5f5;">
+              <span>{{ p.name }}</span>
+              <span style="color:#42b883; font-weight:bold;">{{ p.price.toLocaleString() }}円</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- デモ3: watchでバリデーション -->
+    <div class="problem">
+      <h3>デモ 3: watch — 入力値を監視してバリデーション</h3>
+      <p>パスワード入力をwatchで監視し、条件を満たさない場合に警告を表示します。</p>
+
+      <div class="demo-area">
+        <div id="demo3">
+          <div style="margin-bottom:12px;">
+            <label style="display:block; font-weight:bold; color:#35495e; margin-bottom:6px;">
+              パスワード（8文字以上・英数字混在）
+            </label>
+            <input type="text"
+                   v-model="password"
+                   placeholder="パスワードを入力..."
+                   style="width:100%; padding:10px 14px; border-radius:4px; font-size:14px;"
+                   :style="{ borderColor: passwordError ? '#f44336' : (password.length >= 8 && hasNumber && hasLetter ? '#42b883' : '#ddd'),
+                             borderWidth: '2px', borderStyle: 'solid' }">
+          </div>
+
+          <!-- バリデーション結果 -->
+          <div style="font-size:0.9em;">
+            <div :style="{ color: password.length >= 8 ? '#42b883' : '#bbb' }">
+              {{ password.length >= 8 ? '✓' : '✗' }} 8文字以上（現在: {{ password.length }}文字）
+            </div>
+            <div :style="{ color: hasLetter ? '#42b883' : '#bbb' }">
+              {{ hasLetter ? '✓' : '✗' }} 英字を含む
+            </div>
+            <div :style="{ color: hasNumber ? '#42b883' : '#bbb' }">
+              {{ hasNumber ? '✓' : '✗' }} 数字を含む
+            </div>
+          </div>
+
+          <!-- watchによるエラーメッセージ -->
+          <div v-if="passwordError"
+               style="margin-top:10px; color:#f44336; background:#ffebee; padding:10px; border-radius:4px; font-size:0.9em;">
+            ⚠ {{ passwordError }}
+          </div>
+          <div v-if="password.length >= 8 && hasNumber && hasLetter"
+               style="margin-top:10px; color:#2e7d32; background:#e8f5e9; padding:10px; border-radius:4px; font-size:0.9em;">
+            ✓ 強いパスワードです！
+          </div>
+
+          <!-- watchのログ -->
+          <div v-if="watchLog.length > 0" style="margin-top:12px;">
+            <p style="font-size:0.8em; color:#888; margin:0 0 5px;">watchの発火ログ（最新5件）:</p>
+            <div v-for="(log, i) in watchLog.slice(-5)" :key="i"
+                 style="font-size:0.75em; color:#999; padding:2px 0; font-family:monospace;">
+              {{ log }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 練習問題1 -->
+    <div class="problem">
+      <h3>問題 1: computed の特徴</h3>
+      <div class="problem-desc">
+        以下のcomputed と methods の呼び方の違いを説明してください。
+        <div class="code-block" style="font-size:13px;">
+computed: { fullName() { ... } }
+methods:  { getFullName() { ... } }
+
+<span class="comment">// テンプレートでの使い方</span>
+{{ fullName }}       <span class="comment">// A</span>
+{{ getFullName() }}  <span class="comment">// B</span>
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <strong>A（computed）</strong>: 括弧なしで書きます。データのように扱います。
+          依存するデータが変わらない限りキャッシュされ、毎回計算しません。<br><br>
+          <strong>B（methods）</strong>: 括弧ありで呼び出します。
+          テンプレートが再レンダリングされるたびに毎回実行されます。<br><br>
+          値を<em>計算して表示するだけ</em>ならcomputedが効率的です。
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題2 -->
+    <div class="problem">
+      <h3>問題 2: watch vs computed の選択</h3>
+      <div class="problem-desc">
+        以下のそれぞれの処理に computed と watch のどちらが適していますか？
+        <ol>
+          <li>firstName と lastName を結合してフルネームを表示する</li>
+          <li>ユーザーが入力したテキストをローカルストレージに自動保存する</li>
+          <li>配列を価格順に並び替えたリストを表示する</li>
+          <li>検索ワードが変わったらAPIを呼び出して結果を取得する</li>
+        </ol>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <ol>
+            <li><strong>computed</strong>（値の計算・変換）</li>
+            <li><strong>watch</strong>（副作用: ローカルストレージへの書き込み）</li>
+            <li><strong>computed</strong>（データの変換・フィルタリング）</li>
+            <li><strong>watch</strong>（副作用: API呼び出し）</li>
+          </ol>
+          <strong>シンプルな判断基準:</strong><br>
+          「値を計算して返すだけ」→ computed<br>
+          「データ変化を検知して何か処理をしたい（副作用あり）」→ watch
+        </div>
+      </details>
+    </div>
+
+    <!-- 練習問題3 -->
+    <div class="problem">
+      <h3>問題 3: 穴埋め — computedでフィルタリング</h3>
+      <div class="problem-desc">
+        <code>searchText</code> に含まれるキーワードで <code>items</code> 配列を
+        フィルタリングするcomputedを完成させてください。
+        <div class="code-block" style="font-size:13px;">
+computed: {
+  filteredItems() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.items.___(<span class="attr">item</span> =>
+      item.name.___(this.searchText)
+    )
+  }
+}
+        </div>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div>
+          <div class="code-block" style="font-size:13px; background:#1a1a2e;">
+computed: {
+  filteredItems() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.items.<strong>filter</strong>(<span class="attr">item</span> =>
+      item.name.<strong>includes</strong>(<span class="keyword">this</span>.searchText)
+    )
+  }
+}
+          </div>
+          <code>Array.filter()</code> で条件に合う要素だけ取り出し、
+          <code>String.includes()</code> でテキストが含まれるか確認します。
+          大文字/小文字を区別しない場合は両方に <code>.toLowerCase()</code> をかけます。
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /.right-panel -->
+
+</div><!-- /.container -->
+
+<!-- Vue.js CDN -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+  // デモ1: computedでフルネーム生成
+  Vue.createApp({
+    data() {
+      return {
+        firstName: '太郎',
+        lastName: '田中'
+      }
+    },
+    computed: {
+      fullName() {
+        return this.lastName + ' ' + this.firstName
+      }
+    }
+  }).mount('#demo1')
+
+  // デモ2: computedでリアルタイム検索フィルタ
+  Vue.createApp({
+    data() {
+      return {
+        searchText: '',
+        products: [
+          { id: 1, name: 'りんご', price: 150 },
+          { id: 2, name: 'バナナ', price: 80 },
+          { id: 3, name: 'みかん', price: 120 },
+          { id: 4, name: 'ぶどう', price: 350 },
+          { id: 5, name: 'いちご', price: 480 },
+          { id: 6, name: 'メロン', price: 1200 },
+          { id: 7, name: 'すいか', price: 2500 }
+        ]
+      }
+    },
+    computed: {
+      // searchText が変わるたびに自動で再計算される
+      filteredProducts() {
+        if (!this.searchText) return this.products
+        return this.products.filter(p =>
+          p.name.includes(this.searchText)
+        )
+      }
+    }
+  }).mount('#demo2')
+
+  // デモ3: watchでバリデーション
+  Vue.createApp({
+    data() {
+      return {
+        password: '',
+        passwordError: '',
+        watchLog: []
+      }
+    },
+    computed: {
+      // 英字が含まれるか（computedで計算）
+      hasLetter() {
+        return /[a-zA-Z]/.test(this.password)
+      },
+      // 数字が含まれるか（computedで計算）
+      hasNumber() {
+        return /[0-9]/.test(this.password)
+      }
+    },
+    watch: {
+      // password が変わるたびにwatchが発火する
+      password(newVal, oldVal) {
+        const now = new Date().toLocaleTimeString()
+        this.watchLog.push(`[${now}] "${oldVal}" → "${newVal}" (長さ:${newVal.length})`)
+
+        // バリデーション
+        if (newVal.length === 0) {
+          this.passwordError = ''
+        } else if (newVal.length < 8) {
+          this.passwordError = 'パスワードは8文字以上にしてください'
+        } else if (!this.hasLetter) {
+          this.passwordError = '英字を含めてください'
+        } else if (!this.hasNumber) {
+          this.passwordError = '数字を含めてください'
+        } else {
+          this.passwordError = ''
+        }
+      }
+    }
+  }).mount('#demo3')
+</script>
+
+</body>
+</html>

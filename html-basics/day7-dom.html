@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 7: DOM 操作 - HTML基礎</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: #2196F3;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .right-panel {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        h2 { color: #1565c0; border-bottom: 2px solid #2196F3; padding-bottom: 10px; }
+        h3 { color: #2196F3; margin-top: 25px; }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .comment { color: #78909c; }
+        .code-block .tag { color: #82b1ff; }
+        .code-block .attr { color: #c3e88d; }
+        .code-block .value { color: #f78c6c; }
+        .code-block .js-str { color: #c3e88d; }
+        .point-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .point-box strong { color: #1565c0; }
+        .warning-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box strong { color: #c62828; }
+        .problem {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin-top: 0; }
+        .problem-desc {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #2196F3; }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #1976D2; }
+        .result-area {
+            background: #1a1a2e;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas','Monaco',monospace;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 80px;
+            white-space: pre-wrap;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area.success { color: #aed581; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 7: DOM 操作</h1>
+        <div class="nav">
+            <a href="day6-layout.html">← 前へ: レイアウト</a>
+            <a href="index.html">← トップに戻る</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 左パネル：説明 -->
+        <div class="left-panel">
+            <h2>DOMとは</h2>
+            <p>DOM（Document Object Model）は、HTMLをJavaScriptから操作するための仕組みです。
+            ブラウザはHTMLを読み込むとツリー構造（DOMツリー）を作り、JavaScriptからアクセスできるようにします。</p>
+
+            <h3>要素の取得</h3>
+
+            <div class="code-block">
+<span class="comment">// id属性で取得（1つ）</span>
+<span class="tag">const</span> el = document.getElementById(<span class="js-str">"myId"</span>);
+
+<span class="comment">// CSSセレクタで取得（最初の1つ）</span>
+<span class="tag">const</span> el = document.querySelector(<span class="js-str">".myClass"</span>);
+<span class="tag">const</span> el = document.querySelector(<span class="js-str">"#myId"</span>);
+<span class="tag">const</span> el = document.querySelector(<span class="js-str">"ul li:first-child"</span>);
+
+<span class="comment">// CSSセレクタで取得（すべて）</span>
+<span class="tag">const</span> els = document.querySelectorAll(<span class="js-str">"li"</span>);
+els.forEach(el =&gt; console.log(el.textContent));
+            </div>
+
+            <h3>テキストとHTMLの操作</h3>
+
+            <div class="code-block">
+<span class="tag">const</span> el = document.getElementById(<span class="js-str">"title"</span>);
+
+<span class="comment">// textContent: テキストのみ取得・設定（安全）</span>
+console.log(el.textContent);
+el.textContent = <span class="js-str">"新しいタイトル"</span>;
+
+<span class="comment">// innerHTML: HTMLタグも含めて取得・設定</span>
+el.innerHTML = <span class="js-str">"&lt;strong&gt;太字&lt;/strong&gt;のテキスト"</span>;
+            </div>
+
+            <div class="point-box">
+                <strong>textContent と innerHTML の違い</strong><br>
+                ・<code>textContent</code>: HTMLタグを文字として扱う（XSS対策に安全）<br>
+                ・<code>innerHTML</code>: HTMLとして解釈する（タグが実際に適用される）
+            </div>
+
+            <h3>スタイルの変更</h3>
+
+            <div class="code-block">
+<span class="tag">const</span> el = document.querySelector(<span class="js-str">".box"</span>);
+
+<span class="comment">// styleプロパティで直接変更（camelCase）</span>
+el.style.color = <span class="js-str">"red"</span>;
+el.style.backgroundColor = <span class="js-str">"#e3f2fd"</span>;
+el.style.fontSize = <span class="js-str">"20px"</span>;
+
+<span class="comment">// クラスで管理（推奨）</span>
+el.classList.add(<span class="js-str">"active"</span>);
+el.classList.remove(<span class="js-str">"hidden"</span>);
+el.classList.toggle(<span class="js-str">"selected"</span>);
+            </div>
+
+            <h3>イベントリスナー</h3>
+
+            <div class="code-block">
+<span class="tag">const</span> btn = document.querySelector(<span class="js-str">"button"</span>);
+
+<span class="comment">// クリックイベント</span>
+btn.addEventListener(<span class="js-str">"click"</span>, function() {
+    console.log(<span class="js-str">"ボタンがクリックされました"</span>);
+});
+
+<span class="comment">// アロー関数でも書ける</span>
+btn.addEventListener(<span class="js-str">"click"</span>, () =&gt; {
+    console.log(<span class="js-str">"クリック！"</span>);
+});
+
+<span class="comment">// inputイベント（入力のたびに発火）</span>
+<span class="tag">const</span> input = document.querySelector(<span class="js-str">"input"</span>);
+input.addEventListener(<span class="js-str">"input"</span>, (e) =&gt; {
+    console.log(e.target.value);
+});
+            </div>
+
+            <h3>要素の動的追加</h3>
+
+            <div class="code-block">
+<span class="comment">// 新しい要素を作る</span>
+<span class="tag">const</span> li = document.createElement(<span class="js-str">"li"</span>);
+li.textContent = <span class="js-str">"新しい項目"</span>;
+
+<span class="comment">// 親要素に追加</span>
+<span class="tag">const</span> ul = document.querySelector(<span class="js-str">"ul"</span>);
+ul.appendChild(li);
+            </div>
+
+            <div class="warning-box">
+                <strong>注意</strong><br>
+                DOMを操作するJavaScriptは、HTMLが読み込まれた後に実行する必要があります。
+                scriptタグはbodyの末尾か、DOMContentLoadedイベント内で実行しましょう。
+            </div>
+        </div>
+
+        <!-- 右パネル：練習問題 -->
+        <div class="right-panel">
+            <h2>練習問題</h2>
+            <p style="color: #666; font-size: 0.9em;">このDayはJavaScriptコードを実行します。console.logの出力が下の欄に表示されます。</p>
+
+            <div class="problem">
+                <h3>問1: querySelectorで要素を取得</h3>
+                <div class="problem-desc">
+                    <p>document.querySelector を使って body 要素を取得し、tagName を console.log で出力してください。</p>
+                    <p>期待する出力: <code>BODY</code></p>
+                </div>
+                <textarea id="code1">// document.querySelectorでbody要素を取得してtagNameを出力してください
+
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code1', 'result1')">実行</button>
+                <div class="result-area" id="result1"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問2: textContentとinnerHTMLの違い</h3>
+                <div class="problem-desc">
+                    <p>以下のコードを完成させて、textContentとinnerHTMLの違いを確認してください。</p>
+                </div>
+                <textarea id="code2">// divを動的に作成して、それぞれの違いを確認する
+const div1 = document.createElement("div");
+const div2 = document.createElement("div");
+
+// textContentを使って &lt;strong&gt;テスト&lt;/strong&gt; を設定
+// （タグが文字として表示される）
+
+
+// innerHTMLを使って &lt;strong&gt;テスト&lt;/strong&gt; を設定
+// （タグが実際に適用される）
+
+
+console.log("textContent:", div1.textContent);
+console.log("innerHTML:", div2.innerHTML);
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code2', 'result2')">実行</button>
+                <div class="result-area" id="result2"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問3: addEventListenerでクリックイベント</h3>
+                <div class="problem-desc">
+                    <p>ボタンを動的に作成し、クリックしたときにメッセージをconsole.logで出力するイベントを登録してください。</p>
+                    <p>（ヒント: document.body.appendChild でbodyに追加できます）</p>
+                </div>
+                <textarea id="code3">// ボタンを作ってクリックイベントを登録してください
+const btn = document.createElement("button");
+btn.textContent = "クリック！";
+
+// addEventListenerでclickイベントを登録する
+
+
+// bodyに追加
+document.body.appendChild(btn);
+console.log("ボタンをページに追加しました（ページ外のため直接クリックできません）");
+console.log("イベントリスナーが正しく登録されたか確認してください");
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code3', 'result3')">実行</button>
+                <div class="result-area" id="result3"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問4: 入力値をリアルタイムで取得</h3>
+                <div class="problem-desc">
+                    <p>inputイベントを使って、入力値をリアルタイムで取得するコードを書いてください。</p>
+                    <p>e.target.value で入力値が取れます。console.logで確認してみましょう。</p>
+                </div>
+                <textarea id="code4">// inputタグを動的に作成してinputイベントで値を取得する
+const input = document.createElement("input");
+input.placeholder = "ここに入力...";
+input.type = "text";
+
+// inputイベントを登録して入力値をconsole.logする
+
+
+document.body.appendChild(input);
+console.log("inputフィールドを追加しました。");
+console.log("（ページ内で直接入力することで動作を確認できます）");
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code4', 'result4')">実行</button>
+                <div class="result-area" id="result4"></div>
+            </div>
+
+            <div class="problem">
+                <h3>問5: 要素を動的に追加する</h3>
+                <div class="problem-desc">
+                    <p>createElement と appendChild を使って、ulに3つのliを追加するコードを書いてください。</p>
+                    <p>最後に ul.children.length をconsole.logで出力して確認しましょう。</p>
+                </div>
+                <textarea id="code5">// ulを作り、3つのliをappendChildで追加する
+const ul = document.createElement("ul");
+const items = ["りんご", "バナナ", "みかん"];
+
+// forEachでitemsを回してliを作り、ulに追加する
+
+
+// 追加された項目数をconsole.logで確認
+console.log("追加された項目数:", ul.children.length);
+
+// 各liのテキストも確認
+Array.from(ul.children).forEach(li => {
+    console.log("-", li.textContent);
+});
+</textarea>
+                <br>
+                <button class="btn" onclick="runCode('code5', 'result5')">実行</button>
+                <div class="result-area" id="result5"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* JSコードを実行してconsole.logの出力を result-area に表示する */
+        function runCode(codeId, resultId) {
+            const code = document.getElementById(codeId).value;
+            const resultEl = document.getElementById(resultId);
+            let output = [];
+
+            /* console.logをオーバーライドして出力を収集 */
+            const originalLog = console.log;
+            console.log = function(...args) {
+                output.push(args.map(arg =>
+                    typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+                ).join(' '));
+            };
+
+            try {
+                eval(code);
+                resultEl.textContent = output.length > 0 ? output.join('\n') : '(出力なし)';
+                resultEl.className = 'result-area success';
+            } catch (e) {
+                resultEl.textContent = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+
+            /* console.logを元に戻す */
+            console.log = originalLog;
+        }
+    </script>
+</body>
+</html>
