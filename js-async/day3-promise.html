@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3: Promise - JS非同期</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #ff9800; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            white-space: pre; background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; overflow-x: auto; margin: 15px 0; line-height: 1.5; }
+        .code-block .kw { color: #82b1ff; }
+        .code-block .cm { color: #78909c; }
+        .code-block .str { color: #ffcc02; }
+        .code-block .fn { color: #80cbc4; }
+        .point-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #e65100; }
+        .state-box { display: flex; gap: 10px; margin: 15px 0; }
+        .state-item { flex: 1; text-align: center; padding: 12px; border-radius: 8px; font-size: 0.9em; }
+        .state-pending { background: #fff3e0; border: 2px solid #ff9800; }
+        .state-fulfilled { background: #e8f5e9; border: 2px solid #4caf50; }
+        .state-rejected { background: #ffebee; border: 2px solid #ef5350; }
+        .demo-box { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .demo-box h3 { margin-top: 0; }
+        .demo-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .btn { display: inline-block; padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; margin: 5px 5px 5px 0; }
+        .btn:hover { background: #e65100; }
+        .output-area { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; margin-top: 10px; min-height: 80px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 3: Promise</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day2-callback.html">← Day2</a>
+            <a href="day4-async-await.html">次へ: async/await →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>Promise とは？</h2>
+            <p>「非同期処理の結果を将来届けることを<strong>約束する</strong>オブジェクト」です。<br>
+            コールバック地獄を解決し、非同期処理をチェーンで書けるようにしました。</p>
+
+            <h3>3つの状態</h3>
+            <div class="state-box">
+                <div class="state-item state-pending">
+                    <strong>pending</strong><br>
+                    待機中<br>
+                    <small>処理中</small>
+                </div>
+                <div class="state-item state-fulfilled">
+                    <strong>fulfilled</strong><br>
+                    成功<br>
+                    <small>resolve()が呼ばれた</small>
+                </div>
+                <div class="state-item state-rejected">
+                    <strong>rejected</strong><br>
+                    失敗<br>
+                    <small>reject()が呼ばれた</small>
+                </div>
+            </div>
+
+            <h3>Promiseの作り方</h3>
+            <div class="code-block">
+<span class="kw">const</span> promise = <span class="kw">new</span> <span class="fn">Promise</span>((resolve, reject) => {
+    setTimeout(() => {
+        <span class="kw">const</span> success = <span class="kw">true</span>;
+        <span class="kw">if</span> (success) {
+            resolve(<span class="str">"取得成功"</span>);  <span class="cm">// fulfilled</span>
+        } <span class="kw">else</span> {
+            reject(<span class="kw">new</span> Error(<span class="str">"失敗"</span>));  <span class="cm">// rejected</span>
+        }
+    }, 1000);
+});
+            </div>
+
+            <h3>.then() / .catch() / .finally()</h3>
+            <div class="code-block">
+promise
+    .then(result => {
+        console.log(<span class="str">"成功:"</span>, result);
+        <span class="kw">return</span> result + <span class="str">" + 追加処理"</span>;  <span class="cm">// 次の.thenへ</span>
+    })
+    .then(result2 => {
+        console.log(<span class="str">"次の処理:"</span>, result2);
+    })
+    .catch(err => {
+        console.log(<span class="str">"エラー:"</span>, err.message);
+    })
+    .finally(() => {
+        console.log(<span class="str">"成功/失敗どちらでも実行"</span>);
+    });
+            </div>
+
+            <div class="point-box">
+                <strong>コールバック地獄との比較</strong><br>
+                Promise を使うと非同期処理を<strong>縦に並べて</strong>書けます。
+                ネストが深くならず、エラーハンドリングも1か所で済みます。
+            </div>
+
+            <h3>Promise.all() — 複数を並列実行</h3>
+            <div class="code-block">
+<span class="cm">// 3つのAPIを同時に呼び出し、全部終わるのを待つ</span>
+<span class="fn">Promise</span>.all([
+    fetchUser(),
+    fetchOrders(),
+    fetchProducts()
+]).then(([user, orders, products]) => {
+    <span class="cm">// 全部揃ったら処理</span>
+    console.log(user, orders, products);
+}).catch(err => {
+    <span class="cm">// どれか1つでも失敗したらここへ</span>
+});
+            </div>
+
+            <h3>Promise.race() — 最初の完了を待つ</h3>
+            <div class="code-block">
+<span class="cm">// タイムアウト処理などに使う</span>
+<span class="fn">Promise</span>.race([
+    fetchData(),
+    <span class="kw">new</span> <span class="fn">Promise</span>((_, reject) =>
+        setTimeout(() => reject(<span class="kw">new</span> Error(<span class="str">"タイムアウト"</span>)), 5000)
+    )
+]).then(result => console.log(result))
+  .catch(err => console.log(err.message));
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>インタラクティブ実験</h2>
+
+            <div class="demo-box">
+                <h3>実験1: resolve / reject</h3>
+                <div class="demo-desc">
+                    「成功」と「失敗」で .then() と .catch() がどちらに流れるか確認します。
+                </div>
+                <button class="btn" onclick="runPromise(true)">成功（resolve）</button>
+                <button class="btn" onclick="runPromise(false)">失敗（reject）</button>
+                <button class="btn" onclick="clearOut('out1')">クリア</button>
+                <div class="output-area" id="out1">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験2: .then() チェーン</h3>
+                <div class="demo-desc">
+                    コールバック地獄と比較：Promise チェーンで「ユーザー → 注文 → 商品」を取得します。
+                    フラットに書けることを確認しましょう。
+                </div>
+                <button class="btn" onclick="runChain()">チェーン実行</button>
+                <button class="btn" onclick="clearOut('out2')">クリア</button>
+                <div class="output-area" id="out2">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験3: Promise.all() — 並列実行</h3>
+                <div class="demo-desc">
+                    3つのAPIを<strong>並列</strong>で呼び出します。順次実行より速いことを確認しましょう。
+                </div>
+                <button class="btn" onclick="runAll()">Promise.all 実行</button>
+                <button class="btn" onclick="clearOut('out3')">クリア</button>
+                <div class="output-area" id="out3">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験4: .finally() と エラーの流れ</h3>
+                <div class="demo-desc">
+                    チェーンの途中でエラーが発生した場合、.catch() に流れて .finally() が必ず実行されます。
+                </div>
+                <button class="btn" onclick="runFinally(false)">正常実行</button>
+                <button class="btn" onclick="runFinally(true)">途中でエラー</button>
+                <button class="btn" onclick="clearOut('out4')">クリア</button>
+                <div class="output-area" id="out4">（ここに出力されます）</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(id, msg) {
+            const el = document.getElementById(id);
+            const now = new Date().toLocaleTimeString('ja-JP', {hour12:false});
+            if (el.textContent.startsWith('（')) el.textContent = '';
+            el.textContent += `[${now}] ${msg}\n`;
+        }
+        function clearOut(id) { document.getElementById(id).textContent = '（ここに出力されます）'; }
+
+        function fakeApiPromise(name, delay, shouldFail = false) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (shouldFail) reject(new Error(`${name} の取得に失敗`));
+                    else resolve({ name, id: Math.floor(Math.random() * 100) });
+                }, delay);
+            });
+        }
+
+        function runPromise(success) {
+            log('out1', `Promise を作成... (${success ? '成功' : '失敗'} を想定)`);
+            new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (success) resolve('データ取得成功: { id: 1, name: "田中" }');
+                    else reject(new Error('ネットワーク接続エラー'));
+                }, 800);
+            })
+            .then(result => log('out1', `✅ .then() 実行: ${result}`))
+            .catch(err => log('out1', `❌ .catch() 実行: ${err.message}`))
+            .finally(() => log('out1', '🏁 .finally() 実行（常に実行される）'));
+        }
+
+        function runChain() {
+            document.getElementById('out2').textContent = '';
+            log('out2', 'Promiseチェーン開始...');
+            fakeApiPromise('ユーザー', 600)
+                .then(user => {
+                    log('out2', `→ ユーザー取得: ${user.name} (id:${user.id})`);
+                    return fakeApiPromise('注文', 500);
+                })
+                .then(order => {
+                    log('out2', `→ 注文取得: ${order.name} (id:${order.id})`);
+                    return fakeApiPromise('商品', 400);
+                })
+                .then(product => {
+                    log('out2', `→ 商品取得: ${product.name}`);
+                    log('out2', '✅ 全データ取得完了（ネスト無し・フラットに書けた！）');
+                })
+                .catch(err => log('out2', `❌ エラー: ${err.message}`));
+        }
+
+        function runAll() {
+            document.getElementById('out3').textContent = '';
+            const start = Date.now();
+            log('out3', '3つのAPIを同時に開始...');
+            Promise.all([
+                fakeApiPromise('ユーザー', 800),
+                fakeApiPromise('注文リスト', 600),
+                fakeApiPromise('商品カタログ', 1000)
+            ]).then(([user, orders, products]) => {
+                const elapsed = Date.now() - start;
+                log('out3', `✅ 全て完了！（${elapsed}ms）`);
+                log('out3', `  ユーザー: ${user.name}`);
+                log('out3', `  注文: ${orders.name}`);
+                log('out3', `  商品: ${products.name}`);
+                log('out3', '→ 最大1000ms。順次実行なら2400msかかっていた');
+            }).catch(err => log('out3', `❌ 1つでも失敗: ${err.message}`));
+        }
+
+        function runFinally(withError) {
+            document.getElementById('out4').textContent = '';
+            log('out4', `実行開始 (${withError ? 'エラーあり' : '正常'})`);
+            fakeApiPromise('ステップ1', 500)
+                .then(r => {
+                    log('out4', `✅ ステップ1完了: ${r.name}`);
+                    if (withError) throw new Error('ステップ2でエラーが発生！');
+                    return fakeApiPromise('ステップ2', 400);
+                })
+                .then(r => log('out4', `✅ ステップ2完了: ${r.name}`))
+                .catch(err => log('out4', `❌ .catch()で補足: ${err.message}`))
+                .finally(() => log('out4', '🏁 .finally()は常に実行される（クリーンアップ等に使う）'));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 5: fetch API - JS非同期</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #ff9800; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            white-space: pre; background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; overflow-x: auto; margin: 15px 0; line-height: 1.5; }
+        .code-block .kw { color: #82b1ff; }
+        .code-block .cm { color: #78909c; }
+        .code-block .str { color: #ffcc02; }
+        .code-block .fn { color: #80cbc4; }
+        .point-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #e65100; }
+        .warn-box { background: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warn-box strong { color: #b71c1c; }
+        .http-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9em; }
+        .http-table th { background: #ff9800; color: white; padding: 8px; }
+        .http-table td { border: 1px solid #ddd; padding: 8px; }
+        .http-table tr:nth-child(even) { background: #f5f5f5; }
+        .demo-box { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .demo-box h3 { margin-top: 0; }
+        .demo-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9em; }
+        .btn { display: inline-block; padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; margin: 5px 5px 5px 0; }
+        .btn:hover { background: #e65100; }
+        .output-area { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 12px; margin-top: 10px; min-height: 80px; white-space: pre-wrap; max-height: 250px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 5: fetch API</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day4-async-await.html">← Day4</a>
+            <a href="day6-web-tips.html">次へ: WEB開発の注意点 →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>fetch API とは？</h2>
+            <p>ブラウザからサーバーへHTTPリクエストを送るためのAPIです。<br>
+            フロントエンドがバックエンドAPIと通信する時に使います。</p>
+
+            <h3>HTTPメソッド</h3>
+            <table class="http-table">
+                <tr><th>メソッド</th><th>用途</th><th>例</th></tr>
+                <tr><td><strong>GET</strong></td><td>データを取得</td><td>一覧・詳細表示</td></tr>
+                <tr><td><strong>POST</strong></td><td>データを送信・作成</td><td>新規登録</td></tr>
+                <tr><td><strong>PUT</strong></td><td>データを更新（全体）</td><td>編集・更新</td></tr>
+                <tr><td><strong>DELETE</strong></td><td>データを削除</td><td>削除</td></tr>
+            </table>
+
+            <h3>GETリクエスト（基本形）</h3>
+            <div class="code-block">
+<span class="cm">// async/await を使った fetch</span>
+<span class="kw">async function</span> <span class="fn">getUsers</span>() {
+    <span class="kw">const</span> response = <span class="kw">await</span> fetch(<span class="str">'/api/users'</span>);
+
+    <span class="cm">// HTTPステータスのチェック</span>
+    <span class="kw">if</span> (!response.ok) {
+        <span class="kw">throw new</span> Error(<span class="str">`HTTP error: ${response.status}`</span>);
+    }
+
+    <span class="kw">const</span> data = <span class="kw">await</span> response.json();  <span class="cm">// JSONパース</span>
+    <span class="kw">return</span> data;
+}
+            </div>
+
+            <div class="warn-box">
+                <strong>fetchの落とし穴：HTTPエラーでもthrowしない</strong><br>
+                fetch は 404/500 でも reject されません。<br>
+                必ず <code>response.ok</code> または <code>response.status</code> を確認してください。
+            </div>
+
+            <h3>POSTリクエスト（データ送信）</h3>
+            <div class="code-block">
+<span class="kw">async function</span> <span class="fn">createOrder</span>(orderData) {
+    <span class="kw">const</span> response = <span class="kw">await</span> fetch(<span class="str">'/api/orders'</span>, {
+        method: <span class="str">'POST'</span>,
+        headers: {
+            <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>
+        },
+        body: <span class="fn">JSON.stringify</span>(orderData)  <span class="cm">// オブジェクト→JSON文字列</span>
+    });
+    <span class="kw">if</span> (!response.ok) {
+        <span class="kw">throw new</span> Error(<span class="str">`エラー: ${response.status}`</span>);
+    }
+    <span class="kw">return</span> response.json();
+}
+            </div>
+
+            <h3>フロントエンド・バックエンド間の通信フロー</h3>
+            <div class="point-box">
+                <strong>実際の流れ</strong><br>
+                ① フロント: <code>fetch('/api/users')</code> を呼ぶ<br>
+                ② バックエンド（C#等）: SQLを実行してデータを取得<br>
+                ③ バックエンド: JSON形式でレスポンス<br>
+                ④ フロント: <code>response.json()</code> でパース → 画面に表示<br><br>
+                フロントはAPIのURLを知るだけでよく、SQLやDBの詳細を知らなくてよい
+            </div>
+
+            <h3>JSONPlaceholder（練習用API）</h3>
+            <div class="code-block">
+<span class="cm">// 無料で使える練習用REST API</span>
+<span class="cm">// https://jsonplaceholder.typicode.com/</span>
+
+GET /users        <span class="cm">→ ユーザー一覧</span>
+GET /posts        <span class="cm">→ 投稿一覧</span>
+GET /users/1      <span class="cm">→ id=1のユーザー</span>
+POST /posts       <span class="cm">→ 投稿作成（疑似）</span>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>インタラクティブ実験（実際のAPI使用）</h2>
+            <p style="color:#666; font-size:0.9em;">※ JSONPlaceholder（外部練習用API）を使います。インターネット接続が必要です。</p>
+
+            <div class="demo-box">
+                <h3>実験1: GETリクエスト</h3>
+                <div class="demo-desc">
+                    JSONPlaceholder APIからユーザー一覧を取得します。<br>
+                    <code>fetch → response.json() → 表示</code> の流れを確認しましょう。
+                </div>
+                <button class="btn" onclick="getUsers()">ユーザー一覧を取得</button>
+                <button class="btn" onclick="clearOut('out1')">クリア</button>
+                <div class="output-area" id="out1">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験2: GETリクエスト（1件）</h3>
+                <div class="demo-desc">
+                    IDを指定して1件のユーザーを取得します。
+                </div>
+                ID: <input type="number" id="userId" value="1" min="1" max="10" style="width:60px; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                <button class="btn" onclick="getUserById()">取得</button>
+                <button class="btn" onclick="clearOut('out2')">クリア</button>
+                <div class="output-area" id="out2">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験3: HTTPエラーの確認</h3>
+                <div class="demo-desc">
+                    存在しないIDを指定すると404エラーになります。<br>
+                    <strong>fetch は 404でもrejectしない</strong>ため、<code>response.ok</code>のチェックが重要です。
+                </div>
+                <button class="btn" onclick="getWithErrorCheck(false)">エラーチェックなし（危険）</button>
+                <button class="btn" onclick="getWithErrorCheck(true)">エラーチェックあり（安全）</button>
+                <button class="btn" onclick="clearOut('out3')">クリア</button>
+                <div class="output-area" id="out3">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験4: POST リクエスト（データ送信）</h3>
+                <div class="demo-desc">
+                    新しい投稿データをPOSTします。実際に送受信されるJSONを確認しましょう。<br>
+                    ※ JSONPlaceholderはデータを保存しませんが、レスポンスを返します。
+                </div>
+                <button class="btn" onclick="createPost()">POSTで投稿を作成</button>
+                <button class="btn" onclick="clearOut('out4')">クリア</button>
+                <div class="output-area" id="out4">（ここに出力されます）</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE = 'https://jsonplaceholder.typicode.com';
+
+        function log(id, msg) {
+            const el = document.getElementById(id);
+            if (el.textContent.startsWith('（')) el.textContent = '';
+            el.textContent += msg + '\n';
+        }
+        function clearOut(id) { document.getElementById(id).textContent = '（ここに出力されます）'; }
+
+        async function getUsers() {
+            clearOut('out1');
+            log('out1', '📡 GET /users を送信中...');
+            try {
+                const response = await fetch(`${BASE}/users`);
+                log('out1', `ステータス: ${response.status} ${response.ok ? '✅ OK' : '❌ Error'}`);
+                const data = await response.json();
+                log('out1', `取得件数: ${data.length}件\n`);
+                data.slice(0, 5).forEach(user => {
+                    log('out1', `  ${user.id}: ${user.name} <${user.email}>`);
+                });
+                if (data.length > 5) log('out1', `  ...他${data.length - 5}件`);
+            } catch (err) {
+                log('out1', `❌ 通信エラー: ${err.message}`);
+            }
+        }
+
+        async function getUserById() {
+            const id = document.getElementById('userId').value;
+            clearOut('out2');
+            log('out2', `📡 GET /users/${id} を送信中...`);
+            try {
+                const response = await fetch(`${BASE}/users/${id}`);
+                log('out2', `ステータス: ${response.status}`);
+                if (!response.ok) {
+                    log('out2', `❌ HTTPエラー: ${response.status}`);
+                    return;
+                }
+                const user = await response.json();
+                log('out2', '\nレスポンス (JSON):');
+                log('out2', JSON.stringify(user, null, 2));
+            } catch (err) {
+                log('out2', `❌ 通信エラー: ${err.message}`);
+            }
+        }
+
+        async function getWithErrorCheck(check) {
+            clearOut('out3');
+            log('out3', '📡 存在しないID(999)にリクエスト...');
+            try {
+                const response = await fetch(`${BASE}/users/999`);
+                log('out3', `ステータス: ${response.status} ${response.statusText}`);
+
+                if (!check) {
+                    // エラーチェックなし
+                    const data = await response.json();
+                    log('out3', `\nデータ: ${JSON.stringify(data)}`);
+                    log('out3', '\n⚠️ エラーチェックなし：空オブジェクトが返るがエラーに気づかない！');
+                } else {
+                    // エラーチェックあり
+                    if (!response.ok) {
+                        throw new Error(`HTTPエラー: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    log('out3', JSON.stringify(data));
+                }
+            } catch (err) {
+                log('out3', `❌ エラーを補足: ${err.message}`);
+                log('out3', '\n✅ エラーチェックあり：問題を正しく検知できた');
+            }
+        }
+
+        async function createPost() {
+            clearOut('out4');
+            const postData = {
+                title: '新しい投稿',
+                body: 'テスト投稿の内容です',
+                userId: 1
+            };
+            log('out4', '📡 POST /posts を送信中...');
+            log('out4', 'リクエストボディ:');
+            log('out4', JSON.stringify(postData, null, 2));
+            log('out4', '');
+            try {
+                const response = await fetch(`${BASE}/posts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(postData)
+                });
+                log('out4', `ステータス: ${response.status} (201 Created)`);
+                const created = await response.json();
+                log('out4', '\nレスポンス:');
+                log('out4', JSON.stringify(created, null, 2));
+                log('out4', '\n✅ POSTでデータを送信し、作成されたデータが返ってきた');
+            } catch (err) {
+                log('out4', `❌ エラー: ${err.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

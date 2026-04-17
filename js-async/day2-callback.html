@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 2: コールバック関数 - JS非同期</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #ff9800; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            white-space: pre; background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; overflow-x: auto; margin: 15px 0; line-height: 1.5; }
+        .code-block .kw { color: #82b1ff; }
+        .code-block .cm { color: #78909c; }
+        .code-block .str { color: #ffcc02; }
+        .code-block .fn { color: #80cbc4; }
+        .point-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #e65100; }
+        .warn-box { background: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warn-box strong { color: #b71c1c; }
+        .demo-box { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .demo-box h3 { margin-top: 0; }
+        .demo-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .btn { display: inline-block; padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; margin: 5px 5px 5px 0; }
+        .btn:hover { background: #e65100; }
+        .output-area { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; margin-top: 10px; min-height: 80px; white-space: pre-wrap; }
+        .indent1 { padding-left: 20px; }
+        .indent2 { padding-left: 40px; }
+        .indent3 { padding-left: 60px; }
+        .indent4 { padding-left: 80px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 2: コールバック関数</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day1-sync-async.html">← Day1</a>
+            <a href="day3-promise.html">次へ: Promise →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>コールバック関数とは？</h2>
+            <p>「後で呼び出してください」と渡す関数のことです。<br>
+            非同期処理が完了したときに実行してほしい処理を、関数として渡します。</p>
+
+            <div class="code-block">
+<span class="cm">// コールバックの基本形</span>
+<span class="kw">function</span> <span class="fn">doSomething</span>(callback) {
+    <span class="cm">// 処理が終わったらcallbackを呼ぶ</span>
+    setTimeout(<span class="kw">function</span>() {
+        callback(<span class="str">"処理完了"</span>);
+    }, 1000);
+}
+
+<span class="fn">doSomething</span>(<span class="kw">function</span>(result) {
+    console.log(result);  <span class="cm">// 1秒後に "処理完了"</span>
+});
+            </div>
+
+            <div class="point-box">
+                <strong>ポイント: 関数を「引数として渡す」</strong><br>
+                JavaScriptでは関数を変数と同じように渡せます。<br>
+                コールバックは「処理が終わったら呼ぶ関数」として使われます。
+            </div>
+
+            <h3>実際の例: setTimeout のコールバック</h3>
+            <div class="code-block">
+<span class="cm">// setTimeout の第1引数がコールバック</span>
+setTimeout(<span class="kw">function</span>() {
+    console.log(<span class="str">"2秒後に実行！"</span>);
+}, 2000);
+<span class="cm">//  ↑ これがコールバック関数</span>
+            </div>
+
+            <h3>コールバック地獄</h3>
+            <p>非同期処理を<strong>順番に</strong>実行しようとすると、コールバックの中にコールバックが…と深くなっていきます。</p>
+
+            <div class="code-block">
+<span class="cm">// ① ユーザーを取得</span>
+<span class="fn">getUser</span>(userId, <span class="kw">function</span>(user) {
+<div class="indent1">    <span class="cm">// ② そのユーザーの注文を取得</span>
+    <span class="fn">getOrders</span>(user.id, <span class="kw">function</span>(orders) {
+<div class="indent2">        <span class="cm">// ③ 最新注文の詳細を取得</span>
+        <span class="fn">getOrderDetail</span>(orders[0].id, <span class="kw">function</span>(detail) {
+<div class="indent3">            <span class="cm">// ④ 商品情報を取得</span>
+            <span class="fn">getProduct</span>(detail.productId, <span class="kw">function</span>(product) {
+<div class="indent4">                console.log(product.name);</div>
+            });
+</div>        });
+</div>    });
+</div>});
+            </div>
+
+            <div class="warn-box">
+                <strong>コールバック地獄の問題点</strong>
+                <ul style="margin:8px 0 0;">
+                    <li>ネストが深くなり読みにくい（ピラミッド型）</li>
+                    <li>エラーハンドリングを各段階で書く必要がある</li>
+                    <li>処理の流れを追うのが困難</li>
+                    <li>修正・テストが難しい</li>
+                </ul>
+                この問題を解決するために <strong>Promise</strong> が生まれました（Day 3）。
+            </div>
+
+            <h3>エラーハンドリングの難しさ</h3>
+            <div class="code-block">
+<span class="cm">// 各段階でエラー処理が必要...</span>
+<span class="fn">getUser</span>(id, <span class="kw">function</span>(err, user) {
+    <span class="kw">if</span> (err) { handleError(err); <span class="kw">return</span>; }
+    <span class="fn">getOrders</span>(user.id, <span class="kw">function</span>(err, orders) {
+        <span class="kw">if</span> (err) { handleError(err); <span class="kw">return</span>; }
+        <span class="cm">// ...さらにネストが続く</span>
+    });
+});
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>インタラクティブ実験</h2>
+
+            <div class="demo-box">
+                <h3>実験1: コールバックの基本</h3>
+                <div class="demo-desc">
+                    「注文する」ボタンを押すと、料理の準備（非同期）が終わってからコールバックが呼ばれます。
+                </div>
+                <button class="btn" onclick="order()">注文する</button>
+                <button class="btn" onclick="clearOut('out1')">クリア</button>
+                <div class="output-area" id="out1">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験2: コールバック地獄のデモ</h3>
+                <div class="demo-desc">
+                    「ユーザー → 注文 → 商品情報」を順番に取得します。
+                    各処理が前の結果を使っているため、ネストが必要です。
+                </div>
+                <button class="btn" onclick="fetchChain()">データ取得開始</button>
+                <button class="btn" onclick="clearOut('out2')">クリア</button>
+                <div class="output-area" id="out2">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験3: エラーが発生した場合</h3>
+                <div class="demo-desc">
+                    コールバックでのエラーハンドリングを確認します。<br>
+                    「正常」と「エラーあり」で動作の違いを見てみましょう。
+                </div>
+                <button class="btn" onclick="fetchWithError(false)">正常取得</button>
+                <button class="btn" onclick="fetchWithError(true)">エラー発生させる</button>
+                <button class="btn" onclick="clearOut('out3')">クリア</button>
+                <div class="output-area" id="out3">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>考えてみよう: コールバックの問題</h3>
+                <div class="demo-desc">
+                    <p>「ユーザー取得 → 注文取得 → 明細取得 → 商品取得 → 在庫確認」の5段階処理を
+                    コールバックで書くと何段のネストになりますか？</p>
+                    <p>→ 5段ネスト！ これが「コールバック地獄」です。<br>
+                    Day 3 の Promise でこれをフラットに書けるようになります。</p>
+                </div>
+                <button class="btn" onclick="showNested()">5段ネストを表示</button>
+                <button class="btn" onclick="clearOut('out4')">クリア</button>
+                <div class="output-area" id="out4">（ここに出力されます）</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(id, msg) {
+            const el = document.getElementById(id);
+            const now = new Date().toLocaleTimeString('ja-JP', {hour12:false});
+            el.textContent += `[${now}] ${msg}\n`;
+        }
+        function clearOut(id) { document.getElementById(id).textContent = '（ここに出力されます）'; }
+
+        function order() {
+            document.getElementById('out1').textContent = '';
+            log('out1', '注文を受け付けました');
+            log('out1', '料理を準備中...');
+            setTimeout(function() {
+                log('out1', '✅ 料理が完成しました！（コールバックが呼ばれた）');
+                log('out1', '→ 完成後にコールバックが実行されている');
+            }, 1500);
+            log('out1', '（準備中でも他のことができます）');
+        }
+
+        function fakeApi(name, delay, callback) {
+            setTimeout(function() {
+                callback({ name: name, id: Math.floor(Math.random() * 1000) });
+            }, delay);
+        }
+
+        function fetchChain() {
+            document.getElementById('out2').textContent = '';
+            log('out2', '① ユーザー情報を取得中...');
+            fakeApi('田中太郎', 800, function(user) {
+                log('out2', `   → ユーザー取得: ${user.name} (id:${user.id})`);
+                log('out2', '② 注文情報を取得中...');
+                fakeApi('注文#123', 600, function(order) {
+                    log('out2', `   → 注文取得: ${order.name} (id:${order.id})`);
+                    log('out2', '③ 商品情報を取得中...');
+                    fakeApi('りんご', 500, function(product) {
+                        log('out2', `   → 商品取得: ${product.name}`);
+                        log('out2', '✅ 全データ取得完了（3段ネストで実現）');
+                    });
+                });
+            });
+        }
+
+        function fetchWithError(hasError) {
+            document.getElementById('out3').textContent = '';
+            log('out3', 'データ取得開始...');
+            setTimeout(function() {
+                if (hasError) {
+                    const err = new Error('ネットワークエラー：サーバーに接続できません');
+                    log('out3', `❌ エラー発生: ${err.message}`);
+                    log('out3', '→ エラーハンドリングが必要（各段階ごとに必要になる）');
+                } else {
+                    log('out3', '✅ データ取得成功');
+                    log('out3', '{ id: 1, name: "田中太郎", email: "tanaka@example.com" }');
+                }
+            }, 1000);
+        }
+
+        function showNested() {
+            document.getElementById('out4').textContent = '';
+            const nested = `getUser(id, function(err, user) {          // 1段目
+  getOrders(user.id, function(err, orders) { // 2段目
+    getDetail(orders[0].id, function(err, d) { // 3段目
+      getProduct(d.productId, function(err, p) { // 4段目
+        checkStock(p.id, function(err, stock) { // 5段目
+          console.log(stock);
+        });
+      });
+    });
+  });
+});
+
+↓ Promise(Day3)を使うとこうなる
+
+getUser(id)
+  .then(user => getOrders(user.id))
+  .then(orders => getDetail(orders[0].id))
+  .then(d => getProduct(d.productId))
+  .then(p => checkStock(p.id))
+  .then(stock => console.log(stock))
+  .catch(err => handleError(err));`;
+            document.getElementById('out4').textContent = nested;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学習ポータル</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .subtitle { text-align: center; color: #666; margin-bottom: 50px; }
+
+        /* カテゴリ */
+        .category { margin-bottom: 40px; }
+        .category-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #888;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+        /* コースカード */
+        .course-card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.18s, box-shadow 0.18s;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-top: 4px solid transparent;
+        }
+        .course-card:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+
+        /* テーマカラー */
+        .theme-blue   { border-top-color: #2196F3; }
+        .theme-orange { border-top-color: #ff9800; }
+        .theme-green  { border-top-color: #4caf50; }
+        .theme-purple { border-top-color: #9c27b0; }
+        .theme-teal   { border-top-color: #009688; }
+        .theme-amber  { border-top-color: #e65100; }
+        .theme-navy   { border-top-color: #1976d2; }
+        .theme-grey   { border-top-color: #607d8b; }
+
+        .card-header { display: flex; align-items: center; gap: 12px; }
+        .card-icon {
+            width: 44px; height: 44px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4em; flex-shrink: 0;
+        }
+        .icon-blue   { background: #e3f2fd; }
+        .icon-orange { background: #fff3e0; }
+        .icon-green  { background: #e8f5e9; }
+        .icon-purple { background: #f3e5f5; }
+        .icon-teal   { background: #e0f2f1; }
+        .icon-amber  { background: #fff3e0; }
+        .icon-navy   { background: #e3f2fd; }
+        .icon-grey   { background: #eceff1; }
+
+        .card-title { font-size: 1.05em; font-weight: bold; }
+        .card-tag {
+            display: inline-block; font-size: 0.72em; padding: 2px 6px;
+            border-radius: 4px; vertical-align: middle; margin-left: 4px;
+        }
+        .tag-blue   { background: #e3f2fd; color: #1565c0; }
+        .tag-teal   { background: #e0f2f1; color: #00695c; }
+        .tag-amber  { background: #fff3e0; color: #e65100; }
+
+        .card-desc { font-size: 0.88em; color: #666; }
+        .card-meta { font-size: 0.82em; color: #999; display: flex; gap: 10px; }
+        .card-days::before { content: "📚 "; }
+        .card-time::before { content: "⏱ "; }
+        .card-prereq::before { content: "🔗 "; }
+
+        /* 推奨順 */
+        .path-section { background: white; border-radius: 14px; padding: 24px; margin-bottom: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .path-section h2 { margin: 0 0 16px; color: #333; }
+        .path-flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .path-node {
+            padding: 8px 14px; border-radius: 8px; font-size: 0.88em;
+            font-weight: bold; white-space: nowrap;
+        }
+        .path-arrow { color: #aaa; font-size: 1.2em; }
+        .p-blue   { background: #e3f2fd; color: #1565c0; }
+        .p-orange { background: #fff3e0; color: #e65100; }
+        .p-teal   { background: #e0f2f1; color: #00695c; }
+        .p-purple { background: #f3e5f5; color: #6a1b9a; }
+        .p-grey   { background: #eceff1; color: #455a64; }
+        .path-label { font-size: 0.85em; font-weight: bold; color: #666; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <h1>📚 学習ポータル</h1>
+    <p class="subtitle">システム開発学習教材一覧</p>
+
+    <!-- 推奨学習順 -->
+    <div class="path-section">
+        <h2>推奨学習順</h2>
+        <div class="path-label">① 基礎編</div>
+        <div class="path-flow">
+            <span class="path-node p-blue">HTML/CSS</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node p-orange">JavaScript基礎</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node p-orange">Vue.js</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node p-teal">SQL基礎</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node p-purple">C#基礎</span>
+        </div>
+        <div class="path-label" style="margin-top:18px;">② 応用編（基礎編を一通り終えてから）</div>
+        <div class="path-flow">
+            <span class="path-node p-orange">JS非同期</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node p-teal">SQL応用</span>
+            <span class="path-arrow">→</span>
+            <span class="path-node p-grey">開発プロセス</span>
+        </div>
+    </div>
+
+    <!-- フロントエンド系 -->
+    <div class="category">
+        <div class="category-title">フロントエンド</div>
+        <div class="course-grid">
+            <a href="html-basics/index.html" class="course-card theme-blue">
+                <div class="card-header">
+                    <div class="card-icon icon-blue">🌐</div>
+                    <div class="card-title">HTML / CSS 基礎</div>
+                </div>
+                <div class="card-desc">HTMLの構造・テキスト・フォーム・CSSレイアウト・DOM操作の基礎を学びます。</div>
+                <div class="card-meta">
+                    <span class="card-days">全7レッスン</span>
+                    <span class="card-time">目安 8時間 / 2日</span>
+                </div>
+            </a>
+            <a href="js-basics/index.html" class="course-card theme-orange">
+                <div class="card-header">
+                    <div class="card-icon icon-orange">⚙️</div>
+                    <div class="card-title">JavaScript 基礎</div>
+                </div>
+                <div class="card-desc">変数・条件・ループ・配列・オブジェクト・関数。プログラミングの基本を学びます。</div>
+                <div class="card-meta">
+                    <span class="card-days">全7レッスン</span>
+                    <span class="card-time">目安 8時間 / 2日</span>
+                </div>
+            </a>
+            <a href="js-async/index.html" class="course-card theme-amber">
+                <div class="card-header">
+                    <div class="card-icon icon-amber">⏱️</div>
+                    <div class="card-title">JS 非同期プログラミング <span class="card-tag tag-amber">Part 2</span></div>
+                </div>
+                <div class="card-desc">同期・非同期の違い、コールバック・Promise・async/await・fetch API。WEB開発の必須知識。</div>
+                <div class="card-meta">
+                    <span class="card-days">全6レッスン</span>
+                    <span class="card-time">目安 6時間 / 2日</span>
+                    <span class="card-prereq">JavaScript基礎</span>
+                </div>
+            </a>
+            <a href="vue-basics/index.html" class="course-card theme-green">
+                <div class="card-header">
+                    <div class="card-icon icon-green">🖼️</div>
+                    <div class="card-title">Vue.js 基礎</div>
+                </div>
+                <div class="card-desc">データバインディング・イベント・コンポーネント・Computed。モダンUIフレームワークを学びます。</div>
+                <div class="card-meta">
+                    <span class="card-days">全7レッスン</span>
+                    <span class="card-time">目安 8時間 / 2日</span>
+                    <span class="card-prereq">JavaScript基礎</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- バックエンド・DB系 -->
+    <div class="category">
+        <div class="category-title">バックエンド / データベース</div>
+        <div class="course-grid">
+            <a href="sql-basics/index.html" class="course-card theme-navy">
+                <div class="card-header">
+                    <div class="card-icon icon-navy">🗄️</div>
+                    <div class="card-title">SQL 基礎</div>
+                </div>
+                <div class="card-desc">SELECT・WHERE・ORDER BY・集計（GROUP BY）・JOIN。データベース操作の基礎。</div>
+                <div class="card-meta">
+                    <span class="card-days">全5レッスン</span>
+                    <span class="card-time">目安 5時間 / 2日</span>
+                </div>
+            </a>
+            <a href="sql-basics-2/index.html" class="course-card theme-teal">
+                <div class="card-header">
+                    <div class="card-icon icon-teal">🔍</div>
+                    <div class="card-title">SQL 応用 <span class="card-tag tag-teal">Part 2</span></div>
+                </div>
+                <div class="card-desc">サブクエリ・ウィンドウ関数・トランザクション・インデックス・フロント/バック役割分担。</div>
+                <div class="card-meta">
+                    <span class="card-days">全6レッスン</span>
+                    <span class="card-time">目安 6時間 / 2日</span>
+                    <span class="card-prereq">SQL基礎</span>
+                </div>
+            </a>
+            <a href="csharp-basics/index.html" class="course-card theme-purple">
+                <div class="card-header">
+                    <div class="card-icon icon-purple">💻</div>
+                    <div class="card-title">C# 基礎</div>
+                </div>
+                <div class="card-desc">変数・条件・ループ・コレクション・クラス・継承・インターフェース・LINQ。</div>
+                <div class="card-meta">
+                    <span class="card-days">全9レッスン</span>
+                    <span class="card-time">目安 12時間 / 3日</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 開発知識 -->
+    <div class="category">
+        <div class="category-title">開発プロセス・知識</div>
+        <div class="course-grid">
+            <a href="dev-process/index.html" class="course-card theme-grey">
+                <div class="card-header">
+                    <div class="card-icon icon-grey">🏗️</div>
+                    <div class="card-title">開発プロセス基礎</div>
+                </div>
+                <div class="card-desc">受発注・要件定義・基本設計・詳細設計・開発・テスト・リリース。システム開発の流れを学びます。</div>
+                <div class="card-meta">
+                    <span class="card-days">全8レッスン</span>
+                    <span class="card-time">目安 8時間 / 2日</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

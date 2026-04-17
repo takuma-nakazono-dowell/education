@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 6: フロント/バックエンドの役割分担 - SQL応用</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #00897b; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+        h2 { color: #00695c; border-bottom: 2px solid #00897b; padding-bottom: 10px; }
+        h3 { color: #00897b; margin-top: 25px; }
+        .point-box { background: #e0f2f1; border-left: 4px solid #00897b; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #00695c; }
+        .warn-box { background: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warn-box strong { color: #b71c1c; }
+
+        /* アーキテクチャ図 */
+        .arch-diagram { background: white; border-radius: 12px; padding: 30px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .arch-row { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; flex-wrap: wrap; }
+        .arch-box {
+            border-radius: 10px; padding: 15px 20px; text-align: center; min-width: 140px;
+            font-weight: bold; font-size: 0.95em;
+        }
+        .arch-box.browser { background: #e3f2fd; border: 2px solid #1976d2; color: #1976d2; }
+        .arch-box.web { background: #e8f5e9; border: 2px solid #388e3c; color: #388e3c; }
+        .arch-box.csharp { background: #f3e5f5; border: 2px solid #7b1fa2; color: #7b1fa2; }
+        .arch-box.db { background: #fff3e0; border: 2px solid #f57c00; color: #f57c00; }
+        .arch-box.user { background: #fce4ec; border: 2px solid #c2185b; color: #c2185b; }
+        .arch-arrow { font-size: 1.5em; color: #666; }
+        .arch-label { font-size: 0.8em; color: #888; text-align: center; margin-top: 4px; }
+        .arch-note { font-size: 0.85em; margin-top: 5px; font-weight: normal; }
+
+        /* 役割分担表 */
+        .role-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .role-table th { padding: 12px; text-align: left; }
+        .role-table td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+        .role-table .th-front { background: #1976d2; color: white; }
+        .role-table .th-back { background: #388e3c; color: white; }
+        .role-table .th-db { background: #f57c00; color: white; }
+        .yes { color: #388e3c; font-weight: bold; }
+        .no { color: #e53935; }
+        .partial { color: #f57c00; }
+
+        /* クイズ */
+        .quiz-section { background: white; border-radius: 12px; padding: 25px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .quiz-section h3 { margin-top: 0; }
+        .scenario { background: #f5f5f5; border-radius: 8px; padding: 15px; margin: 15px 0; }
+        .scenario-options { margin-top: 10px; }
+        .scenario-options label { display: block; padding: 8px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #ddd; margin: 5px 0; background: white; }
+        .scenario-options label:hover { background: #e0f2f1; border-color: #00897b; }
+        .btn { display: inline-block; padding: 10px 20px; background: #00897b; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; margin-top: 10px; }
+        .btn:hover { background: #00695c; }
+        .quiz-result { margin-top: 12px; padding: 12px; border-radius: 6px; display: none; }
+        .quiz-result.correct { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .quiz-result.wrong { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+
+        .two-col { display: flex; gap: 20px; flex-wrap: wrap; }
+        .two-col > div { flex: 1; min-width: 280px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 6: フロント / バックエンドの役割分担</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day5-index.html">← Day5</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <h2>なぜ「役割分担」が重要なのか？</h2>
+        <p>Webシステムは複数の層（レイヤー）で構成されており、それぞれの層が担当すべき責任があります。
+        <strong>「どの層がSQLを書くべきか」</strong>を間違えると、セキュリティリスクや保守困難なコードが生まれます。</p>
+
+        <h2>ORSYSのシステム構成</h2>
+
+        <div class="arch-diagram">
+            <h3 style="margin-top:0; text-align:center;">DB-WEB 構成（Webアプリ）</h3>
+            <div class="arch-row">
+                <div>
+                    <div class="arch-box user">ユーザー<div class="arch-note">ブラウザを操作</div></div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div>
+                    <div class="arch-box browser">フロントエンド<div class="arch-note">Vue.js / HTML<br>画面表示・入力</div></div>
+                </div>
+                <div class="arch-arrow">API通信↕</div>
+                <div>
+                    <div class="arch-box web">バックエンド(WEB)<div class="arch-note">ASP.NET / C#<br>ビジネスロジック</div></div>
+                </div>
+                <div class="arch-arrow">SQL↕</div>
+                <div>
+                    <div class="arch-box db">SQL Server<div class="arch-note">データ永続化</div></div>
+                </div>
+            </div>
+            <p style="text-align:center; color:#666; font-size:0.9em; margin:10px 0 0;">
+                フロントエンドはAPIを通じてバックエンドと通信し、<strong>直接DBにはアクセスしない</strong>
+            </p>
+        </div>
+
+        <div class="arch-diagram">
+            <h3 style="margin-top:0; text-align:center;">DB-C#exe 構成（バッチ / 業務アプリ）</h3>
+            <div class="arch-row">
+                <div>
+                    <div class="arch-box user">担当者<div class="arch-note">起動・操作</div></div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div>
+                    <div class="arch-box csharp">C# .exe アプリ<div class="arch-note">Windows Forms 等<br>ビジネスロジック + SQL</div></div>
+                </div>
+                <div class="arch-arrow">SQL↕</div>
+                <div>
+                    <div class="arch-box db">SQL Server<div class="arch-note">データ永続化</div></div>
+                </div>
+            </div>
+            <p style="text-align:center; color:#666; font-size:0.9em; margin:10px 0 0;">
+                C#のexeが直接DBと通信。バッチ処理・帳票・社内ツール等に多い構成
+            </p>
+        </div>
+
+        <h2>各層の責任範囲</h2>
+
+        <table class="role-table">
+            <tr>
+                <th style="width:30%;">処理内容</th>
+                <th class="th-front" style="width:23%;">フロントエンド<br>(Vue.js/HTML)</th>
+                <th class="th-back" style="width:23%;">バックエンド<br>(C#/ASP.NET)</th>
+                <th class="th-db" style="width:24%;">DB(SQL Server)</th>
+            </tr>
+            <tr>
+                <td>画面表示・入力フォーム</td>
+                <td class="yes">◎ 主担当</td>
+                <td class="no">× 関知しない</td>
+                <td class="no">× 関知しない</td>
+            </tr>
+            <tr>
+                <td>入力値の形式チェック<br><small>（必須・文字数・書式）</small></td>
+                <td class="yes">◎ UI側でも</td>
+                <td class="yes">◎ 必ずバックでも</td>
+                <td class="partial">△ 制約として</td>
+            </tr>
+            <tr>
+                <td>SQLの実行</td>
+                <td class="no">❌ やってはいけない</td>
+                <td class="yes">◎ 主担当</td>
+                <td class="no">※DBはSQL受け取り側</td>
+            </tr>
+            <tr>
+                <td>ビジネスロジック<br><small>（計算・判定・制御）</small></td>
+                <td class="no">△ 単純なものだけ</td>
+                <td class="yes">◎ 主担当</td>
+                <td class="partial">△ ストアドで一部</td>
+            </tr>
+            <tr>
+                <td>認証・権限チェック</td>
+                <td class="no">△ UI制御のみ</td>
+                <td class="yes">◎ 必ずバックで</td>
+                <td class="partial">△ DBユーザー権限</td>
+            </tr>
+            <tr>
+                <td>データ加工・整形</td>
+                <td class="yes">◎ 表示用変換</td>
+                <td class="yes">◎ 業務用変換</td>
+                <td class="partial">△ SQLで一部可</td>
+            </tr>
+        </table>
+
+        <div class="two-col">
+            <div>
+                <div class="warn-box">
+                    <strong>❌ フロントエンドがSQLを直接実行してはいけない理由</strong>
+                    <ul style="margin:8px 0 0;">
+                        <li>DBの接続情報（IDとパスワード）がブラウザに漏れる</li>
+                        <li>SQLインジェクション攻撃を防げない</li>
+                        <li>誰でもDBを操作できてしまう</li>
+                        <li>ビジネスロジックがバラバラになる</li>
+                    </ul>
+                </div>
+            </div>
+            <div>
+                <div class="point-box">
+                    <strong>✅ バックエンドがSQLを管理するメリット</strong>
+                    <ul style="margin:8px 0 0;">
+                        <li>DB接続情報をサーバー側に秘匿できる</li>
+                        <li>パラメータ化クエリでSQLインジェクション防止</li>
+                        <li>アクセス権限のチェックを1か所にまとめられる</li>
+                        <li>SQLの変更がバックエンドだけで完結する</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h2>ORSYSでの具体的な分担例</h2>
+
+        <div class="arch-diagram">
+            <h3 style="margin-top:0;">受注登録処理の場合</h3>
+            <table class="role-table">
+                <tr>
+                    <th style="background:#555; color:white;">ステップ</th>
+                    <th class="th-front">フロントエンド (Vue)</th>
+                    <th class="th-back">バックエンド (C#)</th>
+                </tr>
+                <tr>
+                    <td>① 顧客・商品を入力</td>
+                    <td class="yes">フォームを表示・入力受付</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>② 送信ボタンクリック</td>
+                    <td class="yes">入力値をJSON化してAPI送信</td>
+                    <td class="yes">リクエストを受信</td>
+                </tr>
+                <tr>
+                    <td>③ バリデーション</td>
+                    <td class="partial">簡易チェック（必須項目等）</td>
+                    <td class="yes">厳密チェック（在庫確認・権限等）</td>
+                </tr>
+                <tr>
+                    <td>④ SQL実行</td>
+                    <td class="no">❌ 実行しない</td>
+                    <td class="yes">INSERT/UPDATE をトランザクションで実行</td>
+                </tr>
+                <tr>
+                    <td>⑤ 結果表示</td>
+                    <td class="yes">APIレスポンスを受け取り画面更新</td>
+                    <td class="yes">成功/失敗をJSONで返す</td>
+                </tr>
+            </table>
+        </div>
+
+        <h2>理解度チェック</h2>
+
+        <div class="quiz-section">
+            <h3>Q1: 受注検索画面でユーザーが「得意先コード」を入力しました。次のどの処理が適切ですか？</h3>
+            <div class="scenario-options">
+                <label><input type="radio" name="q1" value="a"> a) フロントエンドでSQLを組み立て、DB接続して直接検索する</label>
+                <label><input type="radio" name="q1" value="b"> b) フロントエンドが得意先コードをAPIに送り、バックエンドがSQLを実行して結果を返す</label>
+                <label><input type="radio" name="q1" value="c"> c) フロントエンドが全件データをDBから取得してJavaScriptでフィルタリングする</label>
+            </div>
+            <button class="btn" onclick="checkQ('q1', 'b', 'qr1', 'バックエンドがSQLを実行して結果を返すのが正解です。フロントはAPIを呼ぶだけで、DBの詳細を知らなくてもよい設計にします。', 'フロント直接DB接続(a)はセキュリティリスク大。全件取得してJS絞込(c)は大量データで画面が重くなり、データの漏洩リスクもあります。')">回答する</button>
+            <div class="quiz-result" id="qr1"></div>
+        </div>
+
+        <div class="quiz-section">
+            <h3>Q2: C#の.exeアプリ（DB-C#exe構成）での注意点として正しいのはどれですか？</h3>
+            <div class="scenario-options">
+                <label><input type="radio" name="q2" value="a"> a) SQLをべた書きせずパラメータ化クエリを使う</label>
+                <label><input type="radio" name="q2" value="b"> b) 画面操作中もトランザクションを開いたままにする</label>
+                <label><input type="radio" name="q2" value="c"> c) exeなので認証チェックは不要</label>
+            </div>
+            <button class="btn" onclick="checkQ('q2', 'a', 'qr2', 'パラメータ化クエリでSQLインジェクション防止は必須です。exeアプリでも同じです。', 'トランザクションを長時間開いたままにするとロック問題が発生(b)。exeでも認証・権限チェックは必要です(c)。')">回答する</button>
+            <div class="quiz-result" id="qr2"></div>
+        </div>
+
+        <div class="quiz-section">
+            <h3>Q3: 「合計金額 = 単価 × 数量 × (1 + 消費税率)」の計算はどこで行うべきですか？</h3>
+            <div class="scenario-options">
+                <label><input type="radio" name="q3" value="a"> a) フロントエンド（Vue.js）のみで計算する</label>
+                <label><input type="radio" name="q3" value="b"> b) バックエンド（C#）で計算してDBに保存する</label>
+                <label><input type="radio" name="q3" value="c"> c) フロントで画面表示用に計算し、バックエンドでも計算してDBに保存する</label>
+            </div>
+            <button class="btn" onclick="checkQ('q3', 'c', 'qr3', '正解！フロントは表示用に即時計算し、バックエンドで正式計算してDBに保存します。消費税率変更にも一か所（バック）を直すだけで対応できます。', 'フロントのみ(a)はDB保存値が信頼できなくなる。バックのみ(b)は画面のリアルタイム表示ができないため使い勝手が悪いです。')">回答する</button>
+            <div class="quiz-result" id="qr3"></div>
+        </div>
+
+        <div class="point-box" style="margin-top:30px;">
+            <strong>SQL Part 2 完了！</strong><br>
+            サブクエリ・相関サブクエリ・ウィンドウ関数・トランザクション・インデックスを学びました。<br>
+            そして「どこでSQLを書くべきか」というアーキテクチャの基本も理解できました。<br>
+            次はJS非同期コースで、フロントエンドとバックエンドが<strong>どうやって通信するか</strong>を学びましょう。
+        </div>
+
+    </div>
+
+    <script>
+        function checkQ(name, correct, resultId, correctMsg, wrongMsg) {
+            const val = document.querySelector(`input[name="${name}"]:checked`)?.value;
+            const el = document.getElementById(resultId);
+            el.style.display = 'block';
+            if (val === correct) {
+                el.className = 'quiz-result correct';
+                el.innerHTML = '✅ 正解！ ' + correctMsg;
+            } else if (!val) {
+                el.className = 'quiz-result wrong';
+                el.innerHTML = '選択肢を選んでください';
+            } else {
+                el.className = 'quiz-result wrong';
+                el.innerHTML = '❌ 不正解。 ' + wrongMsg;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 4: トランザクションとロック - SQL応用</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #00897b; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #00695c; border-bottom: 2px solid #00897b; padding-bottom: 10px; }
+        h3 { color: #00897b; margin-top: 25px; }
+        .code-block {
+            white-space: pre; background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .comment { color: #78909c; }
+        .point-box { background: #e0f2f1; border-left: 4px solid #00897b; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #00695c; }
+        .warn-box { background: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warn-box strong { color: #b71c1c; }
+        .acid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .acid-item { background: #f5f5f5; border-radius: 8px; padding: 12px; }
+        .acid-item .label { font-weight: bold; color: #00695c; font-size: 1.1em; }
+        .timeline { margin: 15px 0; }
+        .tl-row { display: flex; gap: 10px; margin: 6px 0; align-items: flex-start; }
+        .tl-who { background: #00897b; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; min-width: 60px; text-align: center; }
+        .tl-who.b { background: #e53935; }
+        .tl-text { font-family: 'Consolas', monospace; font-size: 0.9em; padding: 3px 0; }
+        .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .problem h3 { margin-top: 0; }
+        .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        textarea { width: 100%; height: 120px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; }
+        textarea:focus { outline: none; border-color: #00897b; }
+        .btn { display: inline-block; padding: 10px 20px; background: #00897b; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; margin-top: 10px; margin-right: 8px; }
+        .btn:hover { background: #00695c; }
+        .btn.danger { background: #e53935; }
+        .btn.danger:hover { background: #b71c1c; }
+        .result-area { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; margin-top: 10px; min-height: 60px; overflow-x: auto; }
+        .result-area.error { color: #ef5350; }
+        .result-area table { border-collapse: collapse; width: 100%; }
+        .result-area th, .result-area td { border: 1px solid #546e7a; padding: 6px 10px; text-align: left; }
+        .result-area th { background: #37474f; color: #80cbc4; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 4: トランザクションとロック</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day3-window.html">← Day3</a>
+            <a href="day5-index.html">次へ: インデックス →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>トランザクションとは？</h2>
+            <p>「一連の処理をまとめて1つの作業として扱う」仕組みです。<br>
+            途中で失敗したら<strong>全部なかったこと</strong>にできます。</p>
+
+            <div class="point-box">
+                <strong>銀行振込の例</strong><br>
+                ① A口座から10,000円引く<br>
+                ② B口座に10,000円足す<br><br>
+                ①の後にシステムがクラッシュしたら？<br>
+                → トランザクションで包めば①も取り消せる
+            </div>
+
+            <h3>基本構文</h3>
+            <div class="code-block">
+<span class="keyword">BEGIN</span> TRANSACTION;  <span class="comment">-- 開始</span>
+
+<span class="comment">-- 複数のSQL処理</span>
+<span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance = balance - 10000 <span class="keyword">WHERE</span> id = 1;
+<span class="keyword">UPDATE</span> accounts <span class="keyword">SET</span> balance = balance + 10000 <span class="keyword">WHERE</span> id = 2;
+
+<span class="keyword">COMMIT</span>;   <span class="comment">-- 確定（成功時）</span>
+<span class="comment">-- または</span>
+<span class="keyword">ROLLBACK</span>; <span class="comment">-- 取り消し（失敗時）</span>
+            </div>
+
+            <h3>ACID 特性</h3>
+            <div class="acid-grid">
+                <div class="acid-item">
+                    <div class="label">A — 原子性</div>
+                    <div>全部成功 or 全部失敗。中途半端な状態にならない</div>
+                </div>
+                <div class="acid-item">
+                    <div class="label">C — 一貫性</div>
+                    <div>トランザクション前後でデータの整合性が保たれる</div>
+                </div>
+                <div class="acid-item">
+                    <div class="label">I — 独立性</div>
+                    <div>他のトランザクションの途中状態が見えない</div>
+                </div>
+                <div class="acid-item">
+                    <div class="label">D — 永続性</div>
+                    <div>COMMITしたデータはクラッシュしても消えない</div>
+                </div>
+            </div>
+
+            <h3>ロックとデッドロック</h3>
+            <p>トランザクション中は、更新対象の行や表が<strong>ロック（占有）</strong>されます。</p>
+            <div class="warn-box">
+                <strong>デッドロックとは</strong><br>
+                AとBが互いに相手のロックを待ち合って、どちらも進めなくなる状態。
+                <div class="timeline" style="margin-top:10px;">
+                    <div class="tl-row"><span class="tl-who">接続A</span><span class="tl-text">注文テーブルをロック</span></div>
+                    <div class="tl-row"><span class="tl-who b">接続B</span><span class="tl-text">在庫テーブルをロック</span></div>
+                    <div class="tl-row"><span class="tl-who">接続A</span><span class="tl-text">在庫テーブルを待つ... ⏳</span></div>
+                    <div class="tl-row"><span class="tl-who b">接続B</span><span class="tl-text">注文テーブルを待つ... ⏳ ← 詰み！</span></div>
+                </div>
+            </div>
+
+            <h3>長時間トランザクションの危険性</h3>
+            <div class="warn-box">
+                <strong>やってはいけないこと</strong><br>
+                BEGIN したまま長時間放置すると：<br>
+                ・ロックが長時間続き、他の処理が止まる<br>
+                ・デッドロックが発生しやすくなる<br>
+                ・ログが肥大化する（SQL Server等）<br><br>
+                <strong>ルール：トランザクションは短く終わらせる</strong><br>
+                ユーザーの操作待ち（画面入力など）の間はトランザクションを開いてはいけない
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="loading" class="loading">データベースを準備中...</div>
+            <div id="content" style="display: none;">
+                <h2>練習問題（インタラクティブ実験）</h2>
+
+                <div class="problem">
+                    <h3>実験1: COMMIT で確定</h3>
+                    <div class="problem-desc">
+                        <p>① 「在庫更新 → 確認」をクリックして更新後の在庫を確認します。<br>
+                        ② 「COMMIT確定」でデータを確定し、もう一度「確認」で永続化を確認します。</p>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn" onclick="beginTransaction()">① BEGIN</button>
+                        <button class="btn" onclick="updateStock()">② 在庫を更新(-50)</button>
+                        <button class="btn" onclick="checkStock('result_exp1')">③ 在庫確認</button>
+                        <button class="btn" onclick="commitTransaction()">④ COMMIT</button>
+                        <button class="btn danger" onclick="rollbackTransaction()">ROLLBACK</button>
+                    </div>
+                    <div class="result-area" id="result_exp1">BEGINから順番に実行してみましょう</div>
+                    <div id="tx_status" style="margin-top:8px; color:#00695c; font-weight:bold;"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>実験2: ROLLBACK で取り消し</h3>
+                    <div class="problem-desc">
+                        <p>① BEGINして在庫を更新<br>
+                        ② ROLLBACKで取り消し<br>
+                        ③ 在庫が元に戻っていることを確認</p>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn" onclick="begin2()">① BEGIN</button>
+                        <button class="btn" onclick="update2()">② 在庫を更新(-30)</button>
+                        <button class="btn danger" onclick="rollback2()">③ ROLLBACK</button>
+                        <button class="btn" onclick="checkStock('result_exp2')">④ 在庫確認</button>
+                    </div>
+                    <div class="result-area" id="result_exp2">BEGINから順番に実行してみましょう</div>
+                </div>
+
+                <div class="problem">
+                    <h3>問3: トランザクション設計（考え問題）</h3>
+                    <div class="problem-desc">
+                        <p>受注処理で以下の3つのSQLを実行します。どの範囲をトランザクションで囲むべきか、
+                        SQLを完成させてください。</p>
+                        <ol>
+                            <li>ordersテーブルに注文レコードを挿入</li>
+                            <li>order_detailsに明細を挿入</li>
+                            <li>productsの在庫数を減らす</li>
+                        </ol>
+                    </div>
+                    <textarea id="sql3">-- トランザクションの範囲を設計してください
+-- （どこにBEGIN/COMMIT/ROLLBACKを入れるべきか）
+
+INSERT INTO orders (id, customer_id, order_date) VALUES (6, 1, '2024-03-10');
+
+INSERT INTO order_details (id, order_id, product_id, quantity) VALUES (10, 6, 2, 5);
+
+UPDATE products SET stock = stock - 5 WHERE id = 2;
+
+SELECT o.id, od.product_id, od.quantity, p.stock
+FROM orders o
+JOIN order_details od ON o.id = od.order_id
+JOIN products p ON od.product_id = p.id
+WHERE o.id = 6;</textarea>
+                    <br>
+                    <button class="btn" onclick="runMultiSQL('sql3', 'result3')">実行</button>
+                    <div class="result-area" id="result3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db;
+        let inTransaction = false;
+
+        async function initDB() {
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+            db = new SQL.Database();
+            db.run(`
+                CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, category_id INTEGER, price INTEGER, stock INTEGER);
+                CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT, region TEXT);
+                CREATE TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER, order_date TEXT);
+                CREATE TABLE order_details (id INTEGER PRIMARY KEY, order_id INTEGER, product_id INTEGER, quantity INTEGER);
+            `);
+            db.run(`
+                INSERT INTO products VALUES
+                    (1,'りんご',1,150,100),(2,'バナナ',1,100,150),(3,'オレンジ',1,120,80),
+                    (4,'緑茶',2,130,200),(5,'コーヒー',2,180,180),(6,'牛乳',2,200,50);
+                INSERT INTO customers VALUES (1,'田中商事','東京'),(2,'大阪物産','大阪');
+                INSERT INTO orders VALUES (1,1,'2024-03-01'),(2,2,'2024-03-02');
+                INSERT INTO order_details VALUES (1,1,1,5),(2,1,4,3),(3,2,2,10);
+            `);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function setStatus(msg, color='#00695c') {
+            const el = document.getElementById('tx_status');
+            el.textContent = msg;
+            el.style.color = color;
+        }
+
+        function beginTransaction() { db.run('BEGIN'); inTransaction = true; setStatus('● トランザクション開始中'); }
+        function updateStock() {
+            if (!inTransaction) { setStatus('先にBEGINを実行してください', '#e53935'); return; }
+            db.run('UPDATE products SET stock = stock - 50 WHERE id = 1');
+            setStatus('● 在庫を更新しました（まだCOMMITしていません）', '#ff9800');
+        }
+        function commitTransaction() {
+            db.run('COMMIT'); inTransaction = false;
+            setStatus('✔ COMMITしました（確定）', '#00695c');
+        }
+        function rollbackTransaction() {
+            db.run('ROLLBACK'); inTransaction = false;
+            setStatus('✘ ROLLBACKしました（取り消し）', '#e53935');
+        }
+        function checkStock(resultId) {
+            const resultEl = document.getElementById(resultId);
+            try {
+                const results = db.exec("SELECT name, stock FROM products WHERE id = 1");
+                if (results.length === 0) { resultEl.innerHTML = '(結果なし)'; return; }
+                const result = results[0];
+                let html = '<table><tr>';
+                result.columns.forEach(col => { html += `<th>${col}</th>`; });
+                html += '</tr>';
+                result.values.forEach(row => {
+                    html += '<tr>';
+                    row.forEach(val => { html += `<td>${val}</td>`; });
+                    html += '</tr>';
+                });
+                html += '</table>';
+                resultEl.innerHTML = html;
+            } catch(e) { resultEl.innerHTML = 'エラー: ' + e.message; }
+        }
+
+        let inTx2 = false;
+        function begin2() { db.run('BEGIN'); inTx2 = true; document.getElementById('result_exp2').innerHTML = 'BEGIN開始 - 在庫更新してみてください'; }
+        function update2() {
+            if (!inTx2) { document.getElementById('result_exp2').innerHTML = '先にBEGINを実行してください'; return; }
+            db.run('UPDATE products SET stock = stock - 30 WHERE id = 2');
+            document.getElementById('result_exp2').innerHTML = 'バナナの在庫を-30しました。ROLLBACKで取り消せます';
+        }
+        function rollback2() { db.run('ROLLBACK'); inTx2 = false; document.getElementById('result_exp2').innerHTML = 'ROLLBACK完了 - 在庫確認で元の値を確認してください'; }
+
+        function runMultiSQL(textareaId, resultId) {
+            const sql = document.getElementById(textareaId).value;
+            const resultEl = document.getElementById(resultId);
+            const stmts = sql.split(';').map(s => s.trim()).filter(s => s.length > 0 && !s.startsWith('--'));
+            try {
+                let lastResult = null;
+                stmts.forEach(stmt => {
+                    const r = db.exec(stmt);
+                    if (r.length > 0) lastResult = r[0];
+                });
+                if (!lastResult) { resultEl.innerHTML = '実行完了（SELECT結果なし）'; resultEl.className = 'result-area'; return; }
+                let html = '<table><tr>';
+                lastResult.columns.forEach(col => { html += `<th>${col}</th>`; });
+                html += '</tr>';
+                lastResult.values.forEach(row => {
+                    html += '<tr>';
+                    row.forEach(val => { html += `<td>${val !== null ? val : 'NULL'}</td>`; });
+                    html += '</tr>';
+                });
+                html += '</table>';
+                resultEl.innerHTML = html;
+                resultEl.className = 'result-area';
+            } catch(e) { resultEl.innerHTML = 'エラー: ' + e.message; resultEl.className = 'result-area error'; }
+        }
+
+        initDB();
+    </script>
+</body>
+</html>

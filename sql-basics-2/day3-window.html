@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3: ウィンドウ関数 - SQL応用</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #00897b; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #00695c; border-bottom: 2px solid #00897b; padding-bottom: 10px; }
+        h3 { color: #00897b; margin-top: 25px; }
+        .code-block {
+            white-space: pre; background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .comment { color: #78909c; }
+        .point-box { background: #e0f2f1; border-left: 4px solid #00897b; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #00695c; }
+        .rank-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9em; }
+        .rank-table th { background: #00897b; color: white; padding: 8px; }
+        .rank-table td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        .rank-table tr:nth-child(even) { background: #f5f5f5; }
+        .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .problem h3 { margin-top: 0; }
+        .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        textarea { width: 100%; height: 100px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; }
+        textarea:focus { outline: none; border-color: #00897b; }
+        .btn { display: inline-block; padding: 10px 20px; background: #00897b; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; margin-top: 10px; }
+        .btn:hover { background: #00695c; }
+        .result-area { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; margin-top: 10px; min-height: 80px; overflow-x: auto; }
+        .result-area.error { color: #ef5350; }
+        .result-area table { border-collapse: collapse; width: 100%; }
+        .result-area th, .result-area td { border: 1px solid #546e7a; padding: 6px 10px; text-align: left; }
+        .result-area th { background: #37474f; color: #80cbc4; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .schema-mini { background: #37474f; color: #cfd8dc; padding: 10px 15px; border-radius: 6px; font-family: 'Consolas', monospace; font-size: 0.85em; margin: 10px 0; }
+        .schema-mini strong { color: #80cbc4; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 3: ウィンドウ関数</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day2-correlated.html">← Day2</a>
+            <a href="day4-transaction.html">次へ: トランザクション →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>ウィンドウ関数とは？</h2>
+            <p>GROUP BY のように集計しながら、<strong>行を消さずに</strong>結果を出せる関数です。<br>
+            「ランキング」「累計」「グループ内の順位」などが簡単に書けます。</p>
+
+            <div class="point-box">
+                <strong>GROUP BY との違い</strong><br>
+                GROUP BY → 行をまとめて件数が減る<br>
+                ウィンドウ関数 → 全行を保ちながら集計値を追加
+            </div>
+
+            <h3>基本構文</h3>
+            <div class="code-block">
+関数名() <span class="keyword">OVER</span> (
+    [<span class="keyword">PARTITION BY</span> 列名]   <span class="comment">-- グループを分ける</span>
+    [<span class="keyword">ORDER BY</span> 列名]        <span class="comment">-- 並び順</span>
+)
+            </div>
+
+            <h3>① ROW_NUMBER() — 連番</h3>
+            <div class="code-block">
+<span class="comment">-- カテゴリ内で価格が高い順に連番を付ける</span>
+<span class="keyword">SELECT</span>
+    name,
+    category_id,
+    price,
+    <span class="keyword">ROW_NUMBER</span>() <span class="keyword">OVER</span> (
+        <span class="keyword">PARTITION BY</span> category_id
+        <span class="keyword">ORDER BY</span> price <span class="keyword">DESC</span>
+    ) <span class="keyword">AS</span> row_num
+<span class="keyword">FROM</span> products;
+            </div>
+
+            <h3>② RANK() / DENSE_RANK() — 順位</h3>
+            <p>同じ値のとき順位が変わります。</p>
+            <table class="rank-table">
+                <tr><th>価格</th><th>ROW_NUMBER</th><th>RANK</th><th>DENSE_RANK</th></tr>
+                <tr><td>200</td><td>1</td><td>1</td><td>1</td></tr>
+                <tr><td>180</td><td>2</td><td>2</td><td>2</td></tr>
+                <tr><td>180</td><td>3</td><td>2</td><td>2</td></tr>
+                <tr><td>130</td><td>4</td><td>4</td><td>3</td></tr>
+            </table>
+            <div class="code-block">
+<span class="keyword">SELECT</span>
+    name, price,
+    <span class="keyword">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER BY</span> price <span class="keyword">DESC</span>) <span class="keyword">AS</span> rnk,
+    <span class="keyword">DENSE_RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER BY</span> price <span class="keyword">DESC</span>) <span class="keyword">AS</span> d_rnk
+<span class="keyword">FROM</span> products;
+            </div>
+
+            <h3>③ SUM() OVER — 累計・グループ合計</h3>
+            <div class="code-block">
+<span class="comment">-- カテゴリ内の合計在庫数を各行に付加</span>
+<span class="keyword">SELECT</span>
+    name,
+    category_id,
+    stock,
+    <span class="keyword">SUM</span>(stock) <span class="keyword">OVER</span> (
+        <span class="keyword">PARTITION BY</span> category_id
+    ) <span class="keyword">AS</span> category_stock_total
+<span class="keyword">FROM</span> products;
+            </div>
+
+            <h3>使用するテーブル</h3>
+            <div class="schema-mini">
+                <strong>products:</strong> id, name, category_id, price, stock<br>
+                <strong>order_details:</strong> id, order_id, product_id, quantity
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="loading" class="loading">データベースを準備中...</div>
+            <div id="content" style="display: none;">
+                <h2>練習問題</h2>
+
+                <div class="problem">
+                    <h3>問1: ROW_NUMBER — 全体ランキング</h3>
+                    <div class="problem-desc">
+                        <p>全商品を価格の高い順に並べ、ROW_NUMBERで連番（row_num）を付けてください。<br>
+                        列名：row_num, name, price</p>
+                    </div>
+                    <textarea id="sql1">SELECT
+    ROW_NUMBER() OVER (ORDER BY price DESC) AS row_num,
+    name,
+    price
+FROM products;</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql1', 'result1')">実行</button>
+                    <div class="result-area" id="result1"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問2: RANK — カテゴリ内価格順位</h3>
+                    <div class="problem-desc">
+                        <p>カテゴリ内での価格順位（高い順）をRANKで付けてください。<br>
+                        列名：category_id, name, price, price_rank</p>
+                    </div>
+                    <textarea id="sql2">SELECT
+    category_id,
+    name,
+    price,
+    RANK() OVER (
+        PARTITION BY
+        ORDER BY price DESC
+    ) AS price_rank
+FROM products
+ORDER BY category_id, price_rank;</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql2', 'result2')">実行</button>
+                    <div class="result-area" id="result2"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問3: SUM OVER — カテゴリ別合計在庫</h3>
+                    <div class="problem-desc">
+                        <p>各商品にカテゴリ全体の合計在庫数（category_stock）を付けて表示してください。<br>
+                        列名：category_id, name, stock, category_stock</p>
+                    </div>
+                    <textarea id="sql3">SELECT
+    category_id,
+    name,
+    stock,
+    SUM(stock) OVER (PARTITION BY ) AS category_stock
+FROM products
+ORDER BY category_id;</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql3', 'result3')">実行</button>
+                    <div class="result-area" id="result3"></div>
+                </div>
+
+                <div class="problem">
+                    <h3>問4: ウィンドウ関数 + WHERE — カテゴリ内1位の商品</h3>
+                    <div class="problem-desc">
+                        <p>カテゴリ内で価格が最も高い商品（RANK = 1）だけを取得してください。<br>
+                        ヒント：FROM サブクエリでウィンドウ関数を計算してから WHERE で絞り込みます。</p>
+                    </div>
+                    <textarea id="sql4">SELECT category_id, name, price, price_rank
+FROM (
+    SELECT
+        category_id, name, price,
+        RANK() OVER (PARTITION BY category_id ORDER BY price DESC) AS price_rank
+    FROM products
+) t
+WHERE price_rank = 1;</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql4', 'result4')">実行</button>
+                    <div class="result-area" id="result4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db;
+
+        async function initDB() {
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+            db = new SQL.Database();
+            db.run(`
+                CREATE TABLE categories (id INTEGER PRIMARY KEY, name TEXT);
+                CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, category_id INTEGER, price INTEGER, stock INTEGER);
+                CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT, region TEXT);
+                CREATE TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER, order_date TEXT);
+                CREATE TABLE order_details (id INTEGER PRIMARY KEY, order_id INTEGER, product_id INTEGER, quantity INTEGER);
+            `);
+            db.run(`
+                INSERT INTO categories VALUES (1,'食品'),(2,'飲料'),(3,'日用品'),(4,'電子機器');
+                INSERT INTO products VALUES
+                    (1,'りんご',1,150,100),(2,'バナナ',1,100,150),(3,'オレンジ',1,120,80),
+                    (4,'緑茶',2,130,200),(5,'コーヒー',2,180,180),(6,'牛乳',2,200,50),
+                    (7,'ティッシュ',3,300,500),(8,'洗剤',3,400,120),
+                    (9,'USBメモリ',4,1200,30),(10,'マウス',4,2500,0);
+                INSERT INTO customers VALUES
+                    (1,'田中商事','東京'),(2,'大阪物産','大阪'),(3,'名古屋商会','愛知'),(4,'福岡販売','福岡');
+                INSERT INTO orders VALUES
+                    (1,1,'2024-03-01'),(2,2,'2024-03-02'),(3,1,'2024-03-03'),(4,3,'2024-03-04'),(5,4,'2024-03-05');
+                INSERT INTO order_details VALUES
+                    (1,1,1,5),(2,1,4,3),(3,2,2,10),(4,2,5,2),
+                    (5,3,7,15),(6,3,1,8),(7,4,3,4),(8,4,6,5),(9,5,8,3);
+            `);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function runSQL(textareaId, resultId) {
+            const sql = document.getElementById(textareaId).value;
+            const resultEl = document.getElementById(resultId);
+            try {
+                const results = db.exec(sql);
+                if (results.length === 0) { resultEl.innerHTML = '(結果なし)'; resultEl.className = 'result-area'; return; }
+                const result = results[0];
+                let html = '<table><tr>';
+                result.columns.forEach(col => { html += `<th>${col}</th>`; });
+                html += '</tr>';
+                result.values.forEach(row => {
+                    html += '<tr>';
+                    row.forEach(val => { html += `<td>${val !== null ? val : 'NULL'}</td>`; });
+                    html += '</tr>';
+                });
+                html += '</table>';
+                html += `<div style="margin-top:10px;color:#78909c;">${result.values.length} 件</div>`;
+                resultEl.innerHTML = html;
+                resultEl.className = 'result-area';
+            } catch (e) {
+                resultEl.innerHTML = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+        }
+
+        initDB();
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS 非同期プログラミング (Part 2)</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 { text-align: center; color: #e65100; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 40px; }
+        .info-box {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box h2 { margin-top: 0; color: #e65100; }
+        .section-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .section-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+        .day-number {
+            background: #ff9800;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+        .section-content h3 { margin: 0 0 5px 0; color: #e65100; }
+        .section-content p { margin: 0; color: #666; font-size: 0.95em; }
+        .progress-section { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .progress-section h2 { margin-top: 0; color: #e65100; }
+        .checkbox-list { list-style: none; padding: 0; margin: 0; }
+        .checkbox-list li { padding: 10px 0; border-bottom: 1px solid #eee; }
+        .checkbox-list label { cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .back-link { display: block; text-align: center; margin-bottom: 30px; color: #ff9800; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        .tag { display: inline-block; background: #fff3e0; color: #e65100; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; margin-left: 8px; }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← 学習ポータルに戻る</a>
+    <h1>JS 非同期プログラミング <span class="tag">Part 2</span></h1>
+    <p class="subtitle">6日間で同期・非同期・fetchを理解しよう</p>
+
+    <div class="info-box">
+        <h2>この教材について</h2>
+        <p>JavaScriptの<strong>「同期 / 非同期」</strong>という概念と、Web開発で欠かせない<strong>fetch API・async/await</strong>を学びます。<br>
+        フロントエンドがバックエンドとどうやって通信するか、WEBで絶対に意識しなければならない非同期の罠についても学びます。</p>
+        <p>前提：<a href="../js-basics/index.html" style="color:#e65100;">JavaScript基礎（Part 1）</a>の内容を理解していること</p>
+    </div>
+
+    <h2>カリキュラム</h2>
+    <div class="section-list">
+        <a href="day1-sync-async.html" class="section-card">
+            <div class="day-number">1</div>
+            <div class="section-content">
+                <h3>Day 1: 同期と非同期の違い</h3>
+                <p>ブロッキングとは・シングルスレッドの仕組み・setTimeout で体感する非同期</p>
+            </div>
+        </a>
+        <a href="day2-callback.html" class="section-card">
+            <div class="day-number">2</div>
+            <div class="section-content">
+                <h3>Day 2: コールバック関数</h3>
+                <p>コールバックとは・非同期処理の元祖・コールバック地獄とその問題点</p>
+            </div>
+        </a>
+        <a href="day3-promise.html" class="section-card">
+            <div class="day-number">3</div>
+            <div class="section-content">
+                <h3>Day 3: Promise</h3>
+                <p>Promise の3状態・.then() / .catch() / .finally()・Promise.all()</p>
+            </div>
+        </a>
+        <a href="day4-async-await.html" class="section-card">
+            <div class="day-number">4</div>
+            <div class="section-content">
+                <h3>Day 4: async / await</h3>
+                <p>async関数・await で Promise を待つ・try/catch エラーハンドリング</p>
+            </div>
+        </a>
+        <a href="day5-fetch.html" class="section-card">
+            <div class="day-number">5</div>
+            <div class="section-content">
+                <h3>Day 5: fetch API</h3>
+                <p>HTTPリクエストとは・GETでデータ取得・POSTでデータ送信・JSONパース</p>
+            </div>
+        </a>
+        <a href="day6-web-tips.html" class="section-card">
+            <div class="day-number">6</div>
+            <div class="section-content">
+                <h3>Day 6: WEB開発での注意点</h3>
+                <p>UIをブロックしない・ローディング状態・並列vs直列・エラーを必ず処理する</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="progress-section">
+        <h2>進捗チェック</h2>
+        <ul class="checkbox-list">
+            <li><label><input type="checkbox"> Day 1: 同期と非同期の違い</label></li>
+            <li><label><input type="checkbox"> Day 2: コールバック関数</label></li>
+            <li><label><input type="checkbox"> Day 3: Promise</label></li>
+            <li><label><input type="checkbox"> Day 4: async / await</label></li>
+            <li><label><input type="checkbox"> Day 5: fetch API</label></li>
+            <li><label><input type="checkbox"> Day 6: WEB開発での注意点</label></li>
+        </ul>
+    </div>
+</body>
+</html>

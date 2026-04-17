@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 5: インデックスとパフォーマンス - SQL応用</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #00897b; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #00695c; border-bottom: 2px solid #00897b; padding-bottom: 10px; }
+        h3 { color: #00897b; margin-top: 25px; }
+        .code-block {
+            white-space: pre; background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; }
+        .code-block .keyword { color: #82b1ff; }
+        .code-block .comment { color: #78909c; }
+        .code-block .bad { color: #ef5350; }
+        .code-block .good { color: #81c784; }
+        .point-box { background: #e0f2f1; border-left: 4px solid #00897b; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #00695c; }
+        .warn-box { background: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warn-box strong { color: #b71c1c; }
+        .anti-pattern { background: white; border: 2px solid #e53935; border-radius: 8px; padding: 15px; margin: 10px 0; }
+        .anti-pattern .label { color: #e53935; font-weight: bold; margin-bottom: 8px; }
+        .anti-pattern .fix { color: #00695c; font-weight: bold; margin-top: 10px; }
+        .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .problem h3 { margin-top: 0; }
+        .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        textarea { width: 100%; height: 100px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; }
+        textarea:focus { outline: none; border-color: #00897b; }
+        .btn { display: inline-block; padding: 10px 20px; background: #00897b; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; margin-top: 10px; }
+        .btn:hover { background: #00695c; }
+        .result-area { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; margin-top: 10px; min-height: 60px; overflow-x: auto; }
+        .result-area.error { color: #ef5350; }
+        .result-area table { border-collapse: collapse; width: 100%; }
+        .result-area th, .result-area td { border: 1px solid #546e7a; padding: 6px 10px; text-align: left; }
+        .result-area th { background: #37474f; color: #80cbc4; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .quiz-box { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .quiz-box h3 { margin-top: 0; }
+        .quiz-options label { display: block; padding: 8px; cursor: pointer; border-radius: 6px; }
+        .quiz-options label:hover { background: #f5f5f5; }
+        .quiz-result { margin-top: 10px; padding: 10px; border-radius: 6px; display: none; }
+        .quiz-result.correct { background: #e8f5e9; color: #2e7d32; }
+        .quiz-result.wrong { background: #ffebee; color: #c62828; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 5: インデックスとパフォーマンス</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day4-transaction.html">← Day4</a>
+            <a href="day6-architecture.html">次へ: アーキテクチャ →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>インデックスとは？</h2>
+            <p>データベースの<strong>索引</strong>です。本の「索引ページ」と同じ仕組みで、膨大なデータの中から目的の行を素早く見つけます。</p>
+
+            <div class="point-box">
+                <strong>インデックスなし</strong>：テーブルを先頭から1行ずつスキャン（フルスキャン）<br>
+                <strong>インデックスあり</strong>：索引を引いて直接その行にジャンプ<br><br>
+                100万件のテーブルで、フルスキャン → 数秒、インデックス検索 → 数ミリ秒
+            </div>
+
+            <h3>インデックスの作成</h3>
+            <div class="code-block">
+<span class="comment">-- customer_idにインデックスを作成</span>
+<span class="keyword">CREATE INDEX</span> idx_orders_customer
+<span class="keyword">ON</span> orders (customer_id);
+
+<span class="comment">-- 複合インデックス（複数列）</span>
+<span class="keyword">CREATE INDEX</span> idx_orders_date_customer
+<span class="keyword">ON</span> orders (order_date, customer_id);
+            </div>
+            <div class="point-box">
+                <strong>インデックスが自動的に作られる列</strong><br>
+                PRIMARY KEY と UNIQUE 制約の列には自動でインデックスが付きます。
+            </div>
+
+            <h3>重いクエリの アンチパターン</h3>
+
+            <div class="anti-pattern">
+                <div class="label">❌ パターン1: SELECT * で全列取得</div>
+                <div class="code-block" style="margin:8px 0;">
+<span class="bad">SELECT * FROM orders;</span>  <span class="comment">-- 不要な列まで取得</span>
+                </div>
+                <div class="fix">✅ 改善: 必要な列だけ指定</div>
+                <div class="code-block" style="margin:8px 0;">
+<span class="good">SELECT id, customer_id, order_date FROM orders;</span>
+                </div>
+            </div>
+
+            <div class="anti-pattern">
+                <div class="label">❌ パターン2: LIKE の前方ワイルドカード</div>
+                <div class="code-block" style="margin:8px 0;">
+<span class="bad">WHERE name LIKE '%田中%'</span>  <span class="comment">-- インデックス無効化</span>
+                </div>
+                <div class="fix">✅ 改善: 前方一致はインデックスが使える</div>
+                <div class="code-block" style="margin:8px 0;">
+<span class="good">WHERE name LIKE '田中%'</span>
+                </div>
+            </div>
+
+            <div class="anti-pattern">
+                <div class="label">❌ パターン3: WHERE句で列に関数を適用</div>
+                <div class="code-block" style="margin:8px 0;">
+<span class="bad">WHERE YEAR(order_date) = 2024</span>  <span class="comment">-- インデックス無効</span>
+                </div>
+                <div class="fix">✅ 改善: 列をそのまま使う</div>
+                <div class="code-block" style="margin:8px 0;">
+<span class="good">WHERE order_date >= '2024-01-01'</span>
+<span class="good">  AND order_date <  '2025-01-01'</span>
+                </div>
+            </div>
+
+            <div class="anti-pattern">
+                <div class="label">❌ パターン4: インデックスのない列でのJOIN</div>
+                <div class="code-block" style="margin:8px 0;">
+<span class="bad">JOIN order_details ON orders.id = order_details.order_id</span>
+<span class="comment">-- order_id にインデックスがないと遅い</span>
+                </div>
+                <div class="fix">✅ 改善: JOIN列にインデックスを作成</div>
+                <div class="code-block" style="margin:8px 0;">
+<span class="good">CREATE INDEX idx ON order_details(order_id);</span>
+                </div>
+            </div>
+
+            <div class="warn-box">
+                <strong>インデックスの注意点</strong><br>
+                インデックスは検索を速くしますが、INSERT/UPDATE/DELETE は遅くなります。
+                闇雲に作らず、実際に遅いクエリのWHERE/JOIN列に絞って作成しましょう。
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="loading" class="loading">データベースを準備中...</div>
+            <div id="content" style="display: none;">
+                <h2>アンチパターン診断クイズ</h2>
+
+                <div class="quiz-box">
+                    <h3>Q1: 次のSQLの問題は何ですか？</h3>
+                    <div class="code-block">
+SELECT * FROM order_details
+WHERE order_id = 1;
+                    </div>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q1" value="a"> JOINが必要</label>
+                        <label><input type="radio" name="q1" value="b"> SELECT * で不要な列を取得している</label>
+                        <label><input type="radio" name="q1" value="c"> WHERE句が間違っている</label>
+                    </div>
+                    <button class="btn" onclick="checkQ1()">回答</button>
+                    <div class="quiz-result" id="qr1"></div>
+                </div>
+
+                <div class="quiz-box">
+                    <h3>Q2: インデックスが効かないWHERE句はどれ？</h3>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q2" value="a"> WHERE order_date = '2024-03-01'</label>
+                        <label><input type="radio" name="q2" value="b"> WHERE SUBSTR(order_date, 1, 4) = '2024'</label>
+                        <label><input type="radio" name="q2" value="c"> WHERE customer_id = 1</label>
+                    </div>
+                    <button class="btn" onclick="checkQ2()">回答</button>
+                    <div class="quiz-result" id="qr2"></div>
+                </div>
+
+                <div class="quiz-box">
+                    <h3>Q3: 遅いクエリを改善してください</h3>
+                    <div class="problem-desc">
+                        <p>以下のクエリには2つの問題があります。改善版を書いてください。</p>
+                        <div class="code-block">
+SELECT * FROM orders
+WHERE SUBSTR(order_date,1,7) = '2024-03';
+                        </div>
+                        <p>問題点：<br>
+                        ① SELECT * を使っている<br>
+                        ② SUBSTR() でインデックスが効かない</p>
+                    </div>
+                    <textarea id="sql3">-- 改善したクエリを書いてください
+SELECT id, customer_id, order_date
+FROM orders
+WHERE order_date >= '2024-03-01'
+  AND order_date <  '2024-04-01';</textarea>
+                    <br>
+                    <button class="btn" onclick="runSQL('sql3', 'result3')">実行</button>
+                    <div class="result-area" id="result3"></div>
+                </div>
+
+                <div class="quiz-box">
+                    <h3>Q4: インデックスを作成してみよう</h3>
+                    <div class="problem-desc">
+                        <p>order_details テーブルの product_id 列にインデックスを作成してください。<br>
+                        その後、product_id = 1 の注文明細を検索してください。</p>
+                    </div>
+                    <textarea id="sql4">-- インデックス作成
+CREATE INDEX idx_od_product ON order_details(product_id);
+
+-- インデックスを使った検索
+SELECT * FROM order_details WHERE product_id = 1;</textarea>
+                    <br>
+                    <button class="btn" onclick="runMultiSQL('sql4', 'result4')">実行</button>
+                    <div class="result-area" id="result4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db;
+
+        async function initDB() {
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+            db = new SQL.Database();
+            db.run(`
+                CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, category_id INTEGER, price INTEGER, stock INTEGER);
+                CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT, region TEXT);
+                CREATE TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER, order_date TEXT);
+                CREATE TABLE order_details (id INTEGER PRIMARY KEY, order_id INTEGER, product_id INTEGER, quantity INTEGER);
+            `);
+            db.run(`
+                INSERT INTO products VALUES
+                    (1,'りんご',1,150,100),(2,'バナナ',1,100,150),(3,'オレンジ',1,120,80),
+                    (4,'緑茶',2,130,200),(5,'コーヒー',2,180,180),(6,'牛乳',2,200,50);
+                INSERT INTO customers VALUES (1,'田中商事','東京'),(2,'大阪物産','大阪');
+                INSERT INTO orders VALUES
+                    (1,1,'2024-03-01'),(2,2,'2024-03-02'),(3,1,'2024-03-03'),(4,2,'2024-03-15'),(5,1,'2024-04-01');
+                INSERT INTO order_details VALUES
+                    (1,1,1,5),(2,1,4,3),(3,2,2,10),(4,2,5,2),
+                    (5,3,1,8),(6,3,3,4),(7,4,6,5),(8,5,2,3);
+            `);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function checkQ1() {
+            const val = document.querySelector('input[name="q1"]:checked')?.value;
+            const el = document.getElementById('qr1');
+            el.style.display = 'block';
+            if (val === 'b') {
+                el.className = 'quiz-result correct';
+                el.innerHTML = '✅ 正解！SELECT * は不要な列まで取得し、ネットワーク転送量も増えます。必要な列だけ指定しましょう。';
+            } else {
+                el.className = 'quiz-result wrong';
+                el.innerHTML = '❌ 不正解。この場合の主な問題は「SELECT *」です。インデックスが効いていてもデータ転送量が無駄になります。';
+            }
+        }
+
+        function checkQ2() {
+            const val = document.querySelector('input[name="q2"]:checked')?.value;
+            const el = document.getElementById('qr2');
+            el.style.display = 'block';
+            if (val === 'b') {
+                el.className = 'quiz-result correct';
+                el.innerHTML = '✅ 正解！SUBSTR()などの関数をWHERE句の列に適用すると、インデックスが使えなくなりフルスキャンになります。';
+            } else {
+                el.className = 'quiz-result wrong';
+                el.innerHTML = '❌ 不正解。b の SUBSTR(order_date, 1, 4) が正解です。列に関数を適用するとインデックスが効きません。';
+            }
+        }
+
+        function runSQL(textareaId, resultId) {
+            const sql = document.getElementById(textareaId).value;
+            const resultEl = document.getElementById(resultId);
+            try {
+                const results = db.exec(sql);
+                if (results.length === 0) { resultEl.innerHTML = '(結果なし)'; resultEl.className = 'result-area'; return; }
+                const result = results[0];
+                let html = '<table><tr>';
+                result.columns.forEach(col => { html += `<th>${col}</th>`; });
+                html += '</tr>';
+                result.values.forEach(row => {
+                    html += '<tr>';
+                    row.forEach(val => { html += `<td>${val !== null ? val : 'NULL'}</td>`; });
+                    html += '</tr>';
+                });
+                html += '</table>';
+                html += `<div style="margin-top:10px;color:#78909c;">${result.values.length} 件</div>`;
+                resultEl.innerHTML = html;
+                resultEl.className = 'result-area';
+            } catch (e) {
+                resultEl.innerHTML = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+        }
+
+        function runMultiSQL(textareaId, resultId) {
+            const sql = document.getElementById(textareaId).value;
+            const resultEl = document.getElementById(resultId);
+            const stmts = sql.split(';').map(s => s.trim()).filter(s => s.length > 0 && !s.startsWith('--'));
+            try {
+                let lastResult = null;
+                stmts.forEach(stmt => {
+                    const r = db.exec(stmt);
+                    if (r.length > 0) lastResult = r[0];
+                });
+                if (!lastResult) { resultEl.innerHTML = '実行完了'; resultEl.className = 'result-area'; return; }
+                let html = '<table><tr>';
+                lastResult.columns.forEach(col => { html += `<th>${col}</th>`; });
+                html += '</tr>';
+                lastResult.values.forEach(row => {
+                    html += '<tr>';
+                    row.forEach(val => { html += `<td>${val !== null ? val : 'NULL'}</td>`; });
+                    html += '</tr>';
+                });
+                html += '</table>';
+                html += `<div style="margin-top:10px;color:#78909c;">${lastResult.values.length} 件</div>`;
+                resultEl.innerHTML = html;
+                resultEl.className = 'result-area';
+            } catch (e) {
+                resultEl.innerHTML = 'エラー: ' + e.message;
+                resultEl.className = 'result-area error';
+            }
+        }
+
+        initDB();
+    </script>
+</body>
+</html>

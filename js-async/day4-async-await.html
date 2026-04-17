@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 4: async/await - JS非同期</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #ff9800; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            white-space: pre; background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; overflow-x: auto; margin: 15px 0; line-height: 1.5; }
+        .code-block .kw { color: #82b1ff; }
+        .code-block .cm { color: #78909c; }
+        .code-block .str { color: #ffcc02; }
+        .code-block .fn { color: #80cbc4; }
+        .point-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #e65100; }
+        .compare-box { display: flex; gap: 15px; margin: 15px 0; flex-wrap: wrap; }
+        .compare-item { flex: 1; min-width: 200px; }
+        .compare-item h4 { margin: 0 0 8px; padding: 6px 10px; border-radius: 6px; }
+        .compare-item.promise h4 { background: #e3f2fd; color: #1565c0; }
+        .compare-item.asyncawait h4 { background: #fff3e0; color: #e65100; }
+        .demo-box { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .demo-box h3 { margin-top: 0; }
+        .demo-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .btn { display: inline-block; padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; margin: 5px 5px 5px 0; }
+        .btn:hover { background: #e65100; }
+        .output-area { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; margin-top: 10px; min-height: 80px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 4: async / await</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day3-promise.html">← Day3</a>
+            <a href="day5-fetch.html">次へ: fetch API →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>async/await とは？</h2>
+            <p>Promise をさらに<strong>同期処理のように書ける</strong>構文です。<br>
+            中身は Promise と同じですが、コードが格段に読みやすくなります。</p>
+
+            <h3>async 関数</h3>
+            <div class="code-block">
+<span class="cm">// async をつけると Promise を返す関数になる</span>
+<span class="kw">async function</span> <span class="fn">fetchUser</span>() {
+    <span class="kw">return</span> { id: 1, name: <span class="str">"田中"</span> };
+    <span class="cm">// return は自動で Promise.resolve(値) になる</span>
+}
+
+<span class="cm">// 呼び出し側</span>
+fetchUser().then(user => console.log(user));
+            </div>
+
+            <h3>await — Promise の結果を待つ</h3>
+            <div class="code-block">
+<span class="kw">async function</span> <span class="fn">main</span>() {
+    <span class="cm">// await = この行でPromiseが解決するまで待つ</span>
+    <span class="kw">const</span> user = <span class="kw">await</span> <span class="fn">fetchUser</span>();
+    console.log(user.name);
+
+    <span class="kw">const</span> orders = <span class="kw">await</span> <span class="fn">fetchOrders</span>(user.id);
+    console.log(orders);
+}
+<span class="cm">// await は async関数の中でしか使えない！</span>
+            </div>
+
+            <h3>try/catch でエラーハンドリング</h3>
+            <div class="code-block">
+<span class="kw">async function</span> <span class="fn">loadData</span>() {
+    <span class="kw">try</span> {
+        <span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetchFromAPI</span>();
+        console.log(<span class="str">"成功:"</span>, data);
+    } <span class="kw">catch</span> (err) {
+        console.log(<span class="str">"エラー:"</span>, err.message);
+    } <span class="kw">finally</span> {
+        console.log(<span class="str">"常に実行"</span>);
+    }
+}
+            </div>
+
+            <h3>Promise チェーン vs async/await の比較</h3>
+            <div class="compare-box">
+                <div class="compare-item promise">
+                    <h4>Promise チェーン</h4>
+                    <div class="code-block" style="font-size:12px;">
+<span class="fn">getUser</span>(id)
+  .then(u => <span class="fn">getOrders</span>(u.id))
+  .then(o => <span class="fn">getDetail</span>(o[0].id))
+  .then(d => console.log(d))
+  .catch(err => console.log(err));
+                    </div>
+                </div>
+                <div class="compare-item asyncawait">
+                    <h4>async/await</h4>
+                    <div class="code-block" style="font-size:12px;">
+<span class="kw">try</span> {
+  <span class="kw">const</span> u = <span class="kw">await</span> <span class="fn">getUser</span>(id);
+  <span class="kw">const</span> o = <span class="kw">await</span> <span class="fn">getOrders</span>(u.id);
+  <span class="kw">const</span> d = <span class="kw">await</span> <span class="fn">getDetail</span>(o[0].id);
+  console.log(d);
+} <span class="kw">catch</span> (err) {
+  console.log(err);
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="point-box">
+                <strong>async/await が好まれる理由</strong><br>
+                変数に名前をつけられる・条件分岐が自然に書ける・デバッグしやすい。<br>
+                現代のJavaScript開発では async/await が主流です。
+            </div>
+
+            <h3>注意: await は並列に使わない</h3>
+            <div class="code-block">
+<span class="cm">// ❌ 遅い：順番に実行（合計2.5秒）</span>
+<span class="kw">const</span> a = <span class="kw">await</span> <span class="fn">api1</span>();  <span class="cm">// 1秒待つ</span>
+<span class="kw">const</span> b = <span class="kw">await</span> <span class="fn">api2</span>();  <span class="cm">// 1.5秒待つ</span>
+
+<span class="cm">// ✅ 速い：並列実行（最大1.5秒）</span>
+<span class="kw">const</span> [a, b] = <span class="kw">await</span> Promise.all([<span class="fn">api1</span>(), <span class="fn">api2</span>()]);
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>インタラクティブ実験</h2>
+
+            <div class="demo-box">
+                <h3>実験1: async/await の基本</h3>
+                <div class="demo-desc">
+                    await を使った逐次処理。コードが同期処理のように読めることを確認しましょう。
+                </div>
+                <button class="btn" onclick="runBasicAwait()">実行</button>
+                <button class="btn" onclick="clearOut('out1')">クリア</button>
+                <div class="output-area" id="out1">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験2: try/catch でエラーハンドリング</h3>
+                <div class="demo-desc">
+                    「エラーあり」ボタンで catch ブロックに流れ、finally が必ず実行されることを確認します。
+                </div>
+                <button class="btn" onclick="runTryCatch(false)">正常実行</button>
+                <button class="btn" onclick="runTryCatch(true)">エラーあり</button>
+                <button class="btn" onclick="clearOut('out2')">クリア</button>
+                <div class="output-area" id="out2">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験3: 逐次 vs 並列の速度比較</h3>
+                <div class="demo-desc">
+                    順番に await するより Promise.all で並列実行する方が速いことを確認しましょう。
+                </div>
+                <button class="btn" onclick="runSequential()">逐次実行（遅い）</button>
+                <button class="btn" onclick="runParallel()">並列実行（速い）</button>
+                <button class="btn" onclick="clearOut('out3')">クリア</button>
+                <div class="output-area" id="out3">（ここに出力されます）</div>
+            </div>
+
+            <div class="demo-box">
+                <h3>実験4: async関数は Promise を返す</h3>
+                <div class="demo-desc">
+                    async関数の戻り値を .then() で受け取れることを確認します。
+                </div>
+                <button class="btn" onclick="runAsyncReturn()">実行</button>
+                <button class="btn" onclick="clearOut('out4')">クリア</button>
+                <div class="output-area" id="out4">（ここに出力されます）</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(id, msg) {
+            const el = document.getElementById(id);
+            const now = new Date().toLocaleTimeString('ja-JP', {hour12:false});
+            if (el.textContent.startsWith('（')) el.textContent = '';
+            el.textContent += `[${now}] ${msg}\n`;
+        }
+        function clearOut(id) { document.getElementById(id).textContent = '（ここに出力されます）'; }
+
+        function delay(ms, value, fail = false) {
+            return new Promise((resolve, reject) =>
+                setTimeout(() => fail ? reject(new Error(value)) : resolve(value), ms)
+            );
+        }
+
+        async function runBasicAwait() {
+            clearOut('out1');
+            log('out1', 'async関数 開始');
+            const user = await delay(600, { id: 1, name: '田中太郎' });
+            log('out1', `→ ユーザー取得: ${user.name}`);
+            const orders = await delay(500, [{ id: 101 }, { id: 102 }]);
+            log('out1', `→ 注文取得: ${orders.length}件`);
+            const detail = await delay(400, { product: 'りんご', qty: 5 });
+            log('out1', `→ 詳細取得: ${detail.product} × ${detail.qty}`);
+            log('out1', '✅ 全処理完了（同期処理のように読める！）');
+        }
+
+        async function runTryCatch(withError) {
+            clearOut('out2');
+            log('out2', `実行開始 (${withError ? 'エラーあり' : '正常'})`);
+            try {
+                const step1 = await delay(500, 'ステップ1完了');
+                log('out2', `✅ ${step1}`);
+                if (withError) await delay(300, 'ステップ2でエラー発生！', true);
+                const step2 = await delay(400, 'ステップ2完了');
+                log('out2', `✅ ${step2}`);
+            } catch (err) {
+                log('out2', `❌ catch: ${err.message}`);
+            } finally {
+                log('out2', '🏁 finally: 常に実行される');
+            }
+        }
+
+        async function runSequential() {
+            clearOut('out3');
+            const start = Date.now();
+            log('out3', '逐次実行開始...');
+            await delay(800, 'API1');
+            log('out3', `  API1 完了`);
+            await delay(600, 'API2');
+            log('out3', `  API2 完了`);
+            await delay(700, 'API3');
+            log('out3', `  API3 完了`);
+            log('out3', `✅ 完了: ${Date.now() - start}ms（合計 2100ms）`);
+        }
+
+        async function runParallel() {
+            clearOut('out3');
+            const start = Date.now();
+            log('out3', '並列実行開始...');
+            await Promise.all([delay(800, 'API1'), delay(600, 'API2'), delay(700, 'API3')]);
+            log('out3', `✅ 完了: ${Date.now() - start}ms（最大 800ms）`);
+            log('out3', '→ Promise.all で同時に実行したので速い！');
+        }
+
+        async function getValue() {
+            await delay(500);
+            return 42;
+        }
+
+        function runAsyncReturn() {
+            clearOut('out4');
+            log('out4', 'async関数を呼び出す...');
+            const result = getValue();
+            log('out4', `戻り値の型: ${Object.prototype.toString.call(result)}`);
+            log('out4', '→ async関数は Promise オブジェクトを返す');
+            result.then(val => log('out4', `→ .then() で値を受け取れる: ${val}`));
+        }
+    </script>
+</body>
+</html>

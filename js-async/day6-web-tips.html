@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 6: WEB開発での注意点 - JS非同期</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #ff9800; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+        h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px; margin-top: 40px; }
+        h3 { color: #ff9800; margin-top: 25px; }
+        .code-block {
+            white-space: pre; background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; overflow-x: auto; margin: 15px 0; line-height: 1.5; }
+        .code-block .kw { color: #82b1ff; }
+        .code-block .cm { color: #78909c; }
+        .code-block .str { color: #ffcc02; }
+        .code-block .bad { color: #ef5350; }
+        .code-block .good { color: #81c784; }
+        .point-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #e65100; }
+        .warn-box { background: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warn-box strong { color: #b71c1c; }
+        .two-col { display: flex; gap: 20px; flex-wrap: wrap; }
+        .two-col > div { flex: 1; min-width: 280px; }
+        .demo-section { background: white; border-radius: 12px; padding: 25px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .demo-section h3 { margin-top: 0; }
+        .demo-desc { background: #f5f5f5; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9em; }
+        .btn { display: inline-block; padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 6px; font-size: 0.95em; cursor: pointer; margin: 5px 5px 5px 0; }
+        .btn:hover { background: #e65100; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .output-area { background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; margin-top: 10px; min-height: 80px; white-space: pre-wrap; }
+        /* ローディングデモ */
+        .mock-ui { border: 2px dashed #ddd; border-radius: 8px; padding: 20px; margin: 10px 0; background: #fafafa; }
+        .loading-spinner { display: none; text-align: center; padding: 10px; color: #ff9800; }
+        .mock-table { width: 100%; border-collapse: collapse; }
+        .mock-table th { background: #ff9800; color: white; padding: 8px; }
+        .mock-table td { border: 1px solid #ddd; padding: 8px; }
+        .checklist { list-style: none; padding: 0; }
+        .checklist li { padding: 12px; border-bottom: 1px solid #eee; display: flex; gap: 10px; align-items: flex-start; }
+        .checklist li:last-child { border-bottom: none; }
+        .check-icon { font-size: 1.2em; flex-shrink: 0; }
+        .check-text strong { display: block; }
+        .check-text .sub { font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Day 6: WEB開発での注意点</h1>
+        <div class="nav">
+            <a href="index.html">← トップに戻る</a>
+            <a href="day5-fetch.html">← Day5</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>① UIをブロックしない</h2>
+        <p>非同期処理中でも画面は応答し続けなければなりません。<br>
+        ローディング中であることをユーザーに伝えましょう。</p>
+
+        <div class="two-col">
+            <div>
+                <div class="warn-box">
+                    <strong>❌ 悪い例：処理中にボタンをクリックできてしまう</strong>
+                    <div class="code-block" style="margin-top:8px;">
+<span class="kw">async function</span> loadData() {
+    <span class="bad">// ボタンを無効化しない</span>
+    <span class="kw">const</span> data = <span class="kw">await</span> fetchFromAPI();
+    showData(data);
+}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="point-box">
+                    <strong>✅ 良い例：ローディング状態を管理する</strong>
+                    <div class="code-block" style="margin-top:8px;">
+<span class="kw">async function</span> loadData() {
+    <span class="good">setLoading(true);</span>   <span class="cm">// ボタン無効化・スピナー表示</span>
+    <span class="kw">try</span> {
+        <span class="kw">const</span> data = <span class="kw">await</span> fetchFromAPI();
+        showData(data);
+    } <span class="kw">catch</span> (err) {
+        showError(err.message);
+    } <span class="kw">finally</span> {
+        <span class="good">setLoading(false);</span>  <span class="cm">// 必ず解除</span>
+    }
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>デモ: ローディング状態の管理</h3>
+            <div class="demo-desc">
+                「悪い例」は処理中に何度でもクリックできます。「良い例」はボタンが無効化されます。
+            </div>
+            <button class="btn" id="badBtn" onclick="loadBad()">❌ 悪い例で実行</button>
+            <button class="btn" id="goodBtn" onclick="loadGood()">✅ 良い例で実行</button>
+            <div class="mock-ui">
+                <div class="loading-spinner" id="spinner">⏳ 読み込み中...</div>
+                <div id="mockData">（データがここに表示されます）</div>
+            </div>
+            <div class="output-area" id="outLoad">（ここに出力されます）</div>
+        </div>
+
+        <h2>② エラーを必ずハンドリングする</h2>
+        <div class="warn-box">
+            <strong>catch なしで await は絶対にやってはいけない</strong><br>
+            業務システムでは「サーバーが落ちている」「タイムアウト」「認証切れ」など様々なエラーが起きます。
+            ハンドリングしないとユーザーに何も表示されず、バグに気づけません。
+        </div>
+
+        <div class="code-block">
+<span class="cm">// ❌ エラーハンドリングなし（NG）</span>
+<span class="kw">const</span> data = <span class="kw">await</span> fetchOrders();  <span class="bad">// エラー時に画面が固まる</span>
+
+<span class="cm">// ✅ エラーハンドリングあり（推奨）</span>
+<span class="kw">try</span> {
+    <span class="kw">const</span> data = <span class="kw">await</span> fetchOrders();
+    showOrders(data);
+} <span class="kw">catch</span> (err) {
+    <span class="good">showErrorMessage('注文データの取得に失敗しました');</span>
+    <span class="good">console.error(err);  // ログに詳細を残す</span>
+}
+        </div>
+
+        <h2>③ 並列 vs 直列 — 適切な使い分け</h2>
+        <div class="two-col">
+            <div>
+                <h3>直列（順番に実行）</h3>
+                <p>前の結果を次で使う場合に使う。</p>
+                <div class="code-block" style="font-size:12px;">
+<span class="cm">// ユーザー取得 → そのIDで注文取得</span>
+<span class="kw">const</span> user = <span class="kw">await</span> getUser(id);
+<span class="kw">const</span> orders = <span class="kw">await</span> getOrders(user.id);
+<span class="cm">// user.id が必要なので直列OK</span>
+                </div>
+            </div>
+            <div>
+                <h3>並列（同時に実行）</h3>
+                <p>お互いに依存しない場合に使う。</p>
+                <div class="code-block" style="font-size:12px;">
+<span class="cm">// 独立したデータを同時取得</span>
+<span class="kw">const</span> [users, products] =
+    <span class="kw">await</span> Promise.all([
+        getUsers(),
+        getProducts()
+    ]);
+<span class="cm">// 互いに無関係 → 並列が速い</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>デモ: 直列 vs 並列の速度</h3>
+            <div class="demo-desc">
+                3つのAPI（各1秒）を取得する場合の速度差を確認します。
+            </div>
+            <button class="btn" onclick="runSerial()">直列実行（3秒）</button>
+            <button class="btn" onclick="runParallelDemo()">並列実行（1秒）</button>
+            <button class="btn" onclick="clearOut('outParallel')">クリア</button>
+            <div class="output-area" id="outParallel">（ここに出力されます）</div>
+        </div>
+
+        <h2>④ ORSYSのような業務システムでの考慮点</h2>
+
+        <ul class="checklist">
+            <li>
+                <span class="check-icon">🔐</span>
+                <div class="check-text">
+                    <strong>認証トークンの付与</strong>
+                    <span class="sub">APIリクエストには必ず認証ヘッダーを付ける。セッション切れ時は再ログイン誘導。</span>
+                </div>
+            </li>
+            <li>
+                <span class="check-icon">⏱️</span>
+                <div class="check-text">
+                    <strong>タイムアウト設定</strong>
+                    <span class="sub">業務APの場合は処理が重いこともある。適切なタイムアウトを設定し、「応答なし」状態を防ぐ。</span>
+                </div>
+            </li>
+            <li>
+                <span class="check-icon">🔁</span>
+                <div class="check-text">
+                    <strong>二重送信防止</strong>
+                    <span class="sub">「登録」ボタンを連打されると同じデータが複数作成される。送信中はボタンを無効化する。</span>
+                </div>
+            </li>
+            <li>
+                <span class="check-icon">📋</span>
+                <div class="check-text">
+                    <strong>楽観的 vs 悲観的UI更新</strong>
+                    <span class="sub">先に画面を更新してからAPI送信（楽観的）か、確認後に更新（悲観的）か。業務データは悲観的が安全。</span>
+                </div>
+            </li>
+            <li>
+                <span class="check-icon">📊</span>
+                <div class="check-text">
+                    <strong>大量データの取得に注意</strong>
+                    <span class="sub">一度に全件取得せずページネーション（1ページ50件等）を使う。フロントでのフィルタリングは件数が多いと遅い。</span>
+                </div>
+            </li>
+            <li>
+                <span class="check-icon">🔄</span>
+                <div class="check-text">
+                    <strong>Vueでの非同期処理</strong>
+                    <span class="sub"><code>mounted()</code> や <code>created()</code> の中で async/await を使う。<code>v-if</code> で「データが来るまで表示しない」制御も忘れずに。</span>
+                </div>
+            </li>
+        </ul>
+
+        <h2>まとめ: 非同期の鉄則</h2>
+        <div class="point-box">
+            <ul style="margin:0; padding-left:20px;">
+                <li>① <strong>ローディング状態を管理する</strong>（開始時にON、finallyでOFF）</li>
+                <li>② <strong>必ず try/catch でエラーを処理する</strong></li>
+                <li>③ <strong>独立した処理は Promise.all で並列化</strong>（依存関係があるなら直列）</li>
+                <li>④ <strong>送信中のボタンを無効化</strong>して二重送信を防ぐ</li>
+                <li>⑤ <strong>大量データは一括取得しない</strong>（ページネーション）</li>
+            </ul>
+        </div>
+
+        <div class="point-box" style="margin-top:30px; background:#e8f5e9; border-color:#4caf50;">
+            <strong style="color:#2e7d32;">JS非同期コース 完了！</strong><br>
+            同期・非同期・コールバック・Promise・async/await・fetch の流れを理解しました。<br>
+            次は実際のVue.jsのコードに組み込んでAPIと連携する実装に挑戦しましょう。
+        </div>
+    </div>
+
+    <script>
+        function log(id, msg) {
+            const el = document.getElementById(id);
+            const now = new Date().toLocaleTimeString('ja-JP', {hour12:false});
+            if (el.textContent.startsWith('（')) el.textContent = '';
+            el.textContent += `[${now}] ${msg}\n`;
+        }
+        function clearOut(id) { document.getElementById(id).textContent = '（ここに出力されます）'; }
+
+        let badClickCount = 0;
+        function delay(ms, val) { return new Promise(r => setTimeout(() => r(val), ms)); }
+
+        async function loadBad() {
+            badClickCount++;
+            log('outLoad', `❌ 悪い例: ボタンクリック ${badClickCount}回目（連打できる）`);
+            document.getElementById('mockData').textContent = '読み込み中...';
+            await delay(2000);
+            document.getElementById('mockData').innerHTML = `
+                <table class="mock-table">
+                    <tr><th>商品</th><th>数量</th></tr>
+                    <tr><td>りんご</td><td>5</td></tr>
+                    <tr><td>バナナ</td><td>3</td></tr>
+                </table>
+            `;
+            log('outLoad', '  → 完了（でも連打分だけリクエストが飛んでいた！）');
+            badClickCount = 0;
+        }
+
+        async function loadGood() {
+            const btn = document.getElementById('goodBtn');
+            const spinner = document.getElementById('spinner');
+            log('outLoad', '✅ 良い例: ボタン無効化してロード開始');
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            document.getElementById('mockData').textContent = '';
+            try {
+                await delay(2000);
+                spinner.style.display = 'none';
+                document.getElementById('mockData').innerHTML = `
+                    <table class="mock-table">
+                        <tr><th>商品</th><th>数量</th></tr>
+                        <tr><td>りんご</td><td>5</td></tr>
+                        <tr><td>バナナ</td><td>3</td></tr>
+                    </table>
+                `;
+                log('outLoad', '  → 完了（処理中は連打できなかった）');
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        }
+
+        async function runSerial() {
+            clearOut('outParallel');
+            const start = Date.now();
+            log('outParallel', '直列実行開始...');
+            await delay(1000); log('outParallel', `  API1完了 (${Date.now()-start}ms)`);
+            await delay(1000); log('outParallel', `  API2完了 (${Date.now()-start}ms)`);
+            await delay(1000); log('outParallel', `  API3完了 (${Date.now()-start}ms)`);
+            log('outParallel', `✅ 合計 ${Date.now()-start}ms（3秒かかった）`);
+        }
+
+        async function runParallelDemo() {
+            clearOut('outParallel');
+            const start = Date.now();
+            log('outParallel', '並列実行開始...');
+            await Promise.all([delay(1000), delay(1000), delay(1000)]);
+            log('outParallel', `✅ 合計 ${Date.now()-start}ms（約1秒で終了！）`);
+            log('outParallel', '→ Promise.all で同時実行したので3倍速い');
+        }
+    </script>
+</body>
+</html>
