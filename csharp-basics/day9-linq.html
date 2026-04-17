@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 9: 例外処理とLINQ - C# 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #7B1FA2; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #4A148C; border-bottom: 2px solid #7B1FA2; padding-bottom: 10px; }
+    h3 { color: #7B1FA2; margin-top: 25px; }
+    .code-block { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; line-height: 1.7; white-space: pre; }
+    .code-block .comment { color: #6c7086; }
+    .code-block .keyword { color: #cba6f7; }
+    .code-block .type { color: #89b4fa; }
+    .code-block .string { color: #a6e3a1; }
+    .code-block .number { color: #fab387; }
+    .code-block .method { color: #89dceb; }
+    .point-box { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #4A148C; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .info-box { background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #1b5e20; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #7B1FA2; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .problem-desc code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+    textarea { width: 100%; height: 140px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; line-height: 1.6; }
+    textarea:focus { outline: none; border-color: #7B1FA2; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #7B1FA2; font-weight: bold; padding: 8px 12px; background: #F3E5F5; border-radius: 6px; user-select: none; }
+    summary:hover { background: #E1BEE7; }
+    .answer { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 0 0 8px 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.7; white-space: pre; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Day 9: 例外処理とLINQ</h1>
+    <div class="nav">
+      <a href="index.html">トップ</a>
+      <a href="day8-interfaces.html">← 前へ: インターフェースと抽象クラス</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 左パネル: 説明 -->
+    <div class="left-panel">
+      <h2>例外処理とLINQ</h2>
+
+      <h3>例外処理（try-catch-finally）</h3>
+      <div class="code-block"><span class="keyword">try</span>
+{
+    <span class="type">int</span>[] arr = { <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> };
+    Console.<span class="method">WriteLine</span>(arr[<span class="number">10</span>]); <span class="comment">// IndexOutOfRangeException</span>
+}
+<span class="keyword">catch</span> (<span class="type">IndexOutOfRangeException</span> ex)
+{
+    Console.<span class="method">WriteLine</span>(<span class="string">$"配列の範囲外: {ex.Message}"</span>);
+}
+<span class="keyword">catch</span> (<span class="type">Exception</span> ex)
+{
+    Console.<span class="method">WriteLine</span>(<span class="string">$"その他のエラー: {ex.Message}"</span>);
+}
+<span class="keyword">finally</span>
+{
+    Console.<span class="method">WriteLine</span>(<span class="string">"finallyは必ず実行される"</span>);
+}</div>
+
+      <h3>よく使う例外クラス</h3>
+      <div class="code-block"><span class="comment">// NullReferenceException: nullのメンバーにアクセス</span>
+<span class="comment">// ArgumentNullException: nullを渡してはいけない引数</span>
+<span class="comment">// InvalidOperationException: 状態が不正</span>
+<span class="comment">// FormatException: 文字列の形式が不正（int.Parse失敗など）</span>
+<span class="comment">// FileNotFoundException: ファイルが見つからない</span></div>
+
+      <h3>throw で例外をスロー</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="type">BankAccount</span>
+{
+    <span class="keyword">private</span> <span class="type">decimal</span> _balance;
+
+    <span class="keyword">public</span> <span class="type">void</span> <span class="method">Withdraw</span>(<span class="type">decimal</span> amount)
+    {
+        <span class="keyword">if</span> (amount &lt;= <span class="number">0</span>)
+            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">ArgumentException</span>(<span class="string">"出金額は正の値でなければなりません"</span>);
+        <span class="keyword">if</span> (amount &gt; _balance)
+            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">InvalidOperationException</span>(<span class="string">"残高が不足しています"</span>);
+        _balance -= amount;
+    }
+}</div>
+
+      <h3>カスタム例外クラス</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="type">InsufficientBalanceException</span> : <span class="type">Exception</span>
+{
+    <span class="keyword">public</span> <span class="type">decimal</span> RequiredAmount { <span class="keyword">get</span>; }
+
+    <span class="keyword">public</span> <span class="method">InsufficientBalanceException</span>(<span class="type">decimal</span> required)
+        : <span class="keyword">base</span>(<span class="string">$"残高不足: {required}円必要です"</span>)
+    {
+        RequiredAmount = required;
+    }
+}</div>
+
+      <div class="warning-box">
+        <strong>注意:</strong> 例外はフロー制御に使わない。発生頻度が高い条件はif文で事前チェックし、本当に予期しない場合のみ例外を使う。
+      </div>
+
+      <h3>LINQ（Language Integrated Query）</h3>
+      <p>データの絞り込み・変換・集計を読みやすく書ける。</p>
+
+      <div class="code-block"><span class="keyword">using</span> System.Linq;
+
+<span class="keyword">var</span> numbers = <span class="keyword">new</span> <span class="type">List</span>&lt;<span class="type">int</span>&gt; { <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span> };
+
+<span class="comment">// Where: 絞り込み</span>
+<span class="keyword">var</span> evens = numbers.<span class="method">Where</span>(n =&gt; n % <span class="number">2</span> == <span class="number">0</span>).<span class="method">ToList</span>();
+<span class="comment">// → [2, 4, 6, 8, 10]</span>
+
+<span class="comment">// Select: 変換（map）</span>
+<span class="keyword">var</span> doubled = numbers.<span class="method">Select</span>(n =&gt; n * <span class="number">2</span>).<span class="method">ToList</span>();
+<span class="comment">// → [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]</span>
+
+<span class="comment">// OrderBy / OrderByDescending: ソート</span>
+<span class="keyword">var</span> sorted = numbers.<span class="method">OrderByDescending</span>(n =&gt; n).<span class="method">ToList</span>();
+
+<span class="comment">// First / FirstOrDefault: 最初の要素</span>
+<span class="keyword">var</span> first = numbers.<span class="method">First</span>(n =&gt; n &gt; <span class="number">5</span>); <span class="comment">// 6</span>
+<span class="keyword">var</span> none = numbers.<span class="method">FirstOrDefault</span>(n =&gt; n &gt; <span class="number">100</span>); <span class="comment">// 0（デフォルト値）</span>
+
+<span class="comment">// Count / Sum / Average / Max / Min</span>
+<span class="type">int</span> count = numbers.<span class="method">Count</span>(n =&gt; n % <span class="number">2</span> == <span class="number">0</span>); <span class="comment">// 5</span>
+<span class="type">int</span> sum = numbers.<span class="method">Sum</span>(); <span class="comment">// 55</span>
+<span class="type">double</span> avg = numbers.<span class="method">Average</span>(); <span class="comment">// 5.5</span>
+<span class="type">int</span> max = numbers.<span class="method">Max</span>(); <span class="comment">// 10</span></div>
+
+      <h3>オブジェクトリストへのLINQ</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="type">Student</span>
+{
+    <span class="keyword">public</span> <span class="type">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">public</span> <span class="type">int</span> Score { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+}
+
+<span class="keyword">var</span> students = <span class="keyword">new</span> <span class="type">List</span>&lt;<span class="type">Student</span>&gt;
+{
+    <span class="keyword">new</span> <span class="type">Student</span> { Name = <span class="string">"田中"</span>, Score = <span class="number">85</span> },
+    <span class="keyword">new</span> <span class="type">Student</span> { Name = <span class="string">"山田"</span>, Score = <span class="number">92</span> },
+    <span class="keyword">new</span> <span class="type">Student</span> { Name = <span class="string">"佐藤"</span>, Score = <span class="number">67</span> },
+    <span class="keyword">new</span> <span class="type">Student</span> { Name = <span class="string">"鈴木"</span>, Score = <span class="number">78</span> }
+};
+
+<span class="comment">// 80点以上の学生を点数降順で取得</span>
+<span class="keyword">var</span> topStudents = students
+    .<span class="method">Where</span>(s =&gt; s.Score &gt;= <span class="number">80</span>)
+    .<span class="method">OrderByDescending</span>(s =&gt; s.Score)
+    .<span class="method">Select</span>(s =&gt; s.Name)
+    .<span class="method">ToList</span>();
+<span class="comment">// → ["山田", "田中"]</span>
+
+<span class="comment">// 平均点</span>
+<span class="type">double</span> average = students.<span class="method">Average</span>(s =&gt; s.Score); <span class="comment">// 80.5</span></div>
+
+      <h3>クエリ構文（SQLライク）</h3>
+      <div class="code-block"><span class="comment">// メソッド構文（推奨）</span>
+<span class="keyword">var</span> result = students.<span class="method">Where</span>(s =&gt; s.Score &gt;= <span class="number">80</span>).<span class="method">Select</span>(s =&gt; s.Name);
+
+<span class="comment">// クエリ構文（SQLに近い）</span>
+<span class="keyword">var</span> result2 = <span class="keyword">from</span> s <span class="keyword">in</span> students
+              <span class="keyword">where</span> s.Score &gt;= <span class="number">80</span>
+              <span class="keyword">select</span> s.Name;</div>
+
+      <div class="point-box">
+        <strong>遅延評価:</strong> LINQはforeachやToList()を呼ぶまで実際の処理は実行されない（遅延評価）。foreachやif+listのコードを宣言的に書けるのが強み。
+      </div>
+    </div>
+
+    <!-- 右パネル: 練習問題 -->
+    <div class="right-panel">
+      <h2>練習問題</h2>
+
+      <!-- 問題1 -->
+      <div class="problem">
+        <h3>問題 1 <span class="tag tag-easy">easy</span></h3>
+        <p>以下のコードを読んで、出力結果を答えてください。</p>
+        <div class="code-block"><span class="keyword">try</span>
+{
+    <span class="type">string</span> s = <span class="keyword">null</span>;
+    Console.<span class="method">WriteLine</span>(s.Length);
+}
+<span class="keyword">catch</span> (<span class="type">NullReferenceException</span>)
+{
+    Console.<span class="method">WriteLine</span>(<span class="string">"nullエラー"</span>);
+}
+<span class="keyword">finally</span>
+{
+    Console.<span class="method">WriteLine</span>(<span class="string">"完了"</span>);
+}</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">nullエラー
+完了
+
+// 解説:
+// 1. s.Length で NullReferenceException が発生
+// 2. catch ブロックで "nullエラー" を出力
+// 3. finally は例外の有無に関わらず必ず実行される</div>
+        </details>
+      </div>
+
+      <!-- 問題2 -->
+      <div class="problem">
+        <h3>問題 2 <span class="tag tag-easy">easy</span></h3>
+        <p>空欄を埋めて、5より大きい数を昇順に並べるLINQを完成させてください。</p>
+        <div class="code-block"><span class="keyword">var</span> nums = <span class="keyword">new</span> <span class="type">List</span>&lt;<span class="type">int</span>&gt; { <span class="number">5</span>, <span class="number">3</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">2</span> };
+<span class="keyword">var</span> result = nums.<span class="comment">____</span>(n =&gt; n &gt; <span class="number">4</span>).<span class="comment">____</span>(n =&gt; n).<span class="method">ToList</span>();
+<span class="comment">// 5より大きい数を昇順に並べる → [5, 8, 9]</span></div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">// 空欄の答え（上から順に）
+// 1番目: Where    （条件で絞り込む）
+// 2番目: OrderBy  （昇順に並べる）
+
+var result = nums.Where(n => n > 4).OrderBy(n => n).ToList();
+// → [5, 8, 9]
+
+// 補足:
+// n > 4 は「4より大きい」なので 5 も含まれる
+// OrderByDescending で降順にもできる: [9, 8, 5]</div>
+        </details>
+      </div>
+
+      <!-- 問題3 -->
+      <div class="problem">
+        <h3>問題 3 <span class="tag tag-medium">medium</span></h3>
+        <div class="problem-desc">
+          <p>以下のリストに対してLINQを実装してください。</p>
+          <code>var words = new List&lt;string&gt; { "apple", "banana", "cherry", "avocado", "blueberry" };</code>
+          <ul>
+            <li>"a"で始まる単語を取得する</li>
+            <li>単語を文字数順（昇順）に並べる</li>
+            <li>最も長い単語を取得する</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">var words = new List&lt;string&gt;
+{
+    "apple", "banana", "cherry", "avocado", "blueberry"
+};
+
+// "a"で始まる単語を取得
+var startsWithA = words.Where(w => w.StartsWith("a")).ToList();
+Console.WriteLine(string.Join(", ", startsWithA));
+// → apple, avocado
+
+// 単語を文字数順（昇順）に並べる
+var byLength = words.OrderBy(w => w.Length).ToList();
+Console.WriteLine(string.Join(", ", byLength));
+// → apple, banana, cherry, avocado, blueberry
+
+// 最も長い単語を取得
+string longest = words.OrderByDescending(w => w.Length).First();
+// または: string longest = words.MaxBy(w => w.Length);
+Console.WriteLine(longest);
+// → blueberry</div>
+        </details>
+      </div>
+
+      <!-- 問題4 -->
+      <div class="problem">
+        <h3>問題 4 <span class="tag tag-medium">medium</span></h3>
+        <div class="problem-desc">
+          <p>例外処理を使った安全な変換メソッドを書いてください。</p>
+          <ul>
+            <li>文字列を受け取って <code>int</code> に変換する <code>SafeParse(string input)</code> メソッドを書く</li>
+            <li>変換できない場合は -1 を返す（例外を使って実装すること）</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">int SafeParse(string input)
+{
+    try
+    {
+        // 変換できれば結果を返す
+        return int.Parse(input);
+    }
+    catch (FormatException)
+    {
+        // 数値形式でない場合
+        return -1;
+    }
+    catch (OverflowException)
+    {
+        // int の範囲を超えた場合
+        return -1;
+    }
+}
+
+// 使用例
+Console.WriteLine(SafeParse("42"));     // 42
+Console.WriteLine(SafeParse("abc"));    // -1
+Console.WriteLine(SafeParse(""));       // -1
+Console.WriteLine(SafeParse("99999999999999")); // -1（オーバーフロー）
+
+// 補足: int.TryParse を使う方法（例外を使わない推奨パターン）
+int SafeParseV2(string input)
+{
+    return int.TryParse(input, out int result) ? result : -1;
+}
+// → 高頻度で失敗が起きる場合はTryParseの方が効率的</div>
+        </details>
+      </div>
+
+      <!-- 問題5 -->
+      <div class="problem">
+        <h3>問題 5 <span class="tag tag-hard">hard</span></h3>
+        <div class="problem-desc">
+          <p>以下のデータを使ってLINQを実装してください。</p>
+          <div class="code-block" style="margin: 10px 0; font-size: 13px;"><span class="keyword">class</span> <span class="type">Product</span>
+{
+    <span class="keyword">public</span> <span class="type">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">public</span> <span class="type">string</span> Category { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">public</span> <span class="type">decimal</span> Price { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+}
+<span class="keyword">var</span> products = <span class="keyword">new</span> <span class="type">List</span>&lt;<span class="type">Product</span>&gt;
+{
+    <span class="keyword">new</span> <span class="type">Product</span> { Name=<span class="string">"ノートPC"</span>,  Category=<span class="string">"電子機器"</span>, Price=<span class="number">98000</span> },
+    <span class="keyword">new</span> <span class="type">Product</span> { Name=<span class="string">"マウス"</span>,    Category=<span class="string">"電子機器"</span>, Price=<span class="number">3000</span>  },
+    <span class="keyword">new</span> <span class="type">Product</span> { Name=<span class="string">"デスク"</span>,    Category=<span class="string">"家具"</span>,     Price=<span class="number">45000</span> },
+    <span class="keyword">new</span> <span class="type">Product</span> { Name=<span class="string">"チェア"</span>,    Category=<span class="string">"家具"</span>,     Price=<span class="number">32000</span> },
+    <span class="keyword">new</span> <span class="type">Product</span> { Name=<span class="string">"モニター"</span>,  Category=<span class="string">"電子機器"</span>, Price=<span class="number">55000</span> }
+};</div>
+          <ul>
+            <li>カテゴリが「電子機器」の商品のみ取得</li>
+            <li>価格の高い順に並べる</li>
+            <li>商品名と価格を「ノートPC: 98,000円」の形式で出力</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..." style="height: 160px;"></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">// カテゴリが「電子機器」を価格降順で取得し、整形して出力
+var result = products
+    .Where(p => p.Category == "電子機器")
+    .OrderByDescending(p => p.Price)
+    .Select(p => $"{p.Name}: {p.Price:#,0}円");
+
+foreach (var line in result)
+{
+    Console.WriteLine(line);
+}
+
+// 出力:
+// ノートPC: 98,000円
+// モニター: 55,000円
+// マウス: 3,000円
+
+// 補足: 価格合計もLINQで計算できる
+decimal total = products
+    .Where(p => p.Category == "電子機器")
+    .Sum(p => p.Price);
+Console.WriteLine($"電子機器の合計: {total:#,0}円"); // 156,000円</div>
+        </details>
+      </div>
+
+      <!-- コース完了メッセージ -->
+      <div style="background: linear-gradient(135deg, #7B1FA2, #4A148C); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-top: 30px;">
+        <h2 style="color: white; border: none;">C# 基礎コース修了！</h2>
+        <p>お疲れ様でした。9日間でC#の基礎からオブジェクト指向、LINQまで学びました。</p>
+        <p>次のステップ: ASP.NET Core でWebAPIを作ってみましょう！</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

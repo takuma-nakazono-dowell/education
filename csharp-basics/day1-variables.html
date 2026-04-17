@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 1: 変数とデータ型 | C# 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #7B1FA2; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #4A148C; border-bottom: 2px solid #7B1FA2; padding-bottom: 10px; }
+    h3 { color: #7B1FA2; margin-top: 25px; }
+    .code-block { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; line-height: 1.7; }
+    .code-block .comment { color: #6c7086; }
+    .code-block .keyword { color: #cba6f7; }
+    .code-block .type { color: #89b4fa; }
+    .code-block .string { color: #a6e3a1; }
+    .code-block .number { color: #fab387; }
+    .code-block .method { color: #89dceb; }
+    .point-box { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #4A148C; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .info-box { background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #1b5e20; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #7B1FA2; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .problem-desc code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+    textarea { width: 100%; height: 140px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; line-height: 1.6; }
+    textarea:focus { outline: none; border-color: #7B1FA2; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #7B1FA2; font-weight: bold; padding: 8px 12px; background: #F3E5F5; border-radius: 6px; user-select: none; }
+    summary:hover { background: #E1BEE7; }
+    .answer { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 0 0 8px 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.7; white-space: pre; }
+    .answer .comment { color: #6c7086; }
+    .answer .keyword { color: #cba6f7; }
+    .answer .type { color: #89b4fa; }
+    .answer .string { color: #a6e3a1; }
+    .answer .number { color: #fab387; }
+    .answer .method { color: #89dceb; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Day 1: 変数とデータ型</h1>
+    <div class="nav">
+      <a href="index.html">← トップに戻る</a>
+      <a href="day2-conditions.html">次へ: 演算と条件分岐 →</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 左パネル: 説明 -->
+    <div class="left-panel">
+      <h2>C# の変数とデータ型</h2>
+
+      <h3>C# プログラムの基本構造</h3>
+      <div class="code-block"><span class="comment">// 名前空間とクラス（.NET 6以降はトップレベルステートメントも可）</span>
+<span class="keyword">using</span> System;
+
+<span class="keyword">class</span> <span class="type">Program</span>
+{
+    <span class="keyword">static void</span> <span class="method">Main</span>(<span class="type">string</span>[] args)
+    {
+        <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"Hello, C#!"</span>);
+    }
+}</div>
+
+      <h3>変数の宣言と型</h3>
+      <p>C#は静的型付け言語。変数宣言時に型を指定する必要があります。</p>
+      <div class="code-block"><span class="comment">// 整数</span>
+<span class="type">int</span> age = <span class="number">25</span>;
+<span class="type">long</span> population = <span class="number">1000000000L</span>;
+
+<span class="comment">// 小数</span>
+<span class="type">double</span> price = <span class="number">1980.5</span>;
+<span class="type">decimal</span> tax = <span class="number">0.1m</span>;   <span class="comment">// 金融計算には decimal を使う</span>
+
+<span class="comment">// 文字列</span>
+<span class="type">string</span> name = <span class="string">"田中太郎"</span>;
+<span class="type">char</span> initial = <span class="string">'T'</span>;
+
+<span class="comment">// 真偽値</span>
+<span class="type">bool</span> isActive = <span class="keyword">true</span>;
+<span class="type">bool</span> isDeleted = <span class="keyword">false</span>;</div>
+
+      <h3>var キーワード（型推論）</h3>
+      <div class="code-block"><span class="keyword">var</span> count = <span class="number">10</span>;        <span class="comment">// int と推論される</span>
+<span class="keyword">var</span> message = <span class="string">"Hello"</span>; <span class="comment">// string と推論される</span>
+<span class="keyword">var</span> pi = <span class="number">3.14</span>;         <span class="comment">// double と推論される</span></div>
+
+      <div class="point-box">
+        <strong>ポイント:</strong> var は型推論であり、動的型ではありません。
+        宣言時に型が確定し、後から変更はできません。
+      </div>
+
+      <h3>文字列操作</h3>
+      <div class="code-block"><span class="type">string</span> firstName = <span class="string">"太郎"</span>;
+<span class="type">string</span> lastName = <span class="string">"山田"</span>;
+
+<span class="comment">// 文字列補間（推奨）</span>
+<span class="type">string</span> fullName = <span class="string">$"{lastName} {firstName}"</span>;
+<span class="type">Console</span>.<span class="method">WriteLine</span>(fullName); <span class="comment">// 山田 太郎</span>
+
+<span class="comment">// 文字列の長さ</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(name.<span class="method">Length</span>); <span class="comment">// 4</span>
+
+<span class="comment">// 大文字・小文字</span>
+<span class="type">string</span> upper = <span class="string">"hello"</span>.<span class="method">ToUpper</span>(); <span class="comment">// HELLO</span>
+<span class="type">string</span> lower = <span class="string">"WORLD"</span>.<span class="method">ToLower</span>(); <span class="comment">// world</span></div>
+
+      <h3>型変換</h3>
+      <div class="code-block"><span class="comment">// 文字列 → 数値</span>
+<span class="type">string</span> numStr = <span class="string">"42"</span>;
+<span class="type">int</span> num = <span class="type">int</span>.<span class="method">Parse</span>(numStr);
+<span class="type">int</span> num2 = <span class="type">Convert</span>.<span class="method">ToInt32</span>(numStr);
+
+<span class="comment">// 数値 → 文字列</span>
+<span class="type">string</span> str = <span class="number">123</span>.<span class="method">ToString</span>();
+
+<span class="comment">// 安全な変換（失敗してもクラッシュしない）</span>
+<span class="type">bool</span> success = <span class="type">int</span>.<span class="method">TryParse</span>(<span class="string">"abc"</span>, <span class="keyword">out</span> <span class="type">int</span> result);
+<span class="comment">// success = false, result = 0</span></div>
+
+      <div class="warning-box">
+        <strong>注意:</strong> int.Parse() は変換できない値を渡すと FormatException をスローします。
+        安全な変換には TryParse を使いましょう。
+      </div>
+
+      <h3>Console.WriteLine / Write</h3>
+      <div class="code-block"><span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"改行あり"</span>);
+<span class="type">Console</span>.<span class="method">Write</span>(<span class="string">"改行なし"</span>);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">$"名前: {name}, 年齢: {age}"</span>);</div>
+    </div>
+
+    <!-- 右パネル: 練習問題 -->
+    <div class="right-panel">
+      <h2>練習問題</h2>
+
+      <!-- 問1 -->
+      <div class="problem">
+        <h3>問1 <span class="tag tag-easy">かんたん</span></h3>
+        <div class="problem-desc">
+          以下のコードを読んで、出力結果を答えてください。
+        </div>
+        <div class="code-block"><span class="type">int</span> x = <span class="number">10</span>;
+<span class="type">int</span> y = <span class="number">3</span>;
+<span class="keyword">var</span> result = x + y;
+<span class="type">Console</span>.<span class="method">WriteLine</span>(result);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(result.<span class="method">GetType</span>());</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="number">13</span>
+System.<span class="type">Int32</span>
+
+<span class="comment">// var で宣言しても、int + int の結果は int なので
+// GetType() は System.Int32 を返します</span></div>
+        </details>
+      </div>
+
+      <!-- 問2 -->
+      <div class="problem">
+        <h3>問2 <span class="tag tag-easy">かんたん</span></h3>
+        <div class="problem-desc">
+          空欄を埋めて、出力が「私はAlice、20歳です。」になるようにしてください。
+        </div>
+        <div class="code-block"><span class="type">string</span> name = <span class="string">"Alice"</span>;
+<span class="type">int</span> age = ____;
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">$"私は{____}、{age}歳です。"</span>);
+<span class="comment">// 出力: 私はAlice、20歳です。</span></div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="type">string</span> name = <span class="string">"Alice"</span>;
+<span class="type">int</span> age = <span class="number">20</span>;   <span class="comment">// ← 1つ目の空欄</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">$"私は{name}、{age}歳です。"</span>);
+<span class="comment">//                       ↑ 2つ目の空欄は name</span></div>
+        </details>
+      </div>
+
+      <!-- 問3 -->
+      <div class="problem">
+        <h3>問3 <span class="tag tag-medium">ふつう</span></h3>
+        <div class="problem-desc">
+          以下のコードにはバグがあります。正しく修正してください。
+        </div>
+        <div class="code-block"><span class="type">string</span> input = <span class="string">"3.14"</span>;
+<span class="type">int</span> num = <span class="type">int</span>.<span class="method">Parse</span>(input);  <span class="comment">// ← ここがおかしい</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(num);</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="type">string</span> input = <span class="string">"3.14"</span>;
+
+<span class="comment">// "3.14" は小数なので double または decimal で受け取る</span>
+<span class="type">double</span> num = <span class="type">double</span>.<span class="method">Parse</span>(input);
+<span class="comment">// または</span>
+<span class="type">double</span> num2 = <span class="type">Convert</span>.<span class="method">ToDouble</span>(input);
+
+<span class="type">Console</span>.<span class="method">WriteLine</span>(num); <span class="comment">// 3.14</span></div>
+        </details>
+      </div>
+
+      <!-- 問4 -->
+      <div class="problem">
+        <h3>問4 <span class="tag tag-medium">ふつう</span></h3>
+        <div class="problem-desc">
+          以下の変数宣言を <code>var</code> を使って書き直してください。
+        </div>
+        <div class="code-block"><span class="type">int</span> count = <span class="number">100</span>;
+<span class="type">string</span> message = <span class="string">"完了"</span>;
+<span class="type">bool</span> isDone = <span class="keyword">true</span>;</div>
+        <textarea placeholder="ここに書き直したコードを入力してください..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="keyword">var</span> count = <span class="number">100</span>;       <span class="comment">// int と推論される</span>
+<span class="keyword">var</span> message = <span class="string">"完了"</span>;  <span class="comment">// string と推論される</span>
+<span class="keyword">var</span> isDone = <span class="keyword">true</span>;    <span class="comment">// bool と推論される</span>
+
+<span class="comment">// var を使っても型は宣言時に確定する
+// count = "文字列"; とすると型が違うのでコンパイルエラーになる</span></div>
+        </details>
+      </div>
+
+      <!-- 問5 -->
+      <div class="problem">
+        <h3>問5 <span class="tag tag-hard">むずかしい</span></h3>
+        <div class="problem-desc">
+          自分で書いてみよう！<br>
+          名前・年齢・出身地を変数で宣言し、文字列補間を使って
+          「私は○○出身の△△歳、□□です。」と出力するコードを書いてください。
+        </div>
+        <textarea placeholder="ここにコードを書いてください..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="keyword">using</span> System;
+
+<span class="keyword">class</span> <span class="type">Program</span>
+{
+    <span class="keyword">static void</span> <span class="method">Main</span>(<span class="type">string</span>[] args)
+    {
+        <span class="comment">// 変数を宣言する</span>
+        <span class="type">string</span> name = <span class="string">"田中太郎"</span>;
+        <span class="type">int</span> age = <span class="number">25</span>;
+        <span class="type">string</span> city = <span class="string">"東京"</span>;
+
+        <span class="comment">// 文字列補間で出力する</span>
+        <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">$"私は{city}出身の{age}歳、{name}です。"</span>);
+        <span class="comment">// 出力: 私は東京出身の25歳、田中太郎です。</span>
+    }
+}</div>
+        </details>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

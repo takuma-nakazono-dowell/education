@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 2: 演算と条件分岐 | C# 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #7B1FA2; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #4A148C; border-bottom: 2px solid #7B1FA2; padding-bottom: 10px; }
+    h3 { color: #7B1FA2; margin-top: 25px; }
+    .code-block { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; line-height: 1.7; }
+    .code-block .comment { color: #6c7086; }
+    .code-block .keyword { color: #cba6f7; }
+    .code-block .type { color: #89b4fa; }
+    .code-block .string { color: #a6e3a1; }
+    .code-block .number { color: #fab387; }
+    .code-block .method { color: #89dceb; }
+    .point-box { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #4A148C; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .info-box { background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #1b5e20; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #7B1FA2; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .problem-desc code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+    textarea { width: 100%; height: 140px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; line-height: 1.6; }
+    textarea:focus { outline: none; border-color: #7B1FA2; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #7B1FA2; font-weight: bold; padding: 8px 12px; background: #F3E5F5; border-radius: 6px; user-select: none; }
+    summary:hover { background: #E1BEE7; }
+    .answer { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 0 0 8px 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.7; white-space: pre; }
+    .answer .comment { color: #6c7086; }
+    .answer .keyword { color: #cba6f7; }
+    .answer .type { color: #89b4fa; }
+    .answer .string { color: #a6e3a1; }
+    .answer .number { color: #fab387; }
+    .answer .method { color: #89dceb; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Day 2: 演算と条件分岐</h1>
+    <div class="nav">
+      <a href="day1-variables.html">← 前へ: 変数とデータ型</a>
+      <a href="day3-loops.html">次へ: ループ →</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 左パネル: 説明 -->
+    <div class="left-panel">
+      <h2>演算と条件分岐</h2>
+
+      <h3>算術演算子</h3>
+      <div class="code-block"><span class="type">int</span> a = <span class="number">10</span>, b = <span class="number">3</span>;
+<span class="type">Console</span>.<span class="method">WriteLine</span>(a + b);  <span class="comment">// 13</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(a - b);  <span class="comment">// 7</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(a * b);  <span class="comment">// 30</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(a / b);  <span class="comment">// 3（整数除算）</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(a % b);  <span class="comment">// 1（余り）</span>
+
+<span class="comment">// インクリメント・デクリメント</span>
+<span class="type">int</span> count = <span class="number">0</span>;
+count++;  <span class="comment">// 1</span>
+count--;  <span class="comment">// 0</span>
+count += <span class="number">5</span>; <span class="comment">// 5</span></div>
+
+      <h3>比較演算子・論理演算子</h3>
+      <div class="code-block"><span class="type">int</span> x = <span class="number">10</span>;
+<span class="type">Console</span>.<span class="method">WriteLine</span>(x &gt; <span class="number">5</span>);   <span class="comment">// True</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(x == <span class="number">10</span>); <span class="comment">// True</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(x != <span class="number">3</span>);  <span class="comment">// True</span>
+
+<span class="comment">// 論理演算子</span>
+<span class="type">bool</span> p = <span class="keyword">true</span>, q = <span class="keyword">false</span>;
+<span class="type">Console</span>.<span class="method">WriteLine</span>(p &amp;&amp; q); <span class="comment">// False（AND）</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(p || q); <span class="comment">// True（OR）</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(!p);     <span class="comment">// False（NOT）</span></div>
+
+      <h3>if / else if / else</h3>
+      <div class="code-block"><span class="type">int</span> score = <span class="number">75</span>;
+
+<span class="keyword">if</span> (score &gt;= <span class="number">90</span>)
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"優"</span>);
+}
+<span class="keyword">else if</span> (score &gt;= <span class="number">70</span>)
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"良"</span>);
+}
+<span class="keyword">else if</span> (score &gt;= <span class="number">50</span>)
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"可"</span>);
+}
+<span class="keyword">else</span>
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"不可"</span>);
+}</div>
+
+      <h3>switch 文 / switch 式</h3>
+      <div class="code-block"><span class="comment">// switch 文</span>
+<span class="type">string</span> day = <span class="string">"月"</span>;
+<span class="keyword">switch</span> (day)
+{
+    <span class="keyword">case</span> <span class="string">"土"</span>:
+    <span class="keyword">case</span> <span class="string">"日"</span>:
+        <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"休日"</span>);
+        <span class="keyword">break</span>;
+    <span class="keyword">default</span>:
+        <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"平日"</span>);
+        <span class="keyword">break</span>;
+}
+
+<span class="comment">// switch 式（C# 8.0以降、モダンな書き方）</span>
+<span class="type">string</span> result = day <span class="keyword">switch</span>
+{
+    <span class="string">"土"</span> <span class="keyword">or</span> <span class="string">"日"</span> =&gt; <span class="string">"休日"</span>,
+    _ =&gt; <span class="string">"平日"</span>
+};</div>
+
+      <h3>三項演算子</h3>
+      <div class="code-block"><span class="type">int</span> age = <span class="number">20</span>;
+<span class="type">string</span> label = age &gt;= <span class="number">18</span> ? <span class="string">"成人"</span> : <span class="string">"未成年"</span>;
+<span class="type">Console</span>.<span class="method">WriteLine</span>(label); <span class="comment">// 成人</span></div>
+
+      <div class="point-box">
+        <strong>ポイント:</strong> switch の case には break が必要です（C++と同様）。
+        switch 式は C# 8.0以降の機能でより簡潔に書けます。
+      </div>
+    </div>
+
+    <!-- 右パネル: 練習問題 -->
+    <div class="right-panel">
+      <h2>練習問題</h2>
+
+      <!-- 問1 -->
+      <div class="problem">
+        <h3>問1 <span class="tag tag-easy">かんたん</span></h3>
+        <div class="problem-desc">
+          以下のコードを読んで、各行の出力結果を答えてください。
+        </div>
+        <div class="code-block"><span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="number">7</span> / <span class="number">2</span>);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="number">7.0</span> / <span class="number">2</span>);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="number">7</span> % <span class="number">2</span>);</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="number">3</span>      <span class="comment">// int同士の除算は小数が切り捨てられる</span>
+<span class="number">3.5</span>    <span class="comment">// 一方が double なので小数になる</span>
+<span class="number">1</span>      <span class="comment">// 7 ÷ 2 の余りは 1</span></div>
+        </details>
+      </div>
+
+      <!-- 問2 -->
+      <div class="problem">
+        <h3>問2 <span class="tag tag-easy">かんたん</span></h3>
+        <div class="problem-desc">
+          以下の条件式の結果（True / False）を答えてください。
+        </div>
+        <div class="code-block"><span class="type">int</span> x = <span class="number">15</span>;
+<span class="type">Console</span>.<span class="method">WriteLine</span>(x &gt; <span class="number">10</span> &amp;&amp; x &lt; <span class="number">20</span>);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(x == <span class="number">15</span> || x == <span class="number">20</span>);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(!(x &gt; <span class="number">10</span>));</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="keyword">True</span>   <span class="comment">// 15 &gt; 10 かつ 15 &lt; 20 → 両方 true なので AND = true</span>
+<span class="keyword">True</span>   <span class="comment">// 15 == 15 が true → OR は片方でも true なら true</span>
+<span class="keyword">False</span>  <span class="comment">// 15 &gt; 10 は true → NOT で反転 → false</span></div>
+        </details>
+      </div>
+
+      <!-- 問3 -->
+      <div class="problem">
+        <h3>問3 <span class="tag tag-medium">ふつう</span></h3>
+        <div class="problem-desc">
+          switch文を使って、1〜7の数字を「月曜日」〜「日曜日」に変換するコードを書いてください。
+          <br>（1=月曜日、7=日曜日、範囲外は「不明」）
+        </div>
+        <textarea placeholder="ここにコードを書いてください..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="type">int</span> num = <span class="number">3</span>;
+<span class="type">string</span> dayName = num <span class="keyword">switch</span>
+{
+    <span class="number">1</span> =&gt; <span class="string">"月曜日"</span>,
+    <span class="number">2</span> =&gt; <span class="string">"火曜日"</span>,
+    <span class="number">3</span> =&gt; <span class="string">"水曜日"</span>,
+    <span class="number">4</span> =&gt; <span class="string">"木曜日"</span>,
+    <span class="number">5</span> =&gt; <span class="string">"金曜日"</span>,
+    <span class="number">6</span> =&gt; <span class="string">"土曜日"</span>,
+    <span class="number">7</span> =&gt; <span class="string">"日曜日"</span>,
+    _ =&gt; <span class="string">"不明"</span>
+};
+<span class="type">Console</span>.<span class="method">WriteLine</span>(dayName); <span class="comment">// 水曜日</span>
+
+<span class="comment">// switch 文で書く場合</span>
+<span class="keyword">switch</span> (num)
+{
+    <span class="keyword">case</span> <span class="number">1</span>: <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"月曜日"</span>); <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="number">2</span>: <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"火曜日"</span>); <span class="keyword">break</span>;
+    <span class="comment">// ... 以下同様</span>
+    <span class="keyword">default</span>: <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">"不明"</span>); <span class="keyword">break</span>;
+}</div>
+        </details>
+      </div>
+
+      <!-- 問4 -->
+      <div class="problem">
+        <h3>問4 <span class="tag tag-medium">ふつう</span></h3>
+        <div class="problem-desc">
+          以下の if-else 文を switch 式で書き直してください。
+        </div>
+        <div class="code-block"><span class="type">string</span> grade;
+<span class="keyword">if</span> (score &gt;= <span class="number">90</span>) grade = <span class="string">"A"</span>;
+<span class="keyword">else if</span> (score &gt;= <span class="number">80</span>) grade = <span class="string">"B"</span>;
+<span class="keyword">else if</span> (score &gt;= <span class="number">70</span>) grade = <span class="string">"C"</span>;
+<span class="keyword">else</span> grade = <span class="string">"D"</span>;</div>
+        <textarea placeholder="switch 式で書き直してみよう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="comment">// switch 式 + パターンマッチング（C# 9.0以降）</span>
+<span class="type">string</span> grade = score <span class="keyword">switch</span>
+{
+    &gt;= <span class="number">90</span> =&gt; <span class="string">"A"</span>,
+    &gt;= <span class="number">80</span> =&gt; <span class="string">"B"</span>,
+    &gt;= <span class="number">70</span> =&gt; <span class="string">"C"</span>,
+    _      =&gt; <span class="string">"D"</span>
+};
+<span class="comment">// 上から順に評価されるので score=85 なら "B" になる</span></div>
+        </details>
+      </div>
+
+      <!-- 問5 -->
+      <div class="problem">
+        <h3>問5 <span class="tag tag-hard">むずかしい</span></h3>
+        <div class="problem-desc">
+          BMI計算プログラムを書いてください。<br>
+          身長(m)と体重(kg)を変数で持ち、BMIを計算して肥満度を判定・出力してください。<br>
+          <br>
+          <strong>BMI = 体重 / (身長 × 身長)</strong><br>
+          ・18.5未満 → 低体重<br>
+          ・25.0未満 → 普通体重<br>
+          ・25.0以上 → 肥満
+        </div>
+        <textarea placeholder="ここにコードを書いてください..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="type">double</span> height = <span class="number">1.70</span>;  <span class="comment">// 身長(m)</span>
+<span class="type">double</span> weight = <span class="number">65.0</span>;  <span class="comment">// 体重(kg)</span>
+
+<span class="comment">// BMI を計算する</span>
+<span class="type">double</span> bmi = weight / (height * height);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">$"BMI: {bmi:F2}"</span>); <span class="comment">// F2 = 小数点2桁</span>
+
+<span class="comment">// 肥満度を判定する</span>
+<span class="type">string</span> category;
+<span class="keyword">if</span> (bmi &lt; <span class="number">18.5</span>)
+{
+    category = <span class="string">"低体重"</span>;
+}
+<span class="keyword">else if</span> (bmi &lt; <span class="number">25.0</span>)
+{
+    category = <span class="string">"普通体重"</span>;
+}
+<span class="keyword">else</span>
+{
+    category = <span class="string">"肥満"</span>;
+}
+
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">$"判定: {category}"</span>);</div>
+        </details>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

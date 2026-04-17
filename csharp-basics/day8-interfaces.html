@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 8: インターフェースと抽象クラス - C# 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #7B1FA2; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #4A148C; border-bottom: 2px solid #7B1FA2; padding-bottom: 10px; }
+    h3 { color: #7B1FA2; margin-top: 25px; }
+    .code-block { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; line-height: 1.7; white-space: pre; }
+    .code-block .comment { color: #6c7086; }
+    .code-block .keyword { color: #cba6f7; }
+    .code-block .type { color: #89b4fa; }
+    .code-block .string { color: #a6e3a1; }
+    .code-block .number { color: #fab387; }
+    .code-block .method { color: #89dceb; }
+    .point-box { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #4A148C; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .info-box { background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #1b5e20; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #7B1FA2; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .problem-desc code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+    textarea { width: 100%; height: 140px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; line-height: 1.6; }
+    textarea:focus { outline: none; border-color: #7B1FA2; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #7B1FA2; font-weight: bold; padding: 8px 12px; background: #F3E5F5; border-radius: 6px; user-select: none; }
+    summary:hover { background: #E1BEE7; }
+    .answer { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 0 0 8px 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.7; white-space: pre; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.95em; }
+    th { background: #7B1FA2; color: white; padding: 10px 12px; text-align: left; }
+    td { padding: 8px 12px; border-bottom: 1px solid #ddd; }
+    tr:nth-child(even) { background: #F3E5F5; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Day 8: インターフェースと抽象クラス</h1>
+    <div class="nav">
+      <a href="index.html">トップ</a>
+      <a href="day7-inheritance.html">← 前へ: 継承とポリモーフィズム</a>
+      <a href="day9-linq.html">次へ: 例外処理とLINQ →</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 左パネル: 説明 -->
+    <div class="left-panel">
+      <h2>インターフェースと抽象クラス</h2>
+
+      <h3>インターフェースとは</h3>
+      <p>「できること」を定義する契約。実装は持たない（メソッドのシグネチャのみ）。</p>
+
+      <div class="code-block"><span class="comment">// インターフェースの定義</span>
+<span class="keyword">interface</span> <span class="type">ISaveable</span>
+{
+    <span class="type">void</span> <span class="method">Save</span>();
+    <span class="type">bool</span> <span class="method">Load</span>(<span class="type">string</span> path);
+}
+
+<span class="keyword">interface</span> <span class="type">IPrintable</span>
+{
+    <span class="type">void</span> <span class="method">Print</span>();
+}
+
+<span class="comment">// 複数インターフェースを実装できる（多重継承の代替）</span>
+<span class="keyword">class</span> <span class="type">Document</span> : <span class="type">ISaveable</span>, <span class="type">IPrintable</span>
+{
+    <span class="keyword">public</span> <span class="type">string</span> Content { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">public</span> <span class="type">void</span> <span class="method">Save</span>()
+    {
+        Console.<span class="method">WriteLine</span>(<span class="string">$"保存しました: {Content}"</span>);
+    }
+
+    <span class="keyword">public</span> <span class="type">bool</span> <span class="method">Load</span>(<span class="type">string</span> path)
+    {
+        Console.<span class="method">WriteLine</span>(<span class="string">$"読み込み: {path}"</span>);
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> <span class="method">Print</span>()
+    {
+        Console.<span class="method">WriteLine</span>(<span class="string">$"印刷: {Content}"</span>);
+    }
+}</div>
+
+      <div class="point-box">
+        <strong>インターフェースの役割:</strong> インターフェースは「何ができるか」を定義する。クラスは1つしか継承できないが、インターフェースは複数実装できる。
+      </div>
+
+      <h3>抽象クラス（abstract class）</h3>
+      <div class="code-block"><span class="comment">// 抽象クラス: 直接インスタンス化できない</span>
+<span class="keyword">abstract</span> <span class="keyword">class</span> <span class="type">Shape</span>
+{
+    <span class="keyword">public</span> <span class="type">string</span> Color { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="comment">// 抽象メソッド: 必ず派生クラスで実装する</span>
+    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">double</span> <span class="method">Area</span>();
+
+    <span class="comment">// 通常のメソッドも持てる（インターフェースとの違い）</span>
+    <span class="keyword">public</span> <span class="type">void</span> <span class="method">Describe</span>()
+    {
+        Console.<span class="method">WriteLine</span>(<span class="string">$"色: {Color}, 面積: {Area():F2}"</span>);
+    }
+}
+
+<span class="keyword">class</span> <span class="type">Circle</span> : <span class="type">Shape</span>
+{
+    <span class="keyword">public</span> <span class="type">double</span> Radius { <span class="keyword">get</span>; }
+    <span class="keyword">public</span> <span class="method">Circle</span>(<span class="type">double</span> r) { Radius = r; }
+    <span class="keyword">public</span> <span class="keyword">override</span> <span class="type">double</span> <span class="method">Area</span>() =&gt; Math.PI * Radius * Radius;
+}
+
+<span class="comment">// new Shape() はエラー: 抽象クラスは直接生成不可</span></div>
+
+      <h3>インターフェース vs 抽象クラス</h3>
+      <table>
+        <tr>
+          <th></th>
+          <th>インターフェース</th>
+          <th>抽象クラス</th>
+        </tr>
+        <tr>
+          <td>実装の共有</td>
+          <td>✗（default実装は可）</td>
+          <td>✓</td>
+        </tr>
+        <tr>
+          <td>多重継承</td>
+          <td>✓（複数実装可）</td>
+          <td>✗（1つのみ）</td>
+        </tr>
+        <tr>
+          <td>フィールド</td>
+          <td>✗</td>
+          <td>✓</td>
+        </tr>
+        <tr>
+          <td>用途</td>
+          <td>「できること」の契約</td>
+          <td>共通基盤の提供</td>
+        </tr>
+      </table>
+
+      <div class="info-box">
+        <strong>C# 8.0 以降:</strong> インターフェースに default メソッド実装が書けるようになった。ただし基本は実装なしが原則。
+      </div>
+
+      <h3>よく使う組み込みインターフェース</h3>
+      <div class="code-block"><span class="comment">// IComparable: 比較可能にする</span>
+<span class="keyword">class</span> <span class="type">Temperature</span> : <span class="type">IComparable</span>&lt;<span class="type">Temperature</span>&gt;
+{
+    <span class="keyword">public</span> <span class="type">double</span> Value { <span class="keyword">get</span>; }
+    <span class="keyword">public</span> <span class="method">Temperature</span>(<span class="type">double</span> v) { Value = v; }
+
+    <span class="keyword">public</span> <span class="type">int</span> <span class="method">CompareTo</span>(<span class="type">Temperature</span>? other)
+    {
+        <span class="keyword">return</span> Value.<span class="method">CompareTo</span>(other?.Value ?? <span class="number">0</span>);
+    }
+}
+
+<span class="comment">// IEnumerable: foreachで反復可能にする（高度）</span>
+<span class="comment">// IDisposable: usingブロックで自動解放</span></div>
+    </div>
+
+    <!-- 右パネル: 練習問題 -->
+    <div class="right-panel">
+      <h2>練習問題</h2>
+
+      <!-- 問題1 -->
+      <div class="problem">
+        <h3>問題 1 <span class="tag tag-easy">easy</span></h3>
+        <p>以下のコードを読んで、出力結果を答えてください。</p>
+        <div class="code-block"><span class="keyword">interface</span> <span class="type">IGreet</span>
+{
+    <span class="type">string</span> <span class="method">Greet</span>();
+}
+
+<span class="keyword">class</span> <span class="type">Japanese</span> : <span class="type">IGreet</span>
+{
+    <span class="keyword">public</span> <span class="type">string</span> <span class="method">Greet</span>() =&gt; <span class="string">"こんにちは"</span>;
+}
+
+<span class="keyword">class</span> <span class="type">English</span> : <span class="type">IGreet</span>
+{
+    <span class="keyword">public</span> <span class="type">string</span> <span class="method">Greet</span>() =&gt; <span class="string">"Hello"</span>;
+}
+
+<span class="type">IGreet</span>[] greeters = { <span class="keyword">new</span> <span class="type">Japanese</span>(), <span class="keyword">new</span> <span class="type">English</span>() };
+<span class="keyword">foreach</span> (<span class="keyword">var</span> g <span class="keyword">in</span> greeters)
+    Console.<span class="method">WriteLine</span>(g.<span class="method">Greet</span>());</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">こんにちは
+Hello
+
+// 解説: インターフェース型の配列でも、
+// 実際のクラスのメソッドが呼ばれる（ポリモーフィズム）</div>
+        </details>
+      </div>
+
+      <!-- 問題2 -->
+      <div class="problem">
+        <h3>問題 2 <span class="tag tag-easy">easy</span></h3>
+        <p>空欄を埋めてインターフェースの実装を完成させてください。</p>
+        <div class="code-block"><span class="keyword">interface</span> <span class="type">IArea</span>
+{
+    <span class="type">double</span> <span class="method">GetArea</span>();
+}
+
+<span class="keyword">class</span> <span class="type">Square</span> : <span class="comment">____</span>
+{
+    <span class="keyword">public</span> <span class="type">double</span> Side { <span class="keyword">get</span>; }
+    <span class="keyword">public</span> <span class="method">Square</span>(<span class="type">double</span> side) { Side = side; }
+    <span class="keyword">public</span> <span class="comment">____</span> <span class="type">double</span> <span class="method">GetArea</span>() =&gt; Side * Side;
+}</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">// 空欄の答え（上から順に）
+// 1番目: IArea     （実装するインターフェース名）
+// 2番目: （空白）   （インターフェース実装はoverride不要）
+
+class Square : IArea
+{
+    public double Side { get; }
+    public Square(double side) { Side = side; }
+    public double GetArea() => Side * Side;
+}
+
+// 注意: 継承のoverrideと違い、インターフェースの実装には
+// overrideキーワードは不要（public のみでOK）</div>
+        </details>
+      </div>
+
+      <!-- 問題3 -->
+      <div class="problem">
+        <h3>問題 3 <span class="tag tag-medium">medium</span></h3>
+        <div class="problem-desc">
+          <p><code>IResizable</code> インターフェースを定義し、実装してください。</p>
+          <ul>
+            <li>メソッド: <code>void Resize(double factor)</code> / <code>double GetSize()</code></li>
+            <li><code>Circle</code> と <code>Rectangle</code> でそれぞれ実装する</li>
+            <li>Circleの「サイズ」は半径、Rectangleの「サイズ」は面積とする</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">interface IResizable
+{
+    void Resize(double factor);
+    double GetSize();
+}
+
+class Circle : IResizable
+{
+    private double _radius;
+
+    public Circle(double radius)
+    {
+        _radius = radius;
+    }
+
+    // factorを掛けて半径を拡大・縮小
+    public void Resize(double factor) => _radius *= factor;
+
+    // サイズ = 半径
+    public double GetSize() => _radius;
+}
+
+class Rectangle : IResizable
+{
+    private double _width;
+    private double _height;
+
+    public Rectangle(double width, double height)
+    {
+        _width = width;
+        _height = height;
+    }
+
+    // 幅・高さ両方にfactorを掛ける
+    public void Resize(double factor)
+    {
+        _width *= factor;
+        _height *= factor;
+    }
+
+    // サイズ = 面積
+    public double GetSize() => _width * _height;
+}
+
+// 使用例
+IResizable circle = new Circle(5);
+Console.WriteLine($"変更前: {circle.GetSize()}"); // 5
+circle.Resize(2);
+Console.WriteLine($"変更後: {circle.GetSize()}"); // 10
+
+IResizable rect = new Rectangle(4, 3);
+Console.WriteLine($"変更前: {rect.GetSize()}"); // 12
+rect.Resize(0.5);
+Console.WriteLine($"変更後: {rect.GetSize()}"); // 3</div>
+        </details>
+      </div>
+
+      <!-- 問題4 -->
+      <div class="problem">
+        <h3>問題 4 <span class="tag tag-medium">medium</span></h3>
+        <div class="problem-desc">
+          <p>抽象クラスを使って動物クラス階層を作ってください。</p>
+          <ul>
+            <li><code>abstract class Animal</code> を作り、<code>abstract void MakeSound()</code> と具体的なメソッド <code>void Sleep()</code> を持たせる</li>
+            <li><code>Dog</code>・<code>Cat</code> で実装し、<code>Animal[]</code> に入れてforeachで <code>MakeSound()</code> を呼ぶ</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">abstract class Animal
+{
+    public string Name { get; }
+
+    public Animal(string name)
+    {
+        Name = name;
+    }
+
+    // 抽象メソッド: 派生クラスで必ず実装する
+    public abstract void MakeSound();
+
+    // 通常のメソッド: 共通の実装を持てる
+    public void Sleep()
+    {
+        Console.WriteLine($"{Name}が眠った...zzz");
+    }
+}
+
+class Dog : Animal
+{
+    public Dog(string name) : base(name) { }
+
+    public override void MakeSound()
+    {
+        Console.WriteLine($"{Name}: ワン！");
+    }
+}
+
+class Cat : Animal
+{
+    public Cat(string name) : base(name) { }
+
+    public override void MakeSound()
+    {
+        Console.WriteLine($"{Name}: ニャー！");
+    }
+}
+
+// 使用例
+Animal[] animals = { new Dog("ポチ"), new Cat("タマ"), new Dog("ハチ") };
+foreach (Animal a in animals)
+{
+    a.MakeSound();
+}
+
+// 出力:
+// ポチ: ワン！
+// タマ: ニャー！
+// ハチ: ワン！</div>
+        </details>
+      </div>
+
+      <!-- 問題5 -->
+      <div class="problem">
+        <h3>問題 5 <span class="tag tag-hard">hard</span></h3>
+        <div class="problem-desc">
+          <p>設計の選択について考えてください。</p>
+          <p>以下の要件を満たすには、インターフェースと抽象クラスのどちらが適切か説明し、コードを書いてください。</p>
+          <ul>
+            <li>「支払い」という概念があり、クレジットカード・電子マネー・現金の3種類がある</li>
+            <li>全て <code>Pay(decimal amount)</code> を持つ</li>
+            <li>クレジットカードと電子マネーは共通の <code>CheckBalance()</code> 残高確認ロジックを持つ</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..." style="height: 200px;"></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">// 設計の考え方:
+// - 全クラスが共通の Pay() を持つ → インターフェース IPayable で契約
+// - クレジットカード・電子マネーは共通ロジックを持つ → 抽象クラス BalancePayment
+// - 現金は残高管理なし → IPayable を直接実装
+// → インターフェース + 抽象クラスの組み合わせが最適
+
+// 全支払い方法の契約
+interface IPayable
+{
+    void Pay(decimal amount);
+}
+
+// 残高管理が必要な支払い方法の共通基底
+abstract class BalancePayment : IPayable
+{
+    protected decimal _balance;
+
+    public BalancePayment(decimal initialBalance)
+    {
+        _balance = initialBalance;
+    }
+
+    // 共通の残高確認ロジック
+    public void CheckBalance()
+    {
+        Console.WriteLine($"残高: {_balance:C}");
+    }
+
+    // Pay()は各クラスで実装
+    public abstract void Pay(decimal amount);
+}
+
+// クレジットカード（後払いなので残高＝与信枠）
+class CreditCard : BalancePayment
+{
+    public CreditCard(decimal creditLimit) : base(creditLimit) { }
+
+    public override void Pay(decimal amount)
+    {
+        if (amount <= _balance)
+        {
+            _balance -= amount;
+            Console.WriteLine($"クレジット支払い: {amount:C}");
+        }
+        else
+        {
+            Console.WriteLine("与信枠不足");
+        }
+    }
+}
+
+// 電子マネー（チャージ残高）
+class ElectronicMoney : BalancePayment
+{
+    public ElectronicMoney(decimal balance) : base(balance) { }
+
+    public override void Pay(decimal amount)
+    {
+        if (amount <= _balance)
+        {
+            _balance -= amount;
+            Console.WriteLine($"電子マネー支払い: {amount:C}");
+        }
+        else
+        {
+            Console.WriteLine("残高不足");
+        }
+    }
+}
+
+// 現金（残高管理不要）
+class Cash : IPayable
+{
+    public void Pay(decimal amount)
+    {
+        Console.WriteLine($"現金支払い: {amount:C}");
+    }
+}
+
+// ポリモーフィズムで扱える
+IPayable[] payments =
+{
+    new CreditCard(100000),
+    new ElectronicMoney(5000),
+    new Cash()
+};
+
+foreach (IPayable p in payments)
+{
+    p.Pay(3000);
+}</div>
+        </details>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

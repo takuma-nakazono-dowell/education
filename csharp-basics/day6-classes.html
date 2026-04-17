@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 6: クラスとオブジェクト - C# 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #7B1FA2; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #4A148C; border-bottom: 2px solid #7B1FA2; padding-bottom: 10px; }
+    h3 { color: #7B1FA2; margin-top: 25px; }
+    .code-block { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; line-height: 1.7; white-space: pre; }
+    .code-block .comment { color: #6c7086; }
+    .code-block .keyword { color: #cba6f7; }
+    .code-block .type { color: #89b4fa; }
+    .code-block .string { color: #a6e3a1; }
+    .code-block .number { color: #fab387; }
+    .code-block .method { color: #89dceb; }
+    .point-box { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #4A148C; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .info-box { background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #1b5e20; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #7B1FA2; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .problem-desc code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+    textarea { width: 100%; height: 140px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; line-height: 1.6; }
+    textarea:focus { outline: none; border-color: #7B1FA2; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #7B1FA2; font-weight: bold; padding: 8px 12px; background: #F3E5F5; border-radius: 6px; user-select: none; }
+    summary:hover { background: #E1BEE7; }
+    .answer { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 0 0 8px 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.7; white-space: pre; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Day 6: クラスとオブジェクト</h1>
+    <div class="nav">
+      <a href="index.html">トップ</a>
+      <a href="day5-methods.html">← 前へ: メソッド</a>
+      <a href="day7-inheritance.html">次へ: 継承とポリモーフィズム →</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 左パネル: 説明 -->
+    <div class="left-panel">
+      <h2>クラスとオブジェクト</h2>
+
+      <h3>クラスとは</h3>
+      <p>オブジェクトの設計図。フィールド（データ）とメソッド（動作）をまとめたもの。</p>
+
+      <h3>クラスの基本構造</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="type">Person</span>
+{
+    <span class="comment">// フィールド（データの保持）</span>
+    <span class="keyword">private</span> <span class="type">string</span> _name;
+    <span class="keyword">private</span> <span class="type">int</span> _age;
+
+    <span class="comment">// コンストラクタ（インスタンス生成時に呼ばれる）</span>
+    <span class="keyword">public</span> <span class="method">Person</span>(<span class="type">string</span> name, <span class="type">int</span> age)
+    {
+        _name = name;
+        _age = age;
+    }
+
+    <span class="comment">// プロパティ（フィールドへの安全なアクセス）</span>
+    <span class="keyword">public</span> <span class="type">string</span> Name
+    {
+        <span class="keyword">get</span> { <span class="keyword">return</span> _name; }
+        <span class="keyword">set</span> { _name = <span class="keyword">value</span>; }
+    }
+
+    <span class="comment">// 自動実装プロパティ（短縮形）</span>
+    <span class="keyword">public</span> <span class="type">int</span> Age { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="comment">// メソッド</span>
+    <span class="keyword">public</span> <span class="type">void</span> <span class="method">Introduce</span>()
+    {
+        Console.<span class="method">WriteLine</span>(<span class="string">$"私は{_name}、{_age}歳です。"</span>);
+    }
+}
+
+<span class="comment">// 使い方</span>
+<span class="keyword">var</span> person = <span class="keyword">new</span> <span class="type">Person</span>(<span class="string">"田中"</span>, <span class="number">25</span>);
+person.<span class="method">Introduce</span>();
+Console.<span class="method">WriteLine</span>(person.Name);</div>
+
+      <h3>アクセス修飾子</h3>
+      <div class="code-block"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">BankAccount</span>
+{
+    <span class="keyword">private</span> <span class="type">decimal</span> _balance;    <span class="comment">// 外からアクセス不可</span>
+    <span class="keyword">public</span> <span class="type">string</span> Owner { <span class="keyword">get</span>; }  <span class="comment">// 読み取り専用</span>
+
+    <span class="keyword">public</span> <span class="method">BankAccount</span>(<span class="type">string</span> owner, <span class="type">decimal</span> initial)
+    {
+        Owner = owner;
+        _balance = initial;
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> <span class="method">Deposit</span>(<span class="type">decimal</span> amount)
+    {
+        <span class="keyword">if</span> (amount > <span class="number">0</span>) _balance += amount;
+    }
+
+    <span class="keyword">public</span> <span class="type">bool</span> <span class="method">Withdraw</span>(<span class="type">decimal</span> amount)
+    {
+        <span class="keyword">if</span> (amount > _balance) <span class="keyword">return</span> <span class="keyword">false</span>;
+        _balance -= amount;
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+    }
+
+    <span class="keyword">public</span> <span class="type">decimal</span> <span class="method">GetBalance</span>() =&gt; _balance;
+}</div>
+
+      <div class="point-box">
+        <strong>カプセル化の原則:</strong> フィールドはprivate、アクセスはプロパティやメソッド経由が原則（カプセル化）。
+      </div>
+
+      <h3>static メンバー</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="type">Counter</span>
+{
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">int</span> _count = <span class="number">0</span>; <span class="comment">// 全インスタンスで共有</span>
+
+    <span class="keyword">public</span> <span class="method">Counter</span>()
+    {
+        _count++;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="method">GetCount</span>() =&gt; _count;
+}
+
+<span class="keyword">new</span> <span class="type">Counter</span>();
+<span class="keyword">new</span> <span class="type">Counter</span>();
+Console.<span class="method">WriteLine</span>(<span class="type">Counter</span>.<span class="method">GetCount</span>()); <span class="comment">// 2</span></div>
+
+      <h3>readonly / init</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="type">Point</span>
+{
+    <span class="keyword">public</span> <span class="keyword">readonly</span> <span class="type">double</span> X;  <span class="comment">// コンストラクタでのみ設定可</span>
+    <span class="keyword">public</span> <span class="type">double</span> Y { <span class="keyword">get</span>; <span class="keyword">init</span>; } <span class="comment">// 初期化子でのみ設定可</span>
+
+    <span class="keyword">public</span> <span class="method">Point</span>(<span class="type">double</span> x, <span class="type">double</span> y)
+    {
+        X = x;
+        Y = y;
+    }
+}
+
+<span class="keyword">var</span> p = <span class="keyword">new</span> <span class="type">Point</span>(<span class="number">3.0</span>, <span class="number">4.0</span>);
+<span class="comment">// p.X = 5.0; // エラー: readonlyなので変更不可</span>
+<span class="comment">// initプロパティはオブジェクト初期化子でのみ設定可能</span></div>
+    </div>
+
+    <!-- 右パネル: 練習問題 -->
+    <div class="right-panel">
+      <h2>練習問題</h2>
+
+      <!-- 問題1 -->
+      <div class="problem">
+        <h3>問題 1 <span class="tag tag-easy">easy</span></h3>
+        <p>以下のコードを読んで、出力結果を答えてください。</p>
+        <div class="code-block"><span class="keyword">class</span> <span class="type">Dog</span>
+{
+    <span class="keyword">public</span> <span class="type">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">public</span> <span class="type">int</span> Age { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">public</span> <span class="method">Dog</span>(<span class="type">string</span> name, <span class="type">int</span> age)
+    {
+        Name = name;
+        Age = age;
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> <span class="method">Bark</span>() =&gt; Console.<span class="method">WriteLine</span>(<span class="string">$"{Name}：ワン！"</span>);
+}
+
+<span class="keyword">var</span> dog = <span class="keyword">new</span> <span class="type">Dog</span>(<span class="string">"ポチ"</span>, <span class="number">3</span>);
+dog.<span class="method">Bark</span>();
+Console.<span class="method">WriteLine</span>(<span class="string">$"年齢: {dog.Age}"</span>);</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">ポチ：ワン！
+年齢: 3</div>
+        </details>
+      </div>
+
+      <!-- 問題2 -->
+      <div class="problem">
+        <h3>問題 2 <span class="tag tag-easy">easy</span></h3>
+        <p>空欄を埋めてコンストラクタを完成させてください。</p>
+        <div class="code-block"><span class="keyword">class</span> <span class="type">Rectangle</span>
+{
+    <span class="keyword">public</span> <span class="type">double</span> Width { <span class="keyword">get</span>; }
+    <span class="keyword">public</span> <span class="type">double</span> Height { <span class="keyword">get</span>; }
+
+    <span class="keyword">public</span> <span class="method">Rectangle</span>(<span class="comment">____</span> width, <span class="comment">____</span> height)
+    {
+        Width = <span class="comment">____</span>;
+        Height = <span class="comment">____</span>;
+    }
+
+    <span class="keyword">public</span> <span class="type">double</span> <span class="method">Area</span>() =&gt; Width * Height;
+}</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">// 空欄の答え（上から順に）
+// 1番目: double
+// 2番目: double
+// 3番目: width
+// 4番目: height
+
+public Rectangle(double width, double height)
+{
+    Width = width;
+    Height = height;
+}</div>
+        </details>
+      </div>
+
+      <!-- 問題3 -->
+      <div class="problem">
+        <h3>問題 3 <span class="tag tag-medium">medium</span></h3>
+        <div class="problem-desc">
+          <p>銀行口座クラスを参考に、以下の仕様で <code>Item</code> クラスを書いてください。</p>
+          <ul>
+            <li>フィールド: <code>_name</code>（private）、<code>_price</code>（private）</li>
+            <li>プロパティ: <code>Name</code>（読み取りのみ）、<code>Price</code>（get/set、0以上のみ設定可）</li>
+            <li>メソッド: <code>Display()</code> → "商品名: ○○, 価格: △△円" と出力</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">class Item
+{
+    private string _name;
+    private decimal _price;
+
+    // コンストラクタ
+    public Item(string name, decimal price)
+    {
+        _name = name;
+        Price = price; // setterのバリデーションを通す
+    }
+
+    // 読み取り専用プロパティ
+    public string Name => _name;
+
+    // 0以上のみ設定可能なプロパティ
+    public decimal Price
+    {
+        get { return _price; }
+        set
+        {
+            if (value >= 0)
+                _price = value;
+        }
+    }
+
+    // 表示メソッド
+    public void Display()
+    {
+        Console.WriteLine($"商品名: {_name}, 価格: {_price}円");
+    }
+}
+
+// 使用例
+var item = new Item("リンゴ", 150);
+item.Display(); // 商品名: リンゴ, 価格: 150円
+item.Price = -10; // 無視される（0未満のため）
+Console.WriteLine(item.Price); // 150</div>
+        </details>
+      </div>
+
+      <!-- 問題4 -->
+      <div class="problem">
+        <h3>問題 4 <span class="tag tag-medium">medium</span></h3>
+        <div class="problem-desc">
+          <p>staticメンバーを使った <code>IdGenerator</code> クラスを書いてください。</p>
+          <ul>
+            <li><code>NewId()</code> を呼ぶたびに 1, 2, 3... と連番のIDを返す</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">class IdGenerator
+{
+    // staticフィールド: 全インスタンスで共有
+    private static int _lastId = 0;
+
+    // staticメソッド: インスタンス不要で呼べる
+    public static int NewId()
+    {
+        _lastId++;
+        return _lastId;
+    }
+}
+
+// 使用例
+Console.WriteLine(IdGenerator.NewId()); // 1
+Console.WriteLine(IdGenerator.NewId()); // 2
+Console.WriteLine(IdGenerator.NewId()); // 3</div>
+        </details>
+      </div>
+
+      <!-- 問題5 -->
+      <div class="problem">
+        <h3>問題 5 <span class="tag tag-hard">hard</span></h3>
+        <div class="problem-desc">
+          <p>カプセル化を意識して <code>Student</code> クラスを設計してください。</p>
+          <ul>
+            <li>名前（private）・成績リスト（<code>List&lt;int&gt;</code>、private）を持つ</li>
+            <li><code>Name</code> プロパティ（読み取りのみ）</li>
+            <li><code>AddScore(int score)</code>: 0〜100の範囲の点数を追加する</li>
+            <li><code>Average()</code>: 平均点を <code>double</code> で返す（点数がない場合は 0 を返す）</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">class Student
+{
+    private string _name;
+    private List&lt;int&gt; _scores;
+
+    public Student(string name)
+    {
+        _name = name;
+        _scores = new List&lt;int&gt;();
+    }
+
+    // 読み取り専用プロパティ
+    public string Name => _name;
+
+    // 0〜100の範囲のみ追加
+    public void AddScore(int score)
+    {
+        if (score >= 0 && score <= 100)
+            _scores.Add(score);
+    }
+
+    // 平均点を返す（点数がなければ0）
+    public double Average()
+    {
+        if (_scores.Count == 0) return 0;
+        return _scores.Average();
+    }
+}
+
+// 使用例
+var student = new Student("田中");
+student.AddScore(85);
+student.AddScore(92);
+student.AddScore(78);
+student.AddScore(110); // 無視される（範囲外）
+Console.WriteLine($"{student.Name} の平均点: {student.Average():F1}点");
+// 田中 の平均点: 85.0点</div>
+        </details>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

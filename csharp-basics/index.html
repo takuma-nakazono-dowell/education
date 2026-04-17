@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C# 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #7B1FA2; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .main-content { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+    h2 { color: #4A148C; border-bottom: 2px solid #7B1FA2; padding-bottom: 10px; }
+    h3 { color: #7B1FA2; margin-top: 25px; }
+    .info-box { background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #1b5e20; }
+    .section-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+    .section-card { background: white; border-radius: 12px; padding: 20px 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; gap: 20px; }
+    .section-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+    .day-number { background: #7B1FA2; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; flex-shrink: 0; }
+    .section-content h3 { margin: 0 0 5px 0; color: #4A148C; }
+    .section-content p { margin: 0; color: #666; font-size: 0.95em; }
+    .progress-section { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .progress-section h2 { margin-top: 0; color: #7B1FA2; }
+    .checkbox-list { list-style: none; padding: 0; }
+    .checkbox-list li { padding: 8px 0; border-bottom: 1px solid #eee; }
+    .checkbox-list label { cursor: pointer; }
+    .subtitle { color: #666; font-size: 1.1em; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>C# 基礎学習</h1>
+    <div class="nav">
+      <a href="index.html">トップ</a>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <p class="subtitle">9日間でC#の基礎とオブジェクト指向をマスターしよう</p>
+
+    <div class="info-box">
+      <strong>C# とは？</strong>
+      <p style="margin: 8px 0 0 0;">
+        C#はMicrosoftが開発した静的型付けのオブジェクト指向言語です。
+        Webアプリ・デスクトップアプリ・ゲーム開発（Unity）など幅広く使われています。
+        各日の教材にはコード例と練習問題があります。
+        <strong>Visual Studio Code + C# Dev Kit</strong>、または<strong>Visual Studio</strong> をお使いください。
+      </p>
+    </div>
+
+    <h2>カリキュラム</h2>
+    <div class="section-list">
+      <a href="day1-variables.html" class="section-card">
+        <div class="day-number">1</div>
+        <div class="section-content">
+          <h3>Day 1: 変数とデータ型</h3>
+          <p>int・string・bool・var・型変換</p>
+        </div>
+      </a>
+      <a href="day2-conditions.html" class="section-card">
+        <div class="day-number">2</div>
+        <div class="section-content">
+          <h3>Day 2: 演算と条件分岐</h3>
+          <p>演算子・if・switch・三項演算子</p>
+        </div>
+      </a>
+      <a href="day3-loops.html" class="section-card">
+        <div class="day-number">3</div>
+        <div class="section-content">
+          <h3>Day 3: ループ</h3>
+          <p>for・while・foreach・break・continue</p>
+        </div>
+      </a>
+      <a href="day4-collections.html" class="section-card">
+        <div class="day-number">4</div>
+        <div class="section-content">
+          <h3>Day 4: 配列とリスト</h3>
+          <p>配列・List&lt;T&gt;・Dictionary&lt;K,V&gt;</p>
+        </div>
+      </a>
+      <a href="day5-methods.html" class="section-card">
+        <div class="day-number">5</div>
+        <div class="section-content">
+          <h3>Day 5: メソッド</h3>
+          <p>定義・引数・戻り値・オーバーロード・out/ref</p>
+        </div>
+      </a>
+      <a href="day6-classes.html" class="section-card">
+        <div class="day-number">6</div>
+        <div class="section-content">
+          <h3>Day 6: クラスとオブジェクト</h3>
+          <p>フィールド・プロパティ・コンストラクタ</p>
+        </div>
+      </a>
+      <a href="day7-inheritance.html" class="section-card">
+        <div class="day-number">7</div>
+        <div class="section-content">
+          <h3>Day 7: 継承とポリモーフィズム</h3>
+          <p>継承・override・virtual・base</p>
+        </div>
+      </a>
+      <a href="day8-interfaces.html" class="section-card">
+        <div class="day-number">8</div>
+        <div class="section-content">
+          <h3>Day 8: インターフェースと抽象クラス</h3>
+          <p>interface・abstract・実装</p>
+        </div>
+      </a>
+      <a href="day9-linq.html" class="section-card">
+        <div class="day-number">9</div>
+        <div class="section-content">
+          <h3>Day 9: 例外処理とLINQ</h3>
+          <p>try-catch・throw・LINQクエリ</p>
+        </div>
+      </a>
+    </div>
+
+    <div class="progress-section">
+      <h2>学習進捗チェック</h2>
+      <ul class="checkbox-list">
+        <li><label><input type="checkbox"> Day 1: 変数とデータ型</label></li>
+        <li><label><input type="checkbox"> Day 2: 演算と条件分岐</label></li>
+        <li><label><input type="checkbox"> Day 3: ループ</label></li>
+        <li><label><input type="checkbox"> Day 4: 配列とリスト</label></li>
+        <li><label><input type="checkbox"> Day 5: メソッド</label></li>
+        <li><label><input type="checkbox"> Day 6: クラスとオブジェクト</label></li>
+        <li><label><input type="checkbox"> Day 7: 継承とポリモーフィズム</label></li>
+        <li><label><input type="checkbox"> Day 8: インターフェースと抽象クラス</label></li>
+        <li><label><input type="checkbox"> Day 9: 例外処理とLINQ</label></li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

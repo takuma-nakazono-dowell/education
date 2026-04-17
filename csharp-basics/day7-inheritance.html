@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 7: 継承とポリモーフィズム - C# 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #7B1FA2; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #4A148C; border-bottom: 2px solid #7B1FA2; padding-bottom: 10px; }
+    h3 { color: #7B1FA2; margin-top: 25px; }
+    .code-block { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; line-height: 1.7; white-space: pre; }
+    .code-block .comment { color: #6c7086; }
+    .code-block .keyword { color: #cba6f7; }
+    .code-block .type { color: #89b4fa; }
+    .code-block .string { color: #a6e3a1; }
+    .code-block .number { color: #fab387; }
+    .code-block .method { color: #89dceb; }
+    .point-box { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #4A148C; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .info-box { background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #1b5e20; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #7B1FA2; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .problem-desc code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+    textarea { width: 100%; height: 140px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; line-height: 1.6; }
+    textarea:focus { outline: none; border-color: #7B1FA2; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #7B1FA2; font-weight: bold; padding: 8px 12px; background: #F3E5F5; border-radius: 6px; user-select: none; }
+    summary:hover { background: #E1BEE7; }
+    .answer { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 0 0 8px 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.7; white-space: pre; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Day 7: 継承とポリモーフィズム</h1>
+    <div class="nav">
+      <a href="index.html">トップ</a>
+      <a href="day6-classes.html">← 前へ: クラスとオブジェクト</a>
+      <a href="day8-interfaces.html">次へ: インターフェースと抽象クラス →</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 左パネル: 説明 -->
+    <div class="left-panel">
+      <h2>継承とポリモーフィズム</h2>
+
+      <h3>継承の基本</h3>
+      <div class="code-block"><span class="comment">// 基底クラス（親）</span>
+<span class="keyword">class</span> <span class="type">Animal</span>
+{
+    <span class="keyword">public</span> <span class="type">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">public</span> <span class="method">Animal</span>(<span class="type">string</span> name)
+    {
+        Name = name;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">virtual</span> <span class="type">void</span> <span class="method">Speak</span>()
+    {
+        Console.<span class="method">WriteLine</span>(<span class="string">$"{Name}が鳴いた"</span>);
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> <span class="method">Eat</span>()
+    {
+        Console.<span class="method">WriteLine</span>(<span class="string">$"{Name}が食べた"</span>);
+    }
+}
+
+<span class="comment">// 派生クラス（子）</span>
+<span class="keyword">class</span> <span class="type">Dog</span> : <span class="type">Animal</span>
+{
+    <span class="keyword">public</span> <span class="method">Dog</span>(<span class="type">string</span> name) : <span class="keyword">base</span>(name) { }
+
+    <span class="comment">// overrideで親のメソッドを上書き</span>
+    <span class="keyword">public</span> <span class="keyword">override</span> <span class="type">void</span> <span class="method">Speak</span>()
+    {
+        Console.<span class="method">WriteLine</span>(<span class="string">$"{Name}：ワン！"</span>);
+    }
+}
+
+<span class="keyword">class</span> <span class="type">Cat</span> : <span class="type">Animal</span>
+{
+    <span class="keyword">public</span> <span class="method">Cat</span>(<span class="type">string</span> name) : <span class="keyword">base</span>(name) { }
+
+    <span class="keyword">public</span> <span class="keyword">override</span> <span class="type">void</span> <span class="method">Speak</span>()
+    {
+        Console.<span class="method">WriteLine</span>(<span class="string">$"{Name}：ニャー！"</span>);
+    }
+}
+
+<span class="comment">// 使い方</span>
+<span class="keyword">var</span> dog = <span class="keyword">new</span> <span class="type">Dog</span>(<span class="string">"ポチ"</span>);
+<span class="keyword">var</span> cat = <span class="keyword">new</span> <span class="type">Cat</span>(<span class="string">"タマ"</span>);
+dog.<span class="method">Speak</span>(); <span class="comment">// ポチ：ワン！</span>
+cat.<span class="method">Speak</span>(); <span class="comment">// タマ：ニャー！</span>
+dog.<span class="method">Eat</span>();   <span class="comment">// ポチが食べた（継承したメソッド）</span></div>
+
+      <div class="point-box">
+        <strong>ポイント:</strong> <code>virtual</code> をつけたメソッドだけを <code>override</code> 可能。基底クラスのコンストラクタは <code>base()</code> で呼ぶ。
+      </div>
+
+      <h3>ポリモーフィズム</h3>
+      <div class="code-block"><span class="comment">// 親クラス型の変数で子クラスを扱える</span>
+<span class="type">Animal</span>[] animals = {
+    <span class="keyword">new</span> <span class="type">Dog</span>(<span class="string">"ポチ"</span>),
+    <span class="keyword">new</span> <span class="type">Cat</span>(<span class="string">"タマ"</span>),
+    <span class="keyword">new</span> <span class="type">Dog</span>(<span class="string">"ハチ"</span>)
+};
+
+<span class="keyword">foreach</span> (<span class="type">Animal</span> animal <span class="keyword">in</span> animals)
+{
+    animal.<span class="method">Speak</span>(); <span class="comment">// それぞれの実装が呼ばれる</span>
+}
+<span class="comment">// ポチ：ワン！</span>
+<span class="comment">// タマ：ニャー！</span>
+<span class="comment">// ハチ：ワン！</span></div>
+
+      <h3>sealed（継承禁止）</h3>
+      <div class="code-block"><span class="keyword">sealed</span> <span class="keyword">class</span> <span class="type">FinalClass</span> { }
+<span class="comment">// class SubClass : FinalClass { } // エラー: sealedクラスは継承不可</span></div>
+
+      <h3>base キーワード</h3>
+      <div class="code-block"><span class="keyword">class</span> <span class="type">ElectricCar</span> : <span class="type">Car</span>
+{
+    <span class="keyword">public</span> <span class="type">int</span> BatteryLevel { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">public</span> <span class="method">ElectricCar</span>(<span class="type">string</span> model, <span class="type">int</span> battery) : <span class="keyword">base</span>(model)
+    {
+        BatteryLevel = battery;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">override</span> <span class="type">void</span> <span class="method">Describe</span>()
+    {
+        <span class="keyword">base</span>.<span class="method">Describe</span>(); <span class="comment">// 親のメソッドも呼ぶ</span>
+        Console.<span class="method">WriteLine</span>(<span class="string">$"バッテリー残量: {BatteryLevel}%"</span>);
+    }
+}</div>
+
+      <h3>is / as 演算子（型チェック）</h3>
+      <div class="code-block"><span class="type">Animal</span> animal = <span class="keyword">new</span> <span class="type">Dog</span>(<span class="string">"ポチ"</span>);
+
+<span class="comment">// is: 型チェックしながらキャスト（C# 7以降のパターンマッチング）</span>
+<span class="keyword">if</span> (animal <span class="keyword">is</span> <span class="type">Dog</span> dog)
+{
+    Console.<span class="method">WriteLine</span>(<span class="string">$"{dog.Name}は犬です"</span>);
+}
+
+<span class="comment">// as: キャスト失敗時にnullを返す</span>
+<span class="type">Dog</span>? maybeDog = animal <span class="keyword">as</span> <span class="type">Dog</span>;
+<span class="keyword">if</span> (maybeDog != <span class="keyword">null</span>) { <span class="comment">/* 犬として扱う */</span> }</div>
+    </div>
+
+    <!-- 右パネル: 練習問題 -->
+    <div class="right-panel">
+      <h2>練習問題</h2>
+
+      <!-- 問題1 -->
+      <div class="problem">
+        <h3>問題 1 <span class="tag tag-easy">easy</span></h3>
+        <p>以下のコードを読んで、出力結果を答えてください。</p>
+        <div class="code-block"><span class="keyword">class</span> <span class="type">Shape</span>
+{
+    <span class="keyword">public</span> <span class="keyword">virtual</span> <span class="type">string</span> <span class="method">GetName</span>() =&gt; <span class="string">"図形"</span>;
+}
+
+<span class="keyword">class</span> <span class="type">Circle</span> : <span class="type">Shape</span>
+{
+    <span class="keyword">public</span> <span class="keyword">override</span> <span class="type">string</span> <span class="method">GetName</span>() =&gt; <span class="string">"円"</span>;
+}
+
+<span class="type">Shape</span> s = <span class="keyword">new</span> <span class="type">Circle</span>();
+Console.<span class="method">WriteLine</span>(s.<span class="method">GetName</span>());</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">円
+
+// 解説: Shape型の変数でも、実際のオブジェクトはCircleなので
+// overrideされたGetName()が呼ばれる（ポリモーフィズム）</div>
+        </details>
+      </div>
+
+      <!-- 問題2 -->
+      <div class="problem">
+        <h3>問題 2 <span class="tag tag-easy">easy</span></h3>
+        <p>空欄を埋めて継承を完成させてください。</p>
+        <div class="code-block"><span class="keyword">class</span> <span class="type">Vehicle</span>
+{
+    <span class="keyword">public</span> <span class="type">string</span> Brand { <span class="keyword">get</span>; }
+    <span class="keyword">public</span> <span class="method">Vehicle</span>(<span class="type">string</span> brand) { Brand = brand; }
+    <span class="keyword">public</span> <span class="keyword">virtual</span> <span class="type">void</span> <span class="method">Move</span>() =&gt; Console.<span class="method">WriteLine</span>(<span class="string">"移動する"</span>);
+}
+
+<span class="keyword">class</span> <span class="type">Car</span> : <span class="comment">____</span>
+{
+    <span class="keyword">public</span> <span class="method">Car</span>(<span class="type">string</span> brand) : <span class="comment">____</span>(brand) { }
+    <span class="keyword">public</span> <span class="comment">____</span> <span class="type">void</span> <span class="method">Move</span>() =&gt; Console.<span class="method">WriteLine</span>(<span class="string">"走る"</span>);
+}</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">// 空欄の答え（上から順に）
+// 1番目: Vehicle   （継承元クラス名）
+// 2番目: base      （基底クラスのコンストラクタ呼び出し）
+// 3番目: override  （メソッドの上書き）
+
+class Car : Vehicle
+{
+    public Car(string brand) : base(brand) { }
+    public override void Move() => Console.WriteLine("走る");
+}</div>
+        </details>
+      </div>
+
+      <!-- 問題3 -->
+      <div class="problem">
+        <h3>問題 3 <span class="tag tag-medium">medium</span></h3>
+        <div class="problem-desc">
+          <p><code>Shape</code> 基底クラスと <code>Circle</code>・<code>Rectangle</code> 派生クラスを書いてください。</p>
+          <ul>
+            <li><code>Shape</code> に <code>virtual double Area()</code> を持たせ、それぞれでoverrideする</li>
+            <li>円の面積 = π × r²</li>
+            <li>長方形の面積 = 幅 × 高さ</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">class Shape
+{
+    public virtual double Area() => 0;
+}
+
+class Circle : Shape
+{
+    public double Radius { get; }
+
+    public Circle(double radius)
+    {
+        Radius = radius;
+    }
+
+    public override double Area() => Math.PI * Radius * Radius;
+}
+
+class Rectangle : Shape
+{
+    public double Width { get; }
+    public double Height { get; }
+
+    public Rectangle(double width, double height)
+    {
+        Width = width;
+        Height = height;
+    }
+
+    public override double Area() => Width * Height;
+}
+
+// 使用例
+var circle = new Circle(5);
+var rect = new Rectangle(4, 6);
+Console.WriteLine($"円の面積: {circle.Area():F2}"); // 78.54
+Console.WriteLine($"長方形の面積: {rect.Area():F2}"); // 24.00</div>
+        </details>
+      </div>
+
+      <!-- 問題4 -->
+      <div class="problem">
+        <h3>問題 4 <span class="tag tag-medium">medium</span></h3>
+        <div class="problem-desc">
+          <p>問題3で作成したクラスを使い、ポリモーフィズムを活用してください。</p>
+          <ul>
+            <li><code>Shape[]</code> に複数の図形を入れる</li>
+            <li>forループで全図形の面積を合計するコードを書く</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">// 親クラス型の配列に、異なる子クラスのインスタンスを入れる
+Shape[] shapes =
+{
+    new Circle(3),
+    new Rectangle(4, 5),
+    new Circle(2),
+    new Rectangle(6, 2)
+};
+
+double total = 0;
+foreach (Shape shape in shapes)
+{
+    double area = shape.Area();
+    total += area;
+    Console.WriteLine($"面積: {area:F2}");
+}
+Console.WriteLine($"合計面積: {total:F2}");
+
+// 出力例:
+// 面積: 28.27
+// 面積: 20.00
+// 面積: 12.57
+// 面積: 12.00
+// 合計面積: 72.84</div>
+        </details>
+      </div>
+
+      <!-- 問題5 -->
+      <div class="problem">
+        <h3>問題 5 <span class="tag tag-hard">hard</span></h3>
+        <div class="problem-desc">
+          <p>従業員管理システムを設計してください。</p>
+          <ul>
+            <li><code>Employee</code>（基底）・<code>Manager</code>・<code>Developer</code> の3クラスを作る</li>
+            <li>各クラスで <code>GetRole()</code> をoverrideして返す文字列を変える</li>
+            <li><code>List&lt;Employee&gt;</code> に混在させてforeachで全員の役職を出力する</li>
+          </ul>
+        </div>
+        <textarea placeholder="ここにコードを書いてみましょう..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer">class Employee
+{
+    public string Name { get; }
+
+    public Employee(string name)
+    {
+        Name = name;
+    }
+
+    public virtual string GetRole() => "一般社員";
+}
+
+class Manager : Employee
+{
+    public Manager(string name) : base(name) { }
+
+    public override string GetRole() => "マネージャー";
+}
+
+class Developer : Employee
+{
+    public Developer(string name) : base(name) { }
+
+    public override string GetRole() => "開発者";
+}
+
+// ポリモーフィズムの活用
+var employees = new List&lt;Employee&gt;
+{
+    new Employee("田中"),
+    new Manager("山田"),
+    new Developer("佐藤"),
+    new Developer("鈴木"),
+    new Manager("高橋")
+};
+
+foreach (Employee emp in employees)
+{
+    Console.WriteLine($"{emp.Name}: {emp.GetRole()}");
+}
+
+// 出力:
+// 田中: 一般社員
+// 山田: マネージャー
+// 佐藤: 開発者
+// 鈴木: 開発者
+// 高橋: マネージャー</div>
+        </details>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

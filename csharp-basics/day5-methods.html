@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 5: メソッド | C# 基礎学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #7B1FA2; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #4A148C; border-bottom: 2px solid #7B1FA2; padding-bottom: 10px; }
+    h3 { color: #7B1FA2; margin-top: 25px; }
+    .code-block { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; overflow-x: auto; margin: 15px 0; line-height: 1.7; }
+    .code-block .comment { color: #6c7086; }
+    .code-block .keyword { color: #cba6f7; }
+    .code-block .type { color: #89b4fa; }
+    .code-block .string { color: #a6e3a1; }
+    .code-block .number { color: #fab387; }
+    .code-block .method { color: #89dceb; }
+    .point-box { background: #F3E5F5; border-left: 4px solid #7B1FA2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #4A148C; }
+    .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #c62828; }
+    .info-box { background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #1b5e20; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #7B1FA2; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    .problem-desc code { background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+    textarea { width: 100%; height: 140px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; line-height: 1.6; }
+    textarea:focus { outline: none; border-color: #7B1FA2; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #7B1FA2; font-weight: bold; padding: 8px 12px; background: #F3E5F5; border-radius: 6px; user-select: none; }
+    summary:hover { background: #E1BEE7; }
+    .answer { background: #1e1e2e; color: #cdd6f4; padding: 15px; border-radius: 0 0 8px 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.7; white-space: pre; }
+    .answer .comment { color: #6c7086; }
+    .answer .keyword { color: #cba6f7; }
+    .answer .type { color: #89b4fa; }
+    .answer .string { color: #a6e3a1; }
+    .answer .number { color: #fab387; }
+    .answer .method { color: #89dceb; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Day 5: メソッド</h1>
+    <div class="nav">
+      <a href="day4-collections.html">← 前へ: 配列とリスト</a>
+      <a href="day6-classes.html">次へ: クラスとオブジェクト →</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 左パネル: 説明 -->
+    <div class="left-panel">
+      <h2>メソッドの定義と活用</h2>
+
+      <h3>メソッドの基本</h3>
+      <div class="code-block"><span class="comment">// 戻り値あり</span>
+<span class="keyword">static</span> <span class="type">int</span> <span class="method">Add</span>(<span class="type">int</span> a, <span class="type">int</span> b)
+{
+    <span class="keyword">return</span> a + b;
+}
+
+<span class="comment">// 戻り値なし（void）</span>
+<span class="keyword">static</span> <span class="keyword">void</span> <span class="method">Greet</span>(<span class="type">string</span> name)
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">$"こんにちは、{name}さん！"</span>);
+}
+
+<span class="comment">// 呼び出し</span>
+<span class="type">int</span> result = <span class="method">Add</span>(<span class="number">3</span>, <span class="number">5</span>); <span class="comment">// 8</span>
+<span class="method">Greet</span>(<span class="string">"田中"</span>);</div>
+
+      <h3>デフォルト引数</h3>
+      <div class="code-block"><span class="keyword">static</span> <span class="keyword">void</span> <span class="method">Introduce</span>(<span class="type">string</span> name, <span class="type">int</span> age = <span class="number">0</span>, <span class="type">string</span> city = <span class="string">"不明"</span>)
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">$"{name}({age}歳) 出身: {city}"</span>);
+}
+
+<span class="method">Introduce</span>(<span class="string">"田中"</span>);               <span class="comment">// 田中(0歳) 出身: 不明</span>
+<span class="method">Introduce</span>(<span class="string">"山田"</span>, <span class="number">25</span>);          <span class="comment">// 山田(25歳) 出身: 不明</span>
+<span class="method">Introduce</span>(<span class="string">"佐藤"</span>, <span class="number">30</span>, <span class="string">"東京"</span>); <span class="comment">// 佐藤(30歳) 出身: 東京</span></div>
+
+      <h3>名前付き引数</h3>
+      <div class="code-block"><span class="comment">// 順番を気にせず引数を渡せる</span>
+<span class="method">Introduce</span>(name: <span class="string">"鈴木"</span>, city: <span class="string">"大阪"</span>, age: <span class="number">28</span>);</div>
+
+      <h3>オーバーロード</h3>
+      <div class="code-block"><span class="comment">// 型や引数の数が違えば同じ名前のメソッドを定義できる</span>
+<span class="keyword">static</span> <span class="type">int</span> <span class="method">Multiply</span>(<span class="type">int</span> a, <span class="type">int</span> b) =&gt; a * b;
+<span class="keyword">static</span> <span class="type">double</span> <span class="method">Multiply</span>(<span class="type">double</span> a, <span class="type">double</span> b) =&gt; a * b;
+<span class="keyword">static</span> <span class="type">int</span> <span class="method">Multiply</span>(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> c) =&gt; a * b * c;
+
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="method">Multiply</span>(<span class="number">3</span>, <span class="number">4</span>));      <span class="comment">// 12</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="method">Multiply</span>(<span class="number">2.5</span>, <span class="number">4.0</span>)); <span class="comment">// 10.0</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="method">Multiply</span>(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>));  <span class="comment">// 24</span></div>
+
+      <h3>out / ref 引数</h3>
+      <div class="code-block"><span class="comment">// out: メソッド内で値をセットして返す</span>
+<span class="keyword">static</span> <span class="type">bool</span> <span class="method">TryDivide</span>(<span class="type">int</span> a, <span class="type">int</span> b, <span class="keyword">out</span> <span class="type">double</span> result)
+{
+    <span class="keyword">if</span> (b == <span class="number">0</span>) { result = <span class="number">0</span>; <span class="keyword">return</span> <span class="keyword">false</span>; }
+    result = (<span class="type">double</span>)a / b;
+    <span class="keyword">return</span> <span class="keyword">true</span>;
+}
+
+<span class="keyword">if</span> (<span class="method">TryDivide</span>(<span class="number">10</span>, <span class="number">3</span>, <span class="keyword">out</span> <span class="type">double</span> val))
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(val); <span class="comment">// 3.3333...</span>
+
+<span class="comment">// ref: 参照渡し（呼び出し元の変数を直接変更）</span>
+<span class="keyword">static</span> <span class="keyword">void</span> <span class="method">Double</span>(<span class="keyword">ref</span> <span class="type">int</span> x)
+{
+    x *= <span class="number">2</span>;
+}
+<span class="type">int</span> n = <span class="number">5</span>;
+<span class="method">Double</span>(<span class="keyword">ref</span> n);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(n); <span class="comment">// 10</span></div>
+
+      <h3>式形式メソッド（ラムダ形式）</h3>
+      <div class="code-block"><span class="comment">// 通常の書き方</span>
+<span class="keyword">static</span> <span class="type">int</span> <span class="method">Square</span>(<span class="type">int</span> x) { <span class="keyword">return</span> x * x; }
+
+<span class="comment">// 式形式（1行で書ける）</span>
+<span class="keyword">static</span> <span class="type">int</span> <span class="method">Square</span>(<span class="type">int</span> x) =&gt; x * x;</div>
+
+      <div class="point-box">
+        <strong>ポイント:</strong> C#では関数はクラスの中にメソッドとして定義します。
+        static メソッドはインスタンス不要で呼び出せます。
+        .NET 6以降のトップレベルステートメントではメソッドをファイルの末尾に書けます。
+      </div>
+    </div>
+
+    <!-- 右パネル: 練習問題 -->
+    <div class="right-panel">
+      <h2>練習問題</h2>
+
+      <!-- 問1 -->
+      <div class="problem">
+        <h3>問1 <span class="tag tag-easy">かんたん</span></h3>
+        <div class="problem-desc">
+          以下のコードを読んで、出力結果を答えてください。
+        </div>
+        <div class="code-block"><span class="keyword">static</span> <span class="type">int</span> <span class="method">Max</span>(<span class="type">int</span> a, <span class="type">int</span> b) =&gt; a &gt; b ? a : b;
+
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="method">Max</span>(<span class="number">10</span>, <span class="number">20</span>));
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="method">Max</span>(<span class="number">5</span>, <span class="number">3</span>));</div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="number">20</span>   <span class="comment">// 10 と 20 を比較して大きい方 = 20</span>
+<span class="number">5</span>    <span class="comment">// 5 と 3 を比較して大きい方 = 5</span></div>
+        </details>
+      </div>
+
+      <!-- 問2 -->
+      <div class="problem">
+        <h3>問2 <span class="tag tag-easy">かんたん</span></h3>
+        <div class="problem-desc">
+          空欄を埋めて、コードを完成させてください。
+        </div>
+        <div class="code-block"><span class="keyword">static</span> ____ <span class="method">PrintStars</span>(<span class="type">int</span> count)
+{
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; count; i++)
+        <span class="type">Console</span>.<span class="method">Write</span>(<span class="string">"*"</span>);
+    <span class="type">Console</span>.<span class="method">WriteLine</span>();
+}
+<span class="method">PrintStars</span>(<span class="number">5</span>); <span class="comment">// *****</span></div>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="keyword">static</span> <span class="keyword">void</span> <span class="method">PrintStars</span>(<span class="type">int</span> count)
+<span class="comment">// ↑ 戻り値がない場合は void を指定する</span>
+{
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; count; i++)
+        <span class="type">Console</span>.<span class="method">Write</span>(<span class="string">"*"</span>);
+    <span class="type">Console</span>.<span class="method">WriteLine</span>();
+}
+<span class="method">PrintStars</span>(<span class="number">5</span>); <span class="comment">// *****</span></div>
+        </details>
+      </div>
+
+      <!-- 問3 -->
+      <div class="problem">
+        <h3>問3 <span class="tag tag-medium">ふつう</span></h3>
+        <div class="problem-desc">
+          オーバーロードを使って「DoubleIt」メソッドを2つ定義してください。<br>
+          ・<code>DoubleIt(int n)</code> → 数値を2倍にして返す（例: 5 → 10）<br>
+          ・<code>DoubleIt(string s)</code> → 文字列を2回繰り返して返す（例: "Hello" → "HelloHello"）
+        </div>
+        <textarea placeholder="ここにコードを書いてください..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="comment">// int版: 数値を2倍にする</span>
+<span class="keyword">static</span> <span class="type">int</span> <span class="method">DoubleIt</span>(<span class="type">int</span> n) =&gt; n * <span class="number">2</span>;
+
+<span class="comment">// string版: 文字列を2回繰り返す</span>
+<span class="keyword">static</span> <span class="type">string</span> <span class="method">DoubleIt</span>(<span class="type">string</span> s) =&gt; s + s;
+
+<span class="comment">// 呼び出し</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="method">DoubleIt</span>(<span class="number">5</span>));         <span class="comment">// 10</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="method">DoubleIt</span>(<span class="string">"Hello"</span>)); <span class="comment">// HelloHello</span>
+
+<span class="comment">// コンパイラが引数の型を見て自動的に正しいメソッドを選択する</span></div>
+        </details>
+      </div>
+
+      <!-- 問4 -->
+      <div class="problem">
+        <h3>問4 <span class="tag tag-medium">ふつう</span></h3>
+        <div class="problem-desc">
+          デフォルト引数を使った <code>CreateMessage</code> メソッドを定義してください。<br>
+          ・引数: name（必須）、greeting（省略可、デフォルト「こんにちは」）<br>
+          ・出力例: 「こんにちは、田中さん！」「おはよう、山田さん！」
+        </div>
+        <textarea placeholder="ここにコードを書いてください..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="comment">// デフォルト引数を定義する</span>
+<span class="keyword">static</span> <span class="type">string</span> <span class="method">CreateMessage</span>(<span class="type">string</span> name, <span class="type">string</span> greeting = <span class="string">"こんにちは"</span>)
+{
+    <span class="keyword">return</span> <span class="string">$"{greeting}、{name}さん！"</span>;
+}
+
+<span class="comment">// 呼び出し</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="method">CreateMessage</span>(<span class="string">"田中"</span>));              <span class="comment">// こんにちは、田中さん！</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="method">CreateMessage</span>(<span class="string">"山田"</span>, <span class="string">"おはよう"</span>));   <span class="comment">// おはよう、山田さん！</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="method">CreateMessage</span>(<span class="string">"佐藤"</span>, <span class="string">"さようなら"</span>)); <span class="comment">// さようなら、佐藤さん！</span></div>
+        </details>
+      </div>
+
+      <!-- 問5 -->
+      <div class="problem">
+        <h3>問5 <span class="tag tag-hard">むずかしい</span></h3>
+        <div class="problem-desc">
+          out 引数を使って「SumAndProduct」メソッドを定義してください。<br>
+          ・引数: int a, int b（入力）、out int sum, out int product（出力）<br>
+          ・合計と積を out 引数でそれぞれ返す<br>
+          ・呼び出して結果を出力してください
+        </div>
+        <textarea placeholder="ここにコードを書いてください..."></textarea>
+        <details>
+          <summary>答えを見る</summary>
+          <div class="answer"><span class="comment">// out 引数で2つの値を返すメソッド</span>
+<span class="keyword">static</span> <span class="keyword">void</span> <span class="method">SumAndProduct</span>(<span class="type">int</span> a, <span class="type">int</span> b, <span class="keyword">out</span> <span class="type">int</span> sum, <span class="keyword">out</span> <span class="type">int</span> product)
+{
+    sum = a + b;        <span class="comment">// out 引数はメソッド内で必ず代入する</span>
+    product = a * b;
+}
+
+<span class="comment">// 呼び出し: out 変数はここで宣言できる（インライン宣言）</span>
+<span class="method">SumAndProduct</span>(<span class="number">4</span>, <span class="number">6</span>, <span class="keyword">out</span> <span class="type">int</span> s, <span class="keyword">out</span> <span class="type">int</span> p);
+
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">$"4 + 6 = {s}"</span>);   <span class="comment">// 4 + 6 = 10</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="string">$"4 × 6 = {p}"</span>);   <span class="comment">// 4 × 6 = 24</span>
+
+<span class="comment">// out は複数の値を返したい場合に使う
+// ただし現代のC#では ValueTuple や record の方が好まれる場合もある</span></div>
+        </details>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
