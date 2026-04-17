@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 1: ソフトウェア開発の全体像 | 開発プロセス基礎</title>
+  <style>
+    /* 共通スタイル */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.8; }
+    .header { background: #00796B; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+
+    /* 左右2分割レイアウト */
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 55%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 45%; padding: 30px; overflow-y: auto; }
+
+    h2 { color: #004D40; border-bottom: 2px solid #00796B; padding-bottom: 10px; margin-top: 30px; }
+    h3 { color: #00796B; margin-top: 25px; }
+    h4 { color: #333; margin-top: 20px; }
+
+    /* ポイントボックス類 */
+    .point-box { background: #E0F2F1; border-left: 4px solid #00796B; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #004D40; }
+    .warning-box { background: #FFF8E1; border-left: 4px solid #FFC107; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #E65100; }
+    .info-box { background: #E3F2FD; border-left: 4px solid #1976D2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #0D47A1; }
+
+    /* テーブル */
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th { background: #E0F2F1; padding: 10px 12px; text-align: left; border: 1px solid #ccc; font-size: 0.95em; color: #004D40; }
+    td { padding: 10px 12px; border: 1px solid #ccc; font-size: 0.95em; vertical-align: top; }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    /* フロー図 */
+    .flow-diagram { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+    .flow-box { background: #00796B; color: white; padding: 12px 18px; border-radius: 8px; text-align: center; font-size: 0.9em; font-weight: bold; min-width: 90px; }
+    .flow-arrow { color: #00796B; font-size: 1.5em; margin: 0 5px; }
+
+    /* V字モデル */
+    .v-model { margin: 20px 0; }
+    .v-row { display: flex; align-items: center; margin: 6px 0; }
+    .v-left { background: #00796B; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.88em; font-weight: bold; min-width: 140px; text-align: center; }
+    .v-right { background: #004D40; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.88em; font-weight: bold; min-width: 160px; text-align: center; }
+    .v-arrow { color: #00796B; font-size: 1.2em; margin: 0 10px; flex: 1; text-align: center; border-top: 2px dashed #B2DFDB; }
+
+    /* 役割リスト */
+    .role-list { list-style: none; padding: 0; margin: 10px 0; }
+    .role-list li { padding: 8px 12px; margin: 6px 0; background: #f5f5f5; border-radius: 6px; border-left: 3px solid #00796B; }
+    .role-name { font-weight: bold; color: #004D40; margin-right: 10px; }
+
+    /* 確認問題カード */
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #00796B; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; line-height: 1.8; }
+    .choices { list-style: none; padding: 0; }
+    .choices li { padding: 8px 12px; margin: 6px 0; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; }
+    .choices li:hover { background: #E0F2F1; }
+
+    /* 解答折り畳み */
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #00796B; font-weight: bold; padding: 8px 12px; background: #E0F2F1; border-radius: 6px; user-select: none; }
+    summary:hover { background: #B2DFDB; }
+    .answer { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 0 0 8px 8px; line-height: 1.8; }
+    .answer strong { color: #004D40; }
+
+    /* 難易度タグ */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; vertical-align: middle; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+
+    /* 問題番号ラベル */
+    .q-label { font-size: 0.85em; color: #888; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="header">
+  <h1>Day 1: ソフトウェア開発の全体像</h1>
+  <div class="nav">
+    <a href="index.html">← トップに戻る</a>
+    <a href="day2-ordering.html">次へ: 受注プロセス →</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明エリア -->
+  <div class="left-panel">
+
+    <h2>なぜ「工程」があるのか</h2>
+    <p>
+      プログラムを書き始める前に、なぜ設計や要件定義が必要なのでしょうか？
+    </p>
+    <p>
+      家を建てることに例えてみましょう。設計図なしに大工が作り始めたら、どうなるでしょうか。
+      「やっぱりリビングをもっと広くしたい」「2階のトイレの位置を変えてほしい」と言われた時、
+      もし壁を作った後であれば、それを壊して作り直すことになります。
+      最初から設計図に組み込んでいれば、木材を切る前に変更できたはずです。
+    </p>
+    <p>
+      ソフトウェア開発も同じです。コードを書いてしまった後に「やっぱり仕様が違う」と言われると、
+      その修正は何倍ものコストがかかります。だから事前に設計する工程が存在します。
+    </p>
+
+    <div class="point-box">
+      <strong>重要ポイント: 手戻りコスト</strong><br>
+      手戻りのコストは工程が進むほど高くなります。要件定義のミスを製造工程で気づくと、
+      修正コストは数十倍になると言われています。だから「最初の工程ほど重要」なのです。
+    </div>
+
+    <h2>ウォーターフォールとは</h2>
+    <p>
+      「ウォーターフォール（Waterfall）」とは、水が上から下へ流れるように、
+      工程を順番に進めるソフトウェア開発モデルです。
+      各工程が完了してから次の工程へ進むのが原則で、基本的に前の工程には戻りません。
+    </p>
+    <p>工程の流れは以下のとおりです。</p>
+
+    <div class="flow-diagram">
+      <div class="flow-box">要件定義</div>
+      <div class="flow-arrow">▶</div>
+      <div class="flow-box">基本設計</div>
+      <div class="flow-arrow">▶</div>
+      <div class="flow-box">詳細設計</div>
+      <div class="flow-arrow">▶</div>
+      <div class="flow-box">製造</div>
+      <div class="flow-arrow">▶</div>
+      <div class="flow-box">単体テスト</div>
+      <div class="flow-arrow">▶</div>
+      <div class="flow-box">結合テスト</div>
+      <div class="flow-arrow">▶</div>
+      <div class="flow-box">システムテスト</div>
+      <div class="flow-arrow">▶</div>
+      <div class="flow-box">リリース</div>
+    </div>
+
+    <h2>各工程の役割</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>工程</th>
+          <th>主な作業</th>
+          <th>主なアウトプット</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>要件定義</strong></td>
+          <td>何を作るかを決める</td>
+          <td>要件定義書</td>
+        </tr>
+        <tr>
+          <td><strong>基本設計</strong></td>
+          <td>どう見せるかを決める</td>
+          <td>画面設計書・DB設計書</td>
+        </tr>
+        <tr>
+          <td><strong>詳細設計</strong></td>
+          <td>どう動かすかを決める</td>
+          <td>詳細設計書・クラス図</td>
+        </tr>
+        <tr>
+          <td><strong>製造</strong></td>
+          <td>コードを書く</td>
+          <td>ソースコード</td>
+        </tr>
+        <tr>
+          <td><strong>単体テスト</strong></td>
+          <td>部品単位で動作確認</td>
+          <td>テスト結果報告書</td>
+        </tr>
+        <tr>
+          <td><strong>結合テスト</strong></td>
+          <td>部品を繋いで動作確認</td>
+          <td>テスト結果報告書</td>
+        </tr>
+        <tr>
+          <td><strong>システムテスト</strong></td>
+          <td>全体を本番に近い状態で確認</td>
+          <td>テスト結果報告書</td>
+        </tr>
+        <tr>
+          <td><strong>リリース</strong></td>
+          <td>本番環境に反映する</td>
+          <td>リリースノート</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>V字モデル</h2>
+    <p>
+      ウォーターフォール開発では、「設計とテストは対応関係にある」という考え方があります。
+      これをV字モデルと呼びます。左側の設計工程と右側のテスト工程が対になっており、
+      テストは対応する設計書の内容を検証するために行います。
+    </p>
+
+    <div class="v-model">
+      <div class="v-row">
+        <div class="v-left">要件定義</div>
+        <div class="v-arrow">── 対応 ──</div>
+        <div class="v-right">受入テスト（ユーザーが確認）</div>
+      </div>
+      <div class="v-row">
+        <div class="v-left">基本設計</div>
+        <div class="v-arrow">── 対応 ──</div>
+        <div class="v-right">システムテスト（全体の整合性確認）</div>
+      </div>
+      <div class="v-row">
+        <div class="v-left">詳細設計</div>
+        <div class="v-arrow">── 対応 ──</div>
+        <div class="v-right">結合テスト（部品間の連携確認）</div>
+      </div>
+      <div class="v-row">
+        <div class="v-left">製造</div>
+        <div class="v-arrow">── 対応 ──</div>
+        <div class="v-right">単体テスト（コード単位の確認）</div>
+      </div>
+    </div>
+
+    <p>
+      たとえば「詳細設計書に書かれた処理仕様」を検証するのが「結合テスト」です。
+      設計書が正しく書かれていれば、それをもとにテストケースを作れます。
+      逆に言うと、設計書が曖昧だとテスト設計もできません。
+    </p>
+
+    <div class="warning-box">
+      <strong>注意: ウォーターフォールの弱点</strong><br>
+      ウォーターフォールは全てがうまくいくわけではありません。要件変更に弱く、
+      大型案件では後半になって問題が発覚しやすいという欠点があります。
+      後のDayでアジャイル開発との比較にも触れます。
+    </div>
+
+    <h2>誰が何をするのか（役割分担）</h2>
+    <ul class="role-list">
+      <li>
+        <span class="role-name">プロジェクトマネージャー（PM）</span>
+        全体の進行管理。スケジュール・予算・リスクを管理し、顧客との窓口にもなる。
+      </li>
+      <li>
+        <span class="role-name">システムアナリスト / SE</span>
+        要件定義・設計を担当。顧客の要求をシステム仕様に翻訳する役割。
+      </li>
+      <li>
+        <span class="role-name">プログラマー（PG）</span>
+        設計書をもとにコードを書く。単体テストも行う。
+      </li>
+      <li>
+        <span class="role-name">テスター / QA</span>
+        結合テスト・システムテストを担当。バグを発見・記録・報告する。
+      </li>
+    </ul>
+
+    <div class="info-box">
+      <strong>新人エンジニアへのメモ</strong><br>
+      新人の最初の配属は「製造」か「単体テスト」が多いです。でも全工程の流れを知っていると、
+      自分の作業の意味が分かり、品質への意識が変わります。
+      「自分が書いたコードが、どの設計書に基づいていて、後でどんなテストで確認されるのか」
+      を意識するだけで、仕事の質が変わってきます。
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- 右パネル: 確認問題エリア -->
+  <div class="right-panel">
+
+    <h2>確認問題</h2>
+
+    <!-- 問1 -->
+    <div class="problem">
+      <div class="q-label">問1 <span class="tag tag-easy">易しい</span></div>
+      <h3>ウォーターフォールの特徴を選べ</h3>
+      <div class="problem-desc">
+        ウォーターフォール開発の特徴として正しいのはどれか？
+      </div>
+      <ul class="choices">
+        <li>a) 要件変更に非常に柔軟に対応できる</li>
+        <li>b) 工程を順番に進め、前の工程が完了してから次へ進む</li>
+        <li>c) 設計書を作らずコードを書くことを重視する</li>
+        <li>d) テストは最後の1回だけ実施する</li>
+      </ul>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>答え: b</strong><br><br>
+          ウォーターフォール開発の最大の特徴は「工程を順番に進める」ことです。<br><br>
+          a) は誤り。要件変更に弱いのがウォーターフォールの欠点です。<br>
+          c) は誤り。設計書を重視するのがウォーターフォールの特徴です。<br>
+          d) は誤り。単体・結合・システムと、複数のテスト工程があります。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問2 -->
+    <div class="problem">
+      <div class="q-label">問2 <span class="tag tag-easy">易しい</span></div>
+      <h3>穴埋め問題</h3>
+      <div class="problem-desc">
+        V字モデルでは、「詳細設計」に対応するテスト工程は（　　）テストである。
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>答え: 結合</strong><br><br>
+          V字モデルの対応関係をまとめると：<br>
+          ・要件定義 ↔ 受入テスト<br>
+          ・基本設計 ↔ システムテスト<br>
+          ・<strong>詳細設計 ↔ 結合テスト</strong><br>
+          ・製造 ↔ 単体テスト<br><br>
+          各テストは、対応する設計書の内容が正しく実現されているかを確認します。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問3 -->
+    <div class="problem">
+      <div class="q-label">問3 <span class="tag tag-medium">普通</span></div>
+      <h3>工程とアウトプットを対応させよ</h3>
+      <div class="problem-desc">
+        次の工程と主なアウトプットを正しく対応させてください。<br><br>
+        <strong>【工程】</strong><br>
+        A. 要件定義　　B. 詳細設計　　C. 製造<br><br>
+        <strong>【アウトプット】</strong><br>
+        ア. ソースコード　　イ. 要件定義書　　ウ. 詳細設計書・クラス図
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>答え:</strong><br>
+          A（要件定義）→ イ（要件定義書）<br>
+          B（詳細設計）→ ウ（詳細設計書・クラス図）<br>
+          C（製造）→ ア（ソースコード）<br><br>
+          各工程では特定のドキュメントや成果物が生まれます。これが次の工程のインプットになります。
+          「製造担当者は詳細設計書を読んでコードを書く」という流れが基本です。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問4 -->
+    <div class="problem">
+      <div class="q-label">問4 <span class="tag tag-medium">普通</span></div>
+      <h3>考えてみよう</h3>
+      <div class="problem-desc">
+        ある新人プログラマーが「設計書なんて読まなくていい、とりあえずコードを書けば分かる」と言いました。
+        なぜこれが問題なのか、2つ以上の理由を考えてみてください。
+      </div>
+      <details>
+        <summary>答え例を見る</summary>
+        <div class="answer">
+          <strong>考えられる問題点の例：</strong><br><br>
+          1. <strong>手戻りリスク</strong><br>
+          仕様と違うコードを書いてしまった場合、全部書き直しになります。
+          設計書を読めば事前に防げた問題です。<br><br>
+          2. <strong>チーム全体の認識のズレ</strong><br>
+          設計書はチーム全員の共通認識です。設計書を無視すると、
+          他のメンバーが書いたコードと組み合わせた時に正しく動作しません。<br><br>
+          3. <strong>テスト設計ができない</strong><br>
+          テスターは設計書をもとにテストケースを書きます。設計書と違う実装をすると、
+          テストで「バグ」として報告され、手戻りが発生します。<br><br>
+          4. <strong>仕様を理解せずに書いたコードは保守しにくい</strong><br>
+          「なぜこう動くのか」の根拠が設計書にあります。それを無視すると、
+          後から変更する際に何を変えていいか分からなくなります。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問5 -->
+    <div class="problem">
+      <div class="q-label">問5 <span class="tag tag-hard">難しい</span></div>
+      <h3>考えてみよう: 向き・不向き</h3>
+      <div class="problem-desc">
+        ウォーターフォールが向いているプロジェクトと、向いていないプロジェクトをそれぞれ考えてみましょう。
+        できれば具体的な例（業種・システム種別など）を挙げてみてください。
+      </div>
+      <details>
+        <summary>答え例を見る</summary>
+        <div class="answer">
+          <strong>向いているプロジェクトの例：</strong><br>
+          ・官公庁のシステム（要件が法律で決まっており変更が少ない）<br>
+          ・工場の制御システム（安全性・信頼性が最優先で仕様変更が許されない）<br>
+          ・大規模な業務基幹システム（複数ベンダーが関与し、契約で工程が決まっている）<br><br>
+          <strong>共通点:</strong> 要件が最初から明確・変更が少ない・大規模・規制が厳しい<br><br>
+          <strong>向いていないプロジェクトの例：</strong><br>
+          ・スタートアップのWebサービス（ユーザーの反応を見ながら仕様が変わる）<br>
+          ・スマートフォンアプリのUI改善（試行錯誤が前提）<br>
+          ・新規事業のプロトタイプ（何が正解か最初から分からない）<br><br>
+          <strong>共通点:</strong> 要件が変わりやすい・小規模・スピード重視・不確実性が高い<br><br>
+          こういったプロジェクトにはアジャイル開発が向いています（後のDayで学びます）。
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /container -->
+
+</body>
+</html>

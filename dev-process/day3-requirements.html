@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 3: 要件定義 | 開発プロセス基礎</title>
+  <style>
+    /* 共通スタイル */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.8; }
+    .header { background: #00796B; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+
+    /* 左右2分割レイアウト */
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 55%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 45%; padding: 30px; overflow-y: auto; }
+
+    h2 { color: #004D40; border-bottom: 2px solid #00796B; padding-bottom: 10px; margin-top: 30px; }
+    h3 { color: #00796B; margin-top: 25px; }
+    h4 { color: #333; margin-top: 20px; }
+
+    /* ポイントボックス類 */
+    .point-box { background: #E0F2F1; border-left: 4px solid #00796B; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #004D40; }
+    .warning-box { background: #FFF8E1; border-left: 4px solid #FFC107; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #E65100; }
+    .info-box { background: #E3F2FD; border-left: 4px solid #1976D2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #0D47A1; }
+
+    /* ドキュメントサンプル */
+    .doc-sample { background: #FAFAFA; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 15px 0; font-size: 0.95em; }
+    .doc-sample .doc-title { font-weight: bold; color: #004D40; border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-bottom: 12px; font-size: 1.1em; }
+    .doc-sample pre { margin: 0; white-space: pre-wrap; font-family: 'Consolas', 'Meiryo', monospace; font-size: 0.9em; line-height: 1.7; }
+
+    /* テーブル */
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th { background: #E0F2F1; padding: 10px 12px; text-align: left; border: 1px solid #ccc; font-size: 0.95em; color: #004D40; }
+    td { padding: 10px 12px; border: 1px solid #ccc; font-size: 0.95em; vertical-align: top; }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    /* 機能要件リスト */
+    .req-list { list-style: none; padding: 0; }
+    .req-list li { padding: 8px 12px; margin: 6px 0; background: #f5f5f5; border-radius: 6px; border-left: 3px solid #00796B; }
+
+    /* 受入基準 */
+    .acceptance-list { list-style: none; padding: 0; }
+    .acceptance-list li { padding: 7px 12px; margin: 5px 0; background: #f9f9f9; border-radius: 6px; }
+    .acceptance-list li::before { content: "✓ "; color: #00796B; font-weight: bold; }
+
+    /* 要件定義書の目次 */
+    .toc-list { list-style: none; padding: 0; }
+    .toc-list li { padding: 6px 12px; margin: 4px 0; background: #f5f5f5; border-radius: 6px; border-left: 3px solid #B2DFDB; }
+    .toc-list li strong { color: #004D40; }
+
+    /* 確認問題カード */
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #00796B; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; line-height: 1.8; }
+    .choices { list-style: none; padding: 0; }
+    .choices li { padding: 8px 12px; margin: 6px 0; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; }
+    .choices li:hover { background: #E0F2F1; }
+
+    /* 解答折り畳み */
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #00796B; font-weight: bold; padding: 8px 12px; background: #E0F2F1; border-radius: 6px; user-select: none; }
+    summary:hover { background: #B2DFDB; }
+    .answer { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 0 0 8px 8px; line-height: 1.8; }
+    .answer strong { color: #004D40; }
+
+    /* 難易度タグ */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; vertical-align: middle; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+
+    .q-label { font-size: 0.85em; color: #888; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="header">
+  <h1>Day 3: 要件定義</h1>
+  <div class="nav">
+    <a href="day2-ordering.html">← 前へ: 受注プロセス</a>
+    <a href="day4-basicdesign.html">次へ: 基本設計（外部設計）→</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明エリア -->
+  <div class="left-panel">
+
+    <h2>要件定義とは</h2>
+    <p>
+      要件定義とは、システムに「何をさせるか」を決める工程です。
+      顧客と一緒に行い、開発チーム全員の共通認識となる文書（要件定義書）を作ります。
+      ウォーターフォール開発において、最も重要な工程のひとつです。
+    </p>
+
+    <div class="point-box">
+      <strong>重要: 要件定義の品質が全体の品質を決める</strong><br>
+      要件定義の品質が開発全体の品質を決めます。ここでのミスや曖昧さは、
+      後工程になるほど大きなコストとなって返ってきます。
+      「後で決めればいい」という曖昧な要件は、後から設計変更・実装やり直しの原因になります。
+    </div>
+
+    <h2>機能要件と非機能要件</h2>
+
+    <h3>機能要件: システムが「何をするか」</h3>
+    <p>ユーザーがシステムに対して期待する具体的な機能・操作のことです。</p>
+    <ul class="req-list">
+      <li>ユーザーはメールアドレスとパスワードでログインできる</li>
+      <li>管理者は商品を登録・編集・削除できる</li>
+      <li>月次売上レポートをPDF出力できる</li>
+      <li>ユーザーはパスワードをリセットするメールを受け取れる</li>
+    </ul>
+
+    <h3>非機能要件: システムが「どうあるべきか」</h3>
+    <p>機能ではなく、システム全体の品質・特性に関する要件です。</p>
+    <table>
+      <thead>
+        <tr>
+          <th>種類</th>
+          <th>例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>性能</strong></td>
+          <td>検索結果を3秒以内に返す</td>
+        </tr>
+        <tr>
+          <td><strong>可用性</strong></td>
+          <td>稼働率99.9%以上（年間8時間以内の停止）</td>
+        </tr>
+        <tr>
+          <td><strong>セキュリティ</strong></td>
+          <td>パスワードはハッシュ化して保存する</td>
+        </tr>
+        <tr>
+          <td><strong>保守性</strong></td>
+          <td>障害発生から2時間以内に復旧できる</td>
+        </tr>
+        <tr>
+          <td><strong>スケーラビリティ</strong></td>
+          <td>同時接続1,000人に対応する</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="warning-box">
+      <strong>注意: 非機能要件を数値で定義せよ</strong><br>
+      非機能要件を曖昧にすると、リリース直前に「遅すぎる」「落ちやすい」などの問題が発覚します。
+      「高速に動作すること」ではなく「検索結果を3秒以内に返す」のように、
+      必ず数値で定義することが重要です。
+    </div>
+
+    <h2>ユースケース</h2>
+    <p>
+      「誰が（アクター）、何のために（目的）、何をするか（操作）」を整理したものです。
+      機能を箇条書きにするだけでなく、使われる文脈・流れを記述することで、
+      機能の漏れや矛盾を発見しやすくなります。
+    </p>
+
+    <div class="doc-sample">
+      <div class="doc-title">ユースケース記述 サンプル</div>
+      <pre>ユースケース名: 商品を検索する
+アクター: 一般ユーザー
+事前条件: ユーザーがログイン済みである
+
+主シナリオ:
+  1. ユーザーが検索キーワードを入力する
+  2. システムが該当商品の一覧を表示する
+  3. ユーザーが商品を選択する
+  4. システムが商品詳細画面を表示する
+
+代替シナリオ:
+  2a. 該当商品が0件の場合
+      → 「該当する商品はありません」を表示する
+  2b. システムエラーが発生した場合
+      → エラーメッセージを表示し、再試行を促す
+
+事後条件: 商品詳細が表示されている</pre>
+    </div>
+
+    <h2>要件定義書に含まれるもの</h2>
+    <ul class="toc-list">
+      <li><strong>システム概要</strong>: 目的・背景・対象ユーザー・スコープ（何を作り、何を作らないか）</li>
+      <li><strong>業務フロー図</strong>: 現状の業務フロー（As-Is）と理想の業務フロー（To-Be）</li>
+      <li><strong>機能一覧</strong>: 必要な機能の一覧と優先度（Must / Should / Nice-to-have）</li>
+      <li><strong>画面一覧</strong>: どんな画面があるか（詳細レイアウトは基本設計で）</li>
+      <li><strong>データ項目</strong>: 扱う情報の種類と概要（詳細なDB設計は基本設計で）</li>
+      <li><strong>非機能要件</strong>: 性能・セキュリティ・可用性・保守性など（数値で）</li>
+      <li><strong>制約条件</strong>: 使用する技術・連携するシステム・法律的制約</li>
+    </ul>
+
+    <h2>受入基準（アクセプタンスクライテリア）</h2>
+    <p>
+      「この条件を満たせば完成と認める」という基準を最初に決めておくものです。
+      テスト工程の終わりに、顧客がこの基準を使って動作確認（受入テスト）を行います。
+    </p>
+
+    <div class="doc-sample">
+      <div class="doc-title">受入基準 サンプル</div>
+      <p style="color:#004D40; font-weight:bold; margin-bottom: 8px;">機能: ログイン機能</p>
+      <ul class="acceptance-list">
+        <li>正しいメールアドレスとパスワードでログインできる</li>
+        <li>誤ったパスワードを5回入力するとアカウントがロックされる</li>
+        <li>ログアウトすると全てのセッションが無効になる</li>
+        <li>パスワードはデータベースに平文で保存されない</li>
+        <li>ログインページはHTTPSで通信される</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <strong>受入基準のメリット</strong><br>
+      受入基準が最初から決まっていると、テスト設計が楽になり、
+      品質の認識のズレも防げます。「動いた」「動いてない」の水掛け論がなくなり、
+      基準に照らして判断できます。また、テスターは受入基準をそのままテストケースに使えます。
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- 右パネル: 確認問題エリア -->
+  <div class="right-panel">
+
+    <h2>確認問題</h2>
+
+    <!-- 問1 -->
+    <div class="problem">
+      <div class="q-label">問1 <span class="tag tag-easy">易しい</span></div>
+      <h3>機能要件か非機能要件かを分類せよ</h3>
+      <div class="problem-desc">
+        次の各要件を「機能要件」か「非機能要件」かに分類してください。<br><br>
+        a) ユーザーはパスワードをリセットできる<br>
+        b) 画面の応答時間は2秒以内であること<br>
+        c) 管理者は全ユーザーの購入履歴を閲覧できる<br>
+        d) 個人情報は暗号化して保存すること
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>答え：</strong><br>
+          a) <strong>機能要件</strong>（ユーザーが「できること」を定義している）<br>
+          b) <strong>非機能要件</strong>（応答時間＝システムの性能に関する要件）<br>
+          c) <strong>機能要件</strong>（管理者が「できること」を定義している）<br>
+          d) <strong>非機能要件</strong>（暗号化＝セキュリティに関する要件）<br><br>
+          <strong>見分け方のポイント:</strong><br>
+          「〇〇ができる / 〇〇する」という操作・機能 → 機能要件<br>
+          「〇〇秒以内 / 〇〇%以上 / 暗号化 / 稼働率」など品質・特性 → 非機能要件
+        </div>
+      </details>
+    </div>
+
+    <!-- 問2 -->
+    <div class="problem">
+      <div class="q-label">問2 <span class="tag tag-easy">易しい</span></div>
+      <h3>穴埋め問題</h3>
+      <div class="problem-desc">
+        要件定義書に含まれる、「この条件を満たせば完成とみなす」という基準のことを
+        （　　　　）という。英語でも書けたら書いてみよう。
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>答え: 受入基準（アクセプタンスクライテリア）</strong><br>
+          英語では「Acceptance Criteria」<br><br>
+          プロジェクト終盤の受入テスト（UAT: User Acceptance Test）で、
+          顧客がこの基準を使って「完成か否か」を判断します。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問3 -->
+    <div class="problem">
+      <div class="q-label">問3 <span class="tag tag-medium">普通</span></div>
+      <h3>問題のある要件を指摘せよ</h3>
+      <div class="problem-desc">
+        以下の要件の問題点を指摘してください。それぞれどう直すべきかも考えてみよう。<br><br>
+        a) 「システムは高速に動作すること」<br>
+        b) 「ユーザーが使いやすいこと」<br>
+        c) 「データは安全に保管すること」
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>問題点: いずれも数値・基準が曖昧</strong><br><br>
+          a) 「高速に」が曖昧<br>
+          → 「一覧画面の表示は3秒以内、検索結果は5秒以内とする」など数値で定義する<br><br>
+          b) 「使いやすい」が曖昧<br>
+          → 「初回ログインは5ステップ以内」「新人が3時間以内に使い方を習得できる」
+          など測定可能な基準にする<br><br>
+          c) 「安全に」が曖昧<br>
+          → 「パスワードはbcryptでハッシュ化して保存」「通信はTLS1.2以上を使用」
+          「個人情報は暗号化して保存」など具体的な方式を定義する<br><br>
+          <strong>ポイント:</strong> 「良い / 速い / 安全 / 使いやすい」という言葉は要件になりません。
+          「どうなれば良いと言えるか」を数値・条件で定義することが重要です。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問4 -->
+    <div class="problem">
+      <div class="q-label">問4 <span class="tag tag-medium">普通</span></div>
+      <h3>ユースケース記述を書いてみよう</h3>
+      <div class="problem-desc">
+        以下の機能についてユースケース記述を書いてみましょう（簡略版でOK）。<br><br>
+        <strong>機能: 新規会員登録</strong><br>
+        名前・メールアドレス・パスワードを入力して登録するシナリオ。
+        すでに登録済みのメールアドレスの場合のエラーも考えること。
+      </div>
+      <details>
+        <summary>答えのサンプルを見る</summary>
+        <div class="answer">
+          <pre style="background:#f5f5f5; padding:12px; border-radius:6px; font-size:0.88em; white-space:pre-wrap;">ユースケース名: 新規会員登録
+アクター: 未登録ユーザー
+事前条件: ユーザーが会員登録ページを開いている
+
+主シナリオ:
+  1. ユーザーが名前・メール・パスワードを入力する
+  2. ユーザーが「登録する」ボタンをクリックする
+  3. システムが入力値を検証する
+  4. システムがアカウントを作成する
+  5. システムが確認メールを送信する
+  6. システムが「登録完了」画面を表示する
+
+代替シナリオ:
+  3a. 入力値が不正（空欄・形式エラー）の場合
+      → エラーメッセージを表示し、入力フォームを再表示する
+  3b. 入力メールがすでに登録済みの場合
+      → 「このメールアドレスは使用済みです」を表示する
+
+事後条件: アカウントが作成され、確認メールが送信されている</pre>
+        </div>
+      </details>
+    </div>
+
+    <!-- 問5 -->
+    <div class="problem">
+      <div class="q-label">問5 <span class="tag tag-hard">難しい</span></div>
+      <h3>シナリオ問題: 曖昧な要求への対応</h3>
+      <div class="problem-desc">
+        顧客から「いい感じのダッシュボードを作ってほしい」という要求が届きました。<br><br>
+        この要求の問題点と、要件定義でどんな質問をすべきかを考えてください。
+        最低5つの質問を挙げてみましょう。
+      </div>
+      <details>
+        <summary>答え例を見る</summary>
+        <div class="answer">
+          <strong>問題点:</strong><br>
+          「いい感じ」が完全に主観的で、開発者と顧客の想像が全く違う可能性があります。
+          これをそのまま設計・製造に渡すと、完成品が期待と全く違うものになります。<br><br>
+          <strong>確認すべき質問の例：</strong><br><br>
+          1. 誰が見るダッシュボードですか？（経営者・営業担当・一般ユーザーで設計が変わる）<br>
+          2. 何のデータを表示したいですか？（売上・在庫・アクセス数・問い合わせ件数など）<br>
+          3. データはリアルタイム更新が必要ですか？（毎秒 / 1日1回 / 手動更新）<br>
+          4. どんなグラフや形式で表示したいですか？（棒グラフ・折れ線・数値のみなど）<br>
+          5. 権限によって見える内容を変えますか？（管理者は全データ、担当者は自分の分のみなど）<br>
+          6. 参考にしたい既存サービスのスクリーンショットはありますか？<br>
+          7. 期間の絞り込みは必要ですか？（今日・今月・任意期間）<br><br>
+          <strong>教訓:</strong> 「いい感じ」「使いやすく」「きれいに」という言葉が出たら、
+          具体的なイメージをヒアリングしましょう。参考サイトや既存システムを見せてもらうのが最も有効です。
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /container -->
+
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 4: 基本設計（外部設計）| 開発プロセス基礎</title>
+  <style>
+    /* 共通スタイル */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.8; }
+    .header { background: #00796B; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+
+    /* 左右2分割レイアウト */
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 55%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 45%; padding: 30px; overflow-y: auto; }
+
+    h2 { color: #004D40; border-bottom: 2px solid #00796B; padding-bottom: 10px; margin-top: 30px; }
+    h3 { color: #00796B; margin-top: 25px; }
+    h4 { color: #333; margin-top: 20px; }
+
+    /* ポイントボックス類 */
+    .point-box { background: #E0F2F1; border-left: 4px solid #00796B; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #004D40; }
+    .warning-box { background: #FFF8E1; border-left: 4px solid #FFC107; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #E65100; }
+    .info-box { background: #E3F2FD; border-left: 4px solid #1976D2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #0D47A1; }
+
+    /* ドキュメントサンプル */
+    .doc-sample { background: #FAFAFA; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 15px 0; font-size: 0.95em; }
+    .doc-sample .doc-title { font-weight: bold; color: #004D40; border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-bottom: 12px; font-size: 1.1em; }
+    .doc-sample pre { margin: 0; white-space: pre-wrap; font-family: 'Consolas', 'Meiryo', monospace; font-size: 0.9em; line-height: 1.7; }
+    .doc-sample table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    .doc-sample th { background: #E0F2F1; padding: 8px 12px; text-align: left; border: 1px solid #ccc; font-size: 0.9em; }
+    .doc-sample td { padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9em; vertical-align: top; }
+
+    /* テーブル（汎用） */
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th { background: #E0F2F1; padding: 10px 12px; text-align: left; border: 1px solid #ccc; font-size: 0.95em; color: #004D40; }
+    td { padding: 10px 12px; border: 1px solid #ccc; font-size: 0.95em; vertical-align: top; }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    /* アウトプット一覧 */
+    .output-list { list-style: none; padding: 0; }
+    .output-list li { padding: 8px 14px; margin: 6px 0; background: #f5f5f5; border-radius: 6px; border-left: 3px solid #00796B; }
+    .output-list li strong { color: #004D40; }
+
+    /* ワイヤーフレーム */
+    .wireframe { background: #fafafa; border: 2px dashed #ccc; border-radius: 8px; padding: 20px; margin: 15px 0; font-family: 'Consolas', 'Meiryo', monospace; font-size: 0.9em; line-height: 1.6; }
+
+    /* ER図 */
+    .er-diagram { display: flex; gap: 20px; margin: 15px 0; flex-wrap: wrap; }
+    .er-table { background: #f9f9f9; border: 2px solid #00796B; border-radius: 8px; min-width: 130px; overflow: hidden; }
+    .er-table-header { background: #00796B; color: white; padding: 8px 12px; font-weight: bold; font-size: 0.9em; text-align: center; }
+    .er-table-body { padding: 10px 12px; font-size: 0.85em; line-height: 1.8; }
+    .er-pk { color: #004D40; font-weight: bold; }
+    .er-fk { color: #1976D2; }
+    .er-connector { display: flex; align-items: center; font-size: 1.4em; color: #00796B; }
+
+    /* 確認問題カード */
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #00796B; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; line-height: 1.8; }
+    .choices { list-style: none; padding: 0; }
+    .choices li { padding: 8px 12px; margin: 6px 0; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; }
+    .choices li:hover { background: #E0F2F1; }
+
+    /* 解答折り畳み */
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #00796B; font-weight: bold; padding: 8px 12px; background: #E0F2F1; border-radius: 6px; user-select: none; }
+    summary:hover { background: #B2DFDB; }
+    .answer { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 0 0 8px 8px; line-height: 1.8; }
+    .answer strong { color: #004D40; }
+
+    /* 難易度タグ */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; vertical-align: middle; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+
+    .q-label { font-size: 0.85em; color: #888; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="header">
+  <h1>Day 4: 基本設計（外部設計）</h1>
+  <div class="nav">
+    <a href="day3-requirements.html">← 前へ: 要件定義</a>
+    <a href="#">次へ: 詳細設計（内部設計）→</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明エリア -->
+  <div class="left-panel">
+
+    <h2>基本設計（外部設計）とは</h2>
+    <p>
+      要件定義で決めた「何を作るか」を受け取り、「どう見せるか・どう構成するか」を決める工程です。
+      ユーザーから見える部分（外から見える部分）の設計をするため、「外部設計」とも呼ばれます。
+    </p>
+    <p>
+      ここで作るドキュメントは、顧客と開発チームの両方が承認する重要な成果物です。
+      「こんな画面で・こんなDBで・こんなAPIで作ります」という合意書にあたります。
+    </p>
+
+    <h2>基本設計のアウトプット</h2>
+    <ul class="output-list">
+      <li><strong>画面設計書（UI設計）</strong>: 各画面のレイアウト・項目・遷移先・バリデーション</li>
+      <li><strong>画面遷移図</strong>: 画面の繋がりを図で表す（ユーザーがどう画面を移動するか）</li>
+      <li><strong>DB設計書（論理設計）</strong>: テーブル構成・カラム・主キー・外部キー・関係</li>
+      <li><strong>API設計書</strong>: 外部システムや画面とサーバー間のインターフェース定義</li>
+      <li><strong>システム構成図</strong>: サーバー・ネットワーク・外部サービスの構成図</li>
+    </ul>
+
+    <h2>画面設計書（ワイヤーフレーム）</h2>
+    <p>
+      実際の見た目（色・フォント）ではなく、「何がどこに配置されるか」を示す設計図です。
+      モックアップやワイヤーフレームとも呼ばれます。
+      早い段階で顧客に確認してもらい、認識のズレを修正することが目的です。
+    </p>
+
+    <div class="wireframe">
+      【ログイン画面 ワイヤーフレーム】<br>
+      ┌─────────────────────────────┐<br>
+      │           ロゴ               │<br>
+      │                             │<br>
+      │  メールアドレス               │<br>
+      │  [ input field            ] │<br>
+      │                             │<br>
+      │  パスワード                   │<br>
+      │  [ input field            ] │<br>
+      │                             │<br>
+      │  [    ログインボタン    ]      │<br>
+      │                             │<br>
+      │  パスワードを忘れた方はこちら   │<br>
+      └─────────────────────────────┘
+    </div>
+
+    <div class="doc-sample">
+      <div class="doc-title">画面設計書 サンプル</div>
+      <table>
+        <tr><th>画面ID</th><td>SCR-001</td></tr>
+        <tr><th>画面名</th><td>ログイン画面</td></tr>
+        <tr><th>対象ユーザー</th><td>全ユーザー</td></tr>
+        <tr><th>遷移元</th><td>─（初回アクセス・ログアウト後）</td></tr>
+        <tr><th>遷移先</th><td>ホーム画面（ログイン成功時）<br>ログイン画面（ログイン失敗時・エラーメッセージ表示）</td></tr>
+      </table>
+      <p style="margin-top:12px; margin-bottom:6px; font-weight:bold; color:#004D40;">■ 項目一覧</p>
+      <table>
+        <thead>
+          <tr>
+            <th>項目名</th>
+            <th>型</th>
+            <th>必須</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>メールアドレス</td>
+            <td>text</td>
+            <td>○</td>
+            <td>メール形式チェック</td>
+          </tr>
+          <tr>
+            <td>パスワード</td>
+            <td>password</td>
+            <td>○</td>
+            <td>マスク表示・8文字以上</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>DB設計（論理設計・ER図）</h2>
+    <p>
+      データをどのようなテーブルに分けて管理するかを設計します。
+      「誰が・何を・いつ」持つのかを整理し、テーブル同士の関係を定義します。
+    </p>
+
+    <h4>ER図の例（簡略）</h4>
+    <div class="er-diagram">
+      <div class="er-table">
+        <div class="er-table-header">ユーザー</div>
+        <div class="er-table-body">
+          <div class="er-pk">user_id (PK)</div>
+          <div>name</div>
+          <div>email</div>
+          <div>password</div>
+        </div>
+      </div>
+      <div class="er-connector">—1:N—</div>
+      <div class="er-table">
+        <div class="er-table-header">注文</div>
+        <div class="er-table-body">
+          <div class="er-pk">order_id (PK)</div>
+          <div class="er-fk">user_id (FK)</div>
+          <div class="er-fk">item_id (FK)</div>
+          <div>quantity</div>
+          <div>order_date</div>
+        </div>
+      </div>
+      <div class="er-connector">—N:1—</div>
+      <div class="er-table">
+        <div class="er-table-header">商品</div>
+        <div class="er-table-body">
+          <div class="er-pk">item_id (PK)</div>
+          <div>name</div>
+          <div>price</div>
+          <div>stock</div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:0.88em; color:#555;">
+      PK = 主キー（そのテーブルの行を一意に識別するキー）<br>
+      FK = 外部キー（他のテーブルの主キーを参照するキー）
+    </p>
+
+    <div class="point-box">
+      <strong>論理設計と物理設計の違い</strong><br>
+      論理設計（基本設計）では「何のデータを持つか・どう関係するか」を決めます。
+      物理設計（詳細設計）では「どのDBMSに・どんな型で・どんなインデックスで」を決めます。
+      基本設計ではまず論理設計を固めることに集中します。
+    </div>
+
+    <h4>正規化とは</h4>
+    <p>
+      「同じデータを複数の場所に持たない設計」のことです。データの重複と矛盾を防ぐための設計原則です。
+    </p>
+    <div class="warning-box">
+      <strong>悪い例: 正規化されていないテーブル</strong><br>
+      注文テーブルに「商品名・商品価格」を直接書くと、商品の名前が変わった時に
+      全ての注文行を更新しなければなりません。→ 商品テーブルを別に作り、商品IDで参照するべき。
+    </div>
+
+    <h2>API設計書</h2>
+    <p>
+      システム間や画面とサーバー間のインターフェースを定義します。
+      「このURLに、この形式でリクエストを送ると、この形式でレスポンスが返ってくる」を明文化します。
+    </p>
+
+    <div class="doc-sample">
+      <div class="doc-title">API設計書 サンプル</div>
+      <pre>エンドポイント: GET /api/products
+概要: 商品一覧を取得する
+権限: ログイン済みユーザー
+
+リクエスト:
+  クエリパラメータ:
+    keyword (string, 任意): 検索キーワード
+    page (integer, 任意): ページ番号（デフォルト: 1）
+
+レスポンス（200 OK）:
+  {
+    "total": 50,
+    "items": [
+      { "id": 1, "name": "商品A", "price": 1000 },
+      { "id": 2, "name": "商品B", "price": 2500 }
+    ]
+  }
+
+エラー（401 Unauthorized）:
+  { "error": "認証が必要です" }
+
+エラー（500 Internal Server Error）:
+  { "error": "サーバーエラーが発生しました" }</pre>
+    </div>
+
+    <div class="info-box">
+      <strong>基本設計書は「合意書」である</strong><br>
+      基本設計書は、顧客と開発チームの両方が承認する重要なドキュメントです。
+      ここで認識のズレを解消しておかないと、後から「こんな画面じゃない」「このDBでは機能が実現できない」
+      などの大きなやり直しが発生します。承認後の変更は変更管理のプロセスを踏む必要があります。
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- 右パネル: 確認問題エリア -->
+  <div class="right-panel">
+
+    <h2>確認問題</h2>
+
+    <!-- 問1 -->
+    <div class="problem">
+      <div class="q-label">問1 <span class="tag tag-easy">易しい</span></div>
+      <h3>基本設計のアウトプットを選べ（複数選択）</h3>
+      <div class="problem-desc">
+        基本設計（外部設計）で作成するドキュメントとして正しいものをすべて選んでください。<br><br>
+        a) 画面設計書<br>
+        b) テスト結果報告書<br>
+        c) DB設計書（論理設計）<br>
+        d) クラス図<br>
+        e) 画面遷移図
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>答え: a, c, e</strong><br><br>
+          a) 画面設計書 → 基本設計のアウトプット<br>
+          b) テスト結果報告書 → テスト工程のアウトプット（基本設計ではない）<br>
+          c) DB設計書（論理設計）→ 基本設計のアウトプット<br>
+          d) クラス図 → 詳細設計のアウトプット（基本設計ではない）<br>
+          e) 画面遷移図 → 基本設計のアウトプット<br><br>
+          <strong>覚え方:</strong> 基本設計は「ユーザーから見える部分」。
+          画面・遷移・データの構成が主なアウトプットです。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問2 -->
+    <div class="problem">
+      <div class="q-label">問2 <span class="tag tag-easy">易しい</span></div>
+      <h3>穴埋め問題</h3>
+      <div class="problem-desc">
+        ER図において、他のテーブルの主キーを参照するキーのことを（　　）という。
+        また、そのテーブル自身の行を一意に識別するキーを（　　）という。
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>答え: 外部キー（FK）・主キー（PK）</strong><br><br>
+          ・主キー（PK: Primary Key）: そのテーブルの各行を一意に識別するキー<br>
+          ・外部キー（FK: Foreign Key）: 別のテーブルの主キーを参照するキー<br><br>
+          例: 注文テーブルの「user_id」は、ユーザーテーブルの「user_id(PK)」を参照する外部キーです。
+          これにより「この注文は誰の注文か」を知ることができます。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問3 -->
+    <div class="problem">
+      <div class="q-label">問3 <span class="tag tag-medium">普通</span></div>
+      <h3>設計の問題点を指摘せよ</h3>
+      <div class="problem-desc">
+        以下のテーブル設計の問題点を答えてください。どう改善すべきかも考えてみましょう。<br><br>
+        <code style="background:#f0f0f0; padding:8px 12px; display:block; border-radius:6px; font-size:0.9em; line-height:1.8;">
+          注文テーブル<br>
+          order_id | user_name | user_email | product_name | product_price | quantity
+        </code>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>問題点: ユーザー情報・商品情報が正規化されていない</strong><br><br>
+          1. ユーザーが名前やメールアドレスを変更した場合、全ての注文行を更新しなければならない<br>
+          2. 商品名・価格が変わった場合も同様に全行更新が必要<br>
+          3. 同じユーザー情報・商品情報が注文の数だけ重複して保存される（データの無駄）<br>
+          4. 更新を忘れると矛盾したデータが生まれる（データの不整合）<br><br>
+          <strong>改善案:</strong><br>
+          ・ユーザーテーブル（user_id, name, email）を別に作る<br>
+          ・商品テーブル（product_id, name, price）を別に作る<br>
+          ・注文テーブルには user_id(FK)・product_id(FK)・quantity を持たせる<br><br>
+          こうすることで、ユーザー情報・商品情報の変更は各テーブルの1行だけ変えればよくなります。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問4 -->
+    <div class="problem">
+      <div class="q-label">問4 <span class="tag tag-medium">普通</span></div>
+      <h3>画面設計書を書いてみよう</h3>
+      <div class="problem-desc">
+        「新規会員登録画面」のワイヤーフレーム（テキストのAA）と項目一覧を書いてみてください。<br><br>
+        含める項目: 名前・メールアドレス・パスワード・確認用パスワード・登録ボタン
+      </div>
+      <details>
+        <summary>答えのサンプルを見る</summary>
+        <div class="answer">
+          <strong>ワイヤーフレーム例：</strong>
+          <pre style="background:#f5f5f5; padding:12px; border-radius:6px; font-size:0.85em; line-height:1.6; white-space:pre-wrap; margin-top:8px;">┌─────────────────────────────┐
+│         新規会員登録          │
+│                             │
+│  お名前                      │
+│  [ input field            ] │
+│                             │
+│  メールアドレス               │
+│  [ input field            ] │
+│                             │
+│  パスワード                   │
+│  [ input field            ] │
+│                             │
+│  パスワード（確認）            │
+│  [ input field            ] │
+│                             │
+│  [    登録するボタン    ]      │
+└─────────────────────────────┘</pre>
+
+          <strong>項目一覧例：</strong>
+          <table style="margin-top:8px; font-size:0.88em;">
+            <thead>
+              <tr><th>項目名</th><th>型</th><th>必須</th><th>備考</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>お名前</td><td>text</td><td>○</td><td>全角・半角 50文字以内</td></tr>
+              <tr><td>メールアドレス</td><td>text</td><td>○</td><td>メール形式チェック・重複不可</td></tr>
+              <tr><td>パスワード</td><td>password</td><td>○</td><td>8文字以上・マスク表示</td></tr>
+              <tr><td>パスワード（確認）</td><td>password</td><td>○</td><td>パスワードと一致チェック</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+
+    <!-- 問5 -->
+    <div class="problem">
+      <div class="q-label">問5 <span class="tag tag-hard">難しい</span></div>
+      <h3>APIを設計してみよう</h3>
+      <div class="problem-desc">
+        「ユーザーを新規登録するAPI」の設計書を書いてみましょう。<br><br>
+        以下を含めること：<br>
+        ・エンドポイントとHTTPメソッド<br>
+        ・リクエストのパラメータ（送るデータ）<br>
+        ・成功時のレスポンス<br>
+        ・エラーケース（最低2つ）
+      </div>
+      <details>
+        <summary>答えのサンプルを見る</summary>
+        <div class="answer">
+          <pre style="background:#f5f5f5; padding:12px; border-radius:6px; font-size:0.85em; line-height:1.7; white-space:pre-wrap;">エンドポイント: POST /api/users
+概要: 新規ユーザーを登録する
+権限: 認証不要（誰でもアクセス可）
+
+リクエスト（リクエストボディ・JSON形式）:
+  {
+    "name": "田中 太郎",          // 必須・文字列
+    "email": "tanaka@example.com", // 必須・メール形式
+    "password": "password123"      // 必須・8文字以上
+  }
+
+レスポンス（201 Created）:
+  {
+    "user_id": 42,
+    "name": "田中 太郎",
+    "email": "tanaka@example.com",
+    "created_at": "2025-04-17T10:00:00Z"
+  }
+
+エラー（400 Bad Request）:
+  入力値が不正な場合
+  { "error": "メールアドレスの形式が正しくありません" }
+
+エラー（409 Conflict）:
+  メールアドレスが既に登録済みの場合
+  { "error": "このメールアドレスはすでに使用されています" }
+
+エラー（500 Internal Server Error）:
+  サーバー側の問題
+  { "error": "サーバーエラーが発生しました" }</pre>
+          <strong>設計のポイント：</strong><br>
+          ・新規作成には POST メソッドを使う（GET は取得、PUT/PATCH は更新、DELETE は削除）<br>
+          ・成功時は 201（Created）を返す（200 でもよいが 201 がより正確）<br>
+          ・エラーの種類に応じて適切なHTTPステータスコードを使い分ける
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /container -->
+
+</body>
+</html>

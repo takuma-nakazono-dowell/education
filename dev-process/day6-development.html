@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 6: 製造（実装） | 開発プロセス基礎</title>
+  <style>
+    /* 共通スタイル */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.8; }
+    .header { background: #00796B; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 55%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 45%; padding: 30px; overflow-y: auto; }
+    h2 { color: #004D40; border-bottom: 2px solid #00796B; padding-bottom: 10px; margin-top: 30px; }
+    h3 { color: #00796B; margin-top: 25px; }
+    h4 { color: #333; margin-top: 20px; }
+    .point-box { background: #E0F2F1; border-left: 4px solid #00796B; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #004D40; }
+    .warning-box { background: #FFF8E1; border-left: 4px solid #FFC107; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #E65100; }
+    .info-box { background: #E3F2FD; border-left: 4px solid #1976D2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #0D47A1; }
+    .doc-sample { background: #FAFAFA; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 15px 0; font-size: 0.95em; }
+    .doc-sample .doc-title { font-weight: bold; color: #004D40; border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-bottom: 12px; font-size: 1.1em; }
+    .doc-sample table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    .doc-sample th { background: #E0F2F1; padding: 8px 12px; text-align: left; border: 1px solid #ccc; font-size: 0.9em; }
+    .doc-sample td { padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9em; vertical-align: top; }
+    .doc-sample pre { background: #f0f0f0; padding: 12px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.9em; overflow-x: auto; white-space: pre-wrap; }
+    .flow-diagram { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+    .flow-box { background: #00796B; color: white; padding: 12px 18px; border-radius: 8px; text-align: center; font-size: 0.9em; font-weight: bold; min-width: 90px; }
+    .flow-arrow { color: #00796B; font-size: 1.5em; margin: 0 5px; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #00796B; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; line-height: 1.8; }
+    .choices { list-style: none; padding: 0; }
+    .choices li { padding: 8px 12px; margin: 6px 0; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #00796B; font-weight: bold; padding: 8px 12px; background: #E0F2F1; border-radius: 6px; user-select: none; }
+    summary:hover { background: #B2DFDB; }
+    .answer { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 0 0 8px 8px; line-height: 1.8; }
+    .answer strong { color: #004D40; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; vertical-align: middle; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th { background: #E0F2F1; padding: 10px 12px; text-align: left; border: 1px solid #ccc; }
+    td { padding: 10px 12px; border: 1px solid #ccc; vertical-align: top; }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー・ナビゲーション -->
+<div class="header">
+  <h1>Day 6: 製造（実装）</h1>
+  <div class="nav">
+    <a href="day5-detaildesign.html">← 前へ: 詳細設計（内部設計）</a>
+    <a href="day7-testing.html">次へ: テスト →</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明 -->
+  <div class="left-panel">
+
+    <h2>製造（実装）工程とは</h2>
+    <p>詳細設計書をもとに、実際にプログラムを書く工程。新人エンジニアが最初に担当することが多い。ただし、ただコードを書くだけでなく「品質を作り込む」意識が重要。</p>
+
+    <h2>製造工程のインプットとアウトプット</h2>
+    <table>
+      <tr>
+        <th>区分</th>
+        <th>内容</th>
+      </tr>
+      <tr>
+        <td><strong>インプット</strong></td>
+        <td>詳細設計書・テーブル定義書・画面設計書・コーディング規約</td>
+      </tr>
+      <tr>
+        <td><strong>アウトプット</strong></td>
+        <td>ソースコード・単体テスト結果（次工程と合わせて）</td>
+      </tr>
+    </table>
+
+    <h2>コーディング規約</h2>
+    <p>チームでコードを書くためのルール集。読みやすさと保守性を高める。</p>
+
+    <div class="doc-sample">
+      <div class="doc-title">コーディング規約 サンプル（抜粋）</div>
+      <pre>
+■ 命名規則
+  クラス名  : PascalCase（例: UserService）
+  メソッド名: camelCase（例: getUserById）
+  定数      : UPPER_SNAKE_CASE（例: MAX_RETRY_COUNT）
+  変数      : camelCase（例: userCount）
+
+■ コメント
+  ・公開メソッドにはXMLコメントを記述する
+  ・WHYが分かるコメントを書く（WHATではなく）
+  ・TODO/FIXMEコメントは必ず担当者名と日付を入れる
+
+■ ファイル構成
+  ・1ファイル1クラス
+  ・行数は300行以内を目安にする
+
+■ エラー処理
+  ・例外は握りつぶさない（空のcatchブロック禁止）
+  ・ユーザーへのエラーメッセージには内部情報を含めない
+
+■ セキュリティ
+  ・SQLはORMまたはプリペアドステートメントを使う
+  ・ユーザー入力は必ずバリデーションする
+  ・パスワードは平文で保存しない
+      </pre>
+    </div>
+
+    <div class="point-box">
+      <strong>ポイント:</strong> コーディング規約は「チームとの約束」。個人の好みより、チームの一貫性を優先する。
+    </div>
+
+    <h2>コードレビュー</h2>
+    <p>書いたコードを他のメンバーが確認するプロセス。品質向上とナレッジ共有が目的。</p>
+
+    <table>
+      <tr>
+        <th>観点</th>
+        <th>確認内容</th>
+      </tr>
+      <tr>
+        <td><strong>正確性</strong></td>
+        <td>設計書通りの実装か・ロジックにバグはないか</td>
+      </tr>
+      <tr>
+        <td><strong>可読性</strong></td>
+        <td>変数名・メソッド名が意図を表しているか</td>
+      </tr>
+      <tr>
+        <td><strong>保守性</strong></td>
+        <td>修正・拡張がしやすいか・重複コードはないか</td>
+      </tr>
+      <tr>
+        <td><strong>セキュリティ</strong></td>
+        <td>入力チェック・認証・SQLインジェクション対策はあるか</td>
+      </tr>
+      <tr>
+        <td><strong>性能</strong></td>
+        <td>不要なループ・N+1問題などはないか</td>
+      </tr>
+    </table>
+
+    <div class="info-box">
+      <strong>補足:</strong> レビューコメントは人格への批判ではなくコードへの指摘。新人のうちはレビューで多くのことを学べる。指摘されることを恐れずどんどんコードを書こう。
+    </div>
+
+    <h2>品質の考え方</h2>
+    <p>バグをテストで発見するより、製造工程で作り込まない方がコストが低い。</p>
+    <ul>
+      <li><strong>デバッグ</strong>: バグを見つけて修正すること</li>
+      <li><strong>ログ設計</strong>: 障害時に原因を追えるようにログを仕込む</li>
+      <li><strong>自己レビュー</strong>: PR（プルリクエスト）を出す前に自分でコードを見直す</li>
+    </ul>
+
+    <h2>進捗報告と問題のエスカレーション</h2>
+    <p>製造中に問題が発生した場合の対処法。新人がやりがちなミス: 「なんとかなると思って抱え込み、期限直前に報告する」</p>
+
+    <div class="warning-box">
+      <strong>注意:</strong> 「70%の確率で間に合わない」と気づいた時点で報告するのが正解。早期の報告・相談は問題ではなく、仕事ができる証拠。
+    </div>
+
+    <div class="doc-sample">
+      <div class="doc-title">進捗報告 サンプル</div>
+      <pre>
+件名: ログイン機能の実装 進捗報告
+
+■ 現状
+  予定: 今日中にログイン・ログアウト機能を完成させる
+  実績: ログイン処理は完了。ログアウトが未着手（50%完了）
+
+■ 遅延理由
+  セッション管理の仕様に不明点があり、確認に時間がかかった
+
+■ 今後の見通し
+  明日午前中にログアウトを完成させる予定
+
+■ 確認事項
+  セッションタイムアウトの仕様（30分 or 1時間？）を
+  確認させてください
+      </pre>
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- 右パネル: 確認問題 -->
+  <div class="right-panel">
+
+    <h2>確認問題</h2>
+
+    <!-- 問1 -->
+    <div class="problem">
+      <h3>問1 <span class="tag tag-easy">Easy</span></h3>
+      <div class="problem-desc">
+        製造（実装）工程のインプットとして正しいものを全て選べ。
+        <ul class="choices">
+          <li>a) 詳細設計書</li>
+          <li>b) テスト結果報告書</li>
+          <li>c) コーディング規約</li>
+          <li>d) テーブル定義書</li>
+        </ul>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解: a, c, d</strong><br><br>
+          ・<strong>a) 詳細設計書</strong>: 処理ロジック・クラス設計など、実装の根拠となる文書。<br>
+          ・<strong>c) コーディング規約</strong>: チームのルール集。実装開始前に必ず確認する。<br>
+          ・<strong>d) テーブル定義書</strong>: DBアクセス実装に必要な物理設計情報。<br><br>
+          b) テスト結果報告書は製造後のテスト工程で作成されるアウトプットなので、製造工程のインプットではない。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問2 -->
+    <div class="problem">
+      <h3>問2 <span class="tag tag-easy">Easy</span></h3>
+      <div class="problem-desc">
+        以下の文の（　　　）に当てはまる言葉を答えてください。<br><br>
+        「コードレビューの目的は品質向上と（　　　　）の共有である。また、レビューで指摘するのはコードであり、（　　　　）への批判ではない。」
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解: ナレッジ / 人格</strong><br><br>
+          コードレビューは「このコードをどう改善できるか」を議論する場であり、コードを書いた人を評価・批判する場ではない。<br><br>
+          レビューを通じてチーム全体のスキルが底上げされる（ナレッジ共有の効果）。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問3 -->
+    <div class="problem">
+      <h3>問3 <span class="tag tag-medium">Medium</span></h3>
+      <div class="problem-desc">
+        以下の命名でコーディング規約違反があるものを指摘し、正しい名前を考えてください。（C#想定）<br><br>
+        <ul>
+          <li>クラス名: <code>userservice</code></li>
+          <li>メソッド名: <code>GetUserByID</code></li>
+          <li>定数: <code>maxRetryCount</code></li>
+          <li>変数: <code>X</code></li>
+        </ul>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>指摘と修正案:</strong><br><br>
+          ・<strong>userservice</strong> → <code>UserService</code><br>
+          &nbsp;&nbsp;クラス名はPascalCase（各単語の頭を大文字）が必須。<br><br>
+          ・<strong>GetUserByID</strong> → <code>GetUserById</code><br>
+          &nbsp;&nbsp;C#の慣例ではIDよりIdが一般的（Microsoftのガイドラインより）。厳密には規約次第。<br><br>
+          ・<strong>maxRetryCount</strong> → <code>MAX_RETRY_COUNT</code><br>
+          &nbsp;&nbsp;定数はUPPER_SNAKE_CASEが規約。<br><br>
+          ・<strong>X</strong> → <code>totalCount</code>など内容が分かる名前<br>
+          &nbsp;&nbsp;意味を持たない1文字変数は可読性を著しく下げる。ループカウンタの<code>i</code>以外は使わないのが基本。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問4 -->
+    <div class="problem">
+      <h3>問4 <span class="tag tag-medium">Medium</span></h3>
+      <div class="problem-desc">
+        新人エンジニアとして問題のある行動はどれか（複数選んでよい）。
+        <ul class="choices">
+          <li>a) 実装中に仕様が不明な箇所をすぐ質問する</li>
+          <li>b) 遅れそうだと気づいたが「頑張れば間に合うかも」と思い報告しない</li>
+          <li>c) レビューコメントが多くて恥ずかしいと感じる</li>
+          <li>d) コードレビューで気になる点を積極的に質問する</li>
+          <li>e) エラーが発生したらまずログを確認する</li>
+        </ul>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解: b, c</strong><br><br>
+          ・<strong>b) 遅延を報告しない</strong>: 最も危険な行動。「70%の確率で間に合わない」と感じた時点で報告するのが正解。遅延が分かった時点で報告すれば対策が打てるが、期限直前では手遅れになる。<br><br>
+          ・<strong>c) レビューコメントを恥ずかしいと感じる</strong>: レビューは成長の機会。コメントが多い = それだけ学べることが多いとポジティブに捉えるべき。恥ずかしさからコードを出し渋ると品質が下がる。<br><br>
+          a, d, e はいずれも正しい行動。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問5 -->
+    <div class="problem">
+      <h3>問5 <span class="tag tag-hard">Hard</span></h3>
+      <div class="problem-desc">
+        <strong>考えてみよう</strong><br><br>
+        あなたが担当している機能の実装中に、詳細設計書に書いていない仕様上の矛盾を発見しました。<br>（AとBが同時に起きた場合の処理が定義されていない）<br><br>
+        どう対応しますか？ステップを考えてみましょう。
+      </div>
+      <details>
+        <summary>答え例を見る</summary>
+        <div class="answer">
+          <strong>対応の流れ（答え例）:</strong><br><br>
+          1. <strong>自己判断で実装しない</strong><br>
+          &nbsp;&nbsp;→ 誤った判断を実装してしまうと後で大量修正が発生する。<br><br>
+          2. <strong>設計者・PM（プロジェクトマネージャー）に確認</strong><br>
+          &nbsp;&nbsp;→「設計書のXXX箇所にAとBが同時に起きた場合の仕様が定義されていません。どう処理すべきか確認させてください」と具体的に質問する。<br><br>
+          3. <strong>仕様を確定してもらう</strong><br>
+          &nbsp;&nbsp;→ 口頭でなく、書面（メール・チケット等）で確認を取る。<br><br>
+          4. <strong>設計書を更新してもらう</strong><br>
+          &nbsp;&nbsp;→ 同じ矛盾に他のメンバーが気づいたとき同じ混乱が起きないよう、設計書自体を直す。<br><br>
+          5. <strong>確定した仕様で実装する</strong><br><br>
+          <strong>理由:</strong> 独自判断で実装すると、後から「仕様と違う」として大量の修正・手戻りが発生する可能性がある。設計者に確認する方が短期的には時間がかかっても、長期的なコストは圧倒的に低い。
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /container -->
+
+</body>
+</html>

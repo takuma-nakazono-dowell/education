@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ソフトウェア開発プロセス 基礎</title>
+  <style>
+    /* 共通リセットとベーススタイル */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.8; }
+    .header { background: #00796B; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+
+    /* トップページ用メインレイアウト */
+    .top-container { max-width: 960px; margin: 0 auto; padding: 30px 20px; }
+
+    h2 { color: #004D40; border-bottom: 2px solid #00796B; padding-bottom: 10px; margin-top: 30px; }
+    h3 { color: #00796B; margin-top: 25px; }
+
+    /* ポイントボックス類 */
+    .info-box { background: #E3F2FD; border-left: 4px solid #1976D2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #0D47A1; }
+
+    /* フロー図 */
+    .flow-diagram { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+    .flow-box { background: #00796B; color: white; padding: 12px 18px; border-radius: 8px; text-align: center; font-size: 0.9em; font-weight: bold; min-width: 90px; }
+    .flow-arrow { color: #00796B; font-size: 1.5em; margin: 0 5px; }
+
+    /* カリキュラム一覧 */
+    .section-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+    .section-card { background: white; border-radius: 12px; padding: 20px 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; gap: 20px; }
+    .section-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+    .day-number { background: #00796B; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; flex-shrink: 0; }
+    .section-content h3 { margin: 0 0 5px 0; color: #004D40; }
+    .section-content p { margin: 0; color: #666; font-size: 0.95em; }
+
+    /* 進捗セクション */
+    .progress-section { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 30px; }
+    .progress-section h2 { margin-top: 0; color: #00796B; border: none; }
+    .checkbox-list { list-style: none; padding: 0; }
+    .checkbox-list li { padding: 8px 0; border-bottom: 1px solid #eee; }
+    .checkbox-list label { cursor: pointer; }
+
+    /* ヒーローエリア */
+    .hero { background: linear-gradient(135deg, #004D40, #00796B); color: white; padding: 40px 30px; border-radius: 12px; margin-bottom: 30px; }
+    .hero h2 { color: white; border: none; margin-top: 0; font-size: 1.6em; }
+    .hero p { margin: 0; font-size: 1.05em; opacity: 0.9; }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="header">
+  <h1>ソフトウェア開発プロセス 基礎</h1>
+  <div class="nav">
+    <span>8日間でウォーターフォール開発の全体像をマスターしよう</span>
+  </div>
+</div>
+
+<div class="top-container">
+
+  <!-- ヒーローエリア -->
+  <div class="hero">
+    <h2>ソフトウェア開発プロセス 基礎コース</h2>
+    <p>8日間でウォーターフォール開発の全体像をマスターしよう</p>
+  </div>
+
+  <!-- コース説明 -->
+  <div class="info-box">
+    <strong>このコースについて</strong><br>
+    このコースでは、実際の現場で使われるウォーターフォール型開発の流れを学びます。
+    「誰が何を依頼し、どんなドキュメントが生まれ、何を確認してから次の工程へ進むのか」を
+    体系的に理解することが目標です。コードは一切書きません。工程の意味とドキュメントの役割を理解することに集中しましょう。
+  </div>
+
+  <!-- ウォーターフォール全体像 -->
+  <h2>ウォーターフォール開発の全体像</h2>
+  <p>ウォーターフォール開発では、以下の工程を順番に進めていきます。各工程が完了してから次の工程へ進むのが原則です。</p>
+
+  <div class="flow-diagram">
+    <div class="flow-box">RFP</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">見積もり</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">受注</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">要件定義</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">基本設計</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">詳細設計</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">製造</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">テスト</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">リリース</div>
+    <div class="flow-arrow">▶</div>
+    <div class="flow-box">保守</div>
+  </div>
+
+  <!-- カリキュラム一覧 -->
+  <h2>カリキュラム一覧</h2>
+  <div class="section-list">
+
+    <a class="section-card" href="day1-overview.html">
+      <div class="day-number">1</div>
+      <div class="section-content">
+        <h3>ソフトウェア開発の全体像</h3>
+        <p>ウォーターフォールとは・工程の意味・V字モデル</p>
+      </div>
+    </a>
+
+    <a class="section-card" href="day2-ordering.html">
+      <div class="day-number">2</div>
+      <div class="section-content">
+        <h3>受注プロセス</h3>
+        <p>RFP・見積もり・契約・キックオフ</p>
+      </div>
+    </a>
+
+    <a class="section-card" href="day3-requirements.html">
+      <div class="day-number">3</div>
+      <div class="section-content">
+        <h3>要件定義</h3>
+        <p>要件定義書・ユースケース・受入基準</p>
+      </div>
+    </a>
+
+    <a class="section-card" href="day4-basicdesign.html">
+      <div class="day-number">4</div>
+      <div class="section-content">
+        <h3>基本設計（外部設計）</h3>
+        <p>画面設計・DB設計・API設計</p>
+      </div>
+    </a>
+
+    <a class="section-card" href="#">
+      <div class="day-number">5</div>
+      <div class="section-content">
+        <h3>詳細設計（内部設計）</h3>
+        <p>クラス図・シーケンス図・処理仕様書</p>
+      </div>
+    </a>
+
+    <a class="section-card" href="#">
+      <div class="day-number">6</div>
+      <div class="section-content">
+        <h3>製造（実装）</h3>
+        <p>コーディング規約・レビュー・品質基準</p>
+      </div>
+    </a>
+
+    <a class="section-card" href="#">
+      <div class="day-number">7</div>
+      <div class="section-content">
+        <h3>テスト</h3>
+        <p>テスト計画・単体/結合/システムテスト・バグ管理</p>
+      </div>
+    </a>
+
+    <a class="section-card" href="#">
+      <div class="day-number">8</div>
+      <div class="section-content">
+        <h3>リリースと保守</h3>
+        <p>リリース計画・障害対応・変更管理</p>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- 進捗チェックリスト -->
+  <div class="progress-section">
+    <h2>学習進捗チェック</h2>
+    <p>各Dayを学習し終えたらチェックを入れましょう。</p>
+    <ul class="checkbox-list">
+      <li><label><input type="checkbox"> Day 1: ソフトウェア開発の全体像 を学習した</label></li>
+      <li><label><input type="checkbox"> Day 2: 受注プロセス を学習した</label></li>
+      <li><label><input type="checkbox"> Day 3: 要件定義 を学習した</label></li>
+      <li><label><input type="checkbox"> Day 4: 基本設計（外部設計）を学習した</label></li>
+      <li><label><input type="checkbox"> Day 5: 詳細設計（内部設計）を学習した</label></li>
+      <li><label><input type="checkbox"> Day 6: 製造（実装）を学習した</label></li>
+      <li><label><input type="checkbox"> Day 7: テスト を学習した</label></li>
+      <li><label><input type="checkbox"> Day 8: リリースと保守 を学習した</label></li>
+    </ul>
+  </div>
+
+</div><!-- /top-container -->
+
+</body>
+</html>

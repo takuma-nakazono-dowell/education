@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 7: テスト | 開発プロセス基礎</title>
+  <style>
+    /* 共通スタイル */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.8; }
+    .header { background: #00796B; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 55%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 45%; padding: 30px; overflow-y: auto; }
+    h2 { color: #004D40; border-bottom: 2px solid #00796B; padding-bottom: 10px; margin-top: 30px; }
+    h3 { color: #00796B; margin-top: 25px; }
+    h4 { color: #333; margin-top: 20px; }
+    .point-box { background: #E0F2F1; border-left: 4px solid #00796B; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #004D40; }
+    .warning-box { background: #FFF8E1; border-left: 4px solid #FFC107; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #E65100; }
+    .info-box { background: #E3F2FD; border-left: 4px solid #1976D2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #0D47A1; }
+    .doc-sample { background: #FAFAFA; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 15px 0; font-size: 0.95em; }
+    .doc-sample .doc-title { font-weight: bold; color: #004D40; border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-bottom: 12px; font-size: 1.1em; }
+    .doc-sample table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    .doc-sample th { background: #E0F2F1; padding: 8px 12px; text-align: left; border: 1px solid #ccc; font-size: 0.9em; }
+    .doc-sample td { padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9em; vertical-align: top; }
+    .doc-sample pre { background: #f0f0f0; padding: 12px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.9em; overflow-x: auto; white-space: pre-wrap; }
+    .flow-diagram { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+    .flow-box { background: #00796B; color: white; padding: 12px 18px; border-radius: 8px; text-align: center; font-size: 0.9em; font-weight: bold; min-width: 90px; }
+    .flow-arrow { color: #00796B; font-size: 1.5em; margin: 0 5px; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #00796B; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; line-height: 1.8; }
+    .choices { list-style: none; padding: 0; }
+    .choices li { padding: 8px 12px; margin: 6px 0; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #00796B; font-weight: bold; padding: 8px 12px; background: #E0F2F1; border-radius: 6px; user-select: none; }
+    summary:hover { background: #B2DFDB; }
+    .answer { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 0 0 8px 8px; line-height: 1.8; }
+    .answer strong { color: #004D40; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; vertical-align: middle; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th { background: #E0F2F1; padding: 10px 12px; text-align: left; border: 1px solid #ccc; }
+    td { padding: 10px 12px; border: 1px solid #ccc; vertical-align: top; }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー・ナビゲーション -->
+<div class="header">
+  <h1>Day 7: テスト</h1>
+  <div class="nav">
+    <a href="day6-development.html">← 前へ: 製造（実装）</a>
+    <a href="day8-release.html">次へ: リリースと保守 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明 -->
+  <div class="left-panel">
+
+    <h2>テスト工程の全体像</h2>
+    <p>ソフトウェアが正しく動くことを確認する工程。ウォーターフォールでは複数のテスト段階がある。</p>
+
+    <!-- テストの流れ（フロー図） -->
+    <div class="flow-diagram">
+      <div class="flow-box">単体テスト</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box">結合テスト</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box">システムテスト</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box">受入テスト</div>
+    </div>
+
+    <h2>各テストの目的と担当者</h2>
+
+    <table>
+      <tr>
+        <th>テスト種別</th>
+        <th>目的</th>
+        <th>主な担当者</th>
+      </tr>
+      <tr>
+        <td><strong>単体テスト（UT）</strong></td>
+        <td>1つの機能・メソッド単位で動作確認</td>
+        <td>プログラマー</td>
+      </tr>
+      <tr>
+        <td><strong>結合テスト（IT）</strong></td>
+        <td>複数の機能を繋いで動作確認</td>
+        <td>SE・PG</td>
+      </tr>
+      <tr>
+        <td><strong>システムテスト（ST）</strong></td>
+        <td>システム全体を本番に近い環境で確認</td>
+        <td>テスター・QA</td>
+      </tr>
+      <tr>
+        <td><strong>受入テスト（UAT）</strong></td>
+        <td>顧客が実際に使って問題ないか確認</td>
+        <td>顧客・ユーザー</td>
+      </tr>
+    </table>
+
+    <h2>テスト計画書</h2>
+    <p>何をいつ、どのように、誰がテストするかを定義する文書。</p>
+
+    <div class="doc-sample">
+      <div class="doc-title">テスト計画書 サンプル（抜粋）</div>
+      <pre>
+■ テスト対象
+  顧客管理システム v1.0
+
+■ テスト範囲
+  ・ログイン・ログアウト機能
+  ・顧客情報の登録・編集・削除・検索
+
+■ テスト環境
+  OS: Windows Server 2022
+  ブラウザ: Chrome 最新版、Edge 最新版
+  DB: PostgreSQL 15
+
+■ スケジュール
+  単体テスト: 2025/11/01〜11/15（担当: PG各自）
+  結合テスト: 2025/11/18〜11/30（担当: テスト班）
+  システムテスト: 2025/12/01〜12/15（担当: QA）
+
+■ 完了基準
+  ・全テストケースの実施率100%
+  ・重大バグ（バグランクA）の残件0件
+  ・中程度バグ（バグランクB）の残件5件以内
+      </pre>
+    </div>
+
+    <h2>テスト仕様書（テストケース）</h2>
+    <p>何を入力して何を期待するかを記述した文書。</p>
+
+    <div class="doc-sample">
+      <div class="doc-title">テスト仕様書 サンプル ― ログイン機能</div>
+      <table>
+        <tr>
+          <th>No</th>
+          <th>テスト条件</th>
+          <th>入力値</th>
+          <th>期待結果</th>
+          <th>結果</th>
+        </tr>
+        <tr>
+          <td>TC01</td>
+          <td>正常ログイン</td>
+          <td>正しいID/PW</td>
+          <td>ホーム画面に遷移</td>
+          <td>○</td>
+        </tr>
+        <tr>
+          <td>TC02</td>
+          <td>パスワード誤り</td>
+          <td>誤ったPW</td>
+          <td>エラーメッセージ表示</td>
+          <td>○</td>
+        </tr>
+        <tr>
+          <td>TC03</td>
+          <td>未入力（ID空）</td>
+          <td>ID=空、PW=有</td>
+          <td>「必須項目」エラー</td>
+          <td>○</td>
+        </tr>
+        <tr>
+          <td>TC04</td>
+          <td>5回連続失敗</td>
+          <td>誤ったPWを5回</td>
+          <td>アカウントロックメッセージ</td>
+          <td style="color:#c62828; font-weight: bold;">×</td>
+        </tr>
+        <tr>
+          <td>TC05</td>
+          <td>存在しないID</td>
+          <td>未登録メール</td>
+          <td>エラーメッセージ表示</td>
+          <td>○</td>
+        </tr>
+      </table>
+      <p style="font-size:0.9em; color:#c62828; margin-top: 8px;">※ TC04: バグ検出（バグ票 BUG-042 参照）</p>
+    </div>
+
+    <h2>バグ管理</h2>
+    <p>発見したバグを記録・追跡・修正するプロセス。</p>
+
+    <div class="doc-sample">
+      <div class="doc-title">バグ票 サンプル</div>
+      <pre>
+バグID: BUG-042
+タイトル: 5回ログイン失敗時にアカウントがロックされない
+ランク: A（重大）
+発見日: 2025/12/03
+発見者: 田中（テスト担当）
+発見工程: システムテスト
+
+■ 再現手順
+  1. ログイン画面を開く
+  2. 誤ったパスワードを5回入力する
+  3. 6回目も誤ったパスワードで試みる
+
+■ 期待結果
+  アカウントロックのメッセージが表示される
+
+■ 実際の結果
+  エラーメッセージが表示されるが、ログインは引き続き可能
+
+■ 対応状況
+  未対応 → 調査中 → 修正済 → 確認済
+
+■ 修正担当
+  山田（PG）
+■ 修正予定日: 2025/12/05
+      </pre>
+    </div>
+
+    <h2>バグのランク（重大度）</h2>
+
+    <table>
+      <tr>
+        <th>ランク</th>
+        <th>基準</th>
+        <th>対応方針</th>
+      </tr>
+      <tr>
+        <td><strong style="color:#c62828;">A（重大）</strong></td>
+        <td>システムが使えない・データ破損・セキュリティ問題</td>
+        <td>即対応・リリース不可</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#f57f17;">B（中）</strong></td>
+        <td>主要機能が正常動作しない</td>
+        <td>リリース前に修正</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#388e3c;">C（軽）</strong></td>
+        <td>軽微な表示ズレ・使いにくい</td>
+        <td>次バージョンで修正可</td>
+      </tr>
+    </table>
+
+    <div class="point-box">
+      <strong>ポイント:</strong> テストの目的は「バグを見つけること」ではなく、「品質を確認すること」。バグがゼロでも全てのテストが網羅されていなければ品質が保証されない。
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- 右パネル: 確認問題 -->
+  <div class="right-panel">
+
+    <h2>確認問題</h2>
+
+    <!-- 問1 -->
+    <div class="problem">
+      <h3>問1 <span class="tag tag-easy">Easy</span></h3>
+      <div class="problem-desc">
+        「ログイン機能とショッピングカートを繋いで、ログイン後にカートが表示されることを確認する」<br><br>
+        これは何テストか？
+        <ul class="choices">
+          <li>a) 単体テスト</li>
+          <li>b) 結合テスト</li>
+          <li>c) システムテスト</li>
+          <li>d) 受入テスト</li>
+        </ul>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解: b) 結合テスト</strong><br><br>
+          「ログイン機能」と「ショッピングカート機能」という複数の機能を繋いで動作を確認しているため、<strong>結合テスト（IT: Integration Test）</strong>に該当する。<br><br>
+          ・単体テスト: ログイン機能<strong>単体</strong>の動作確認<br>
+          ・システムテスト: システム全体を本番環境相当で確認<br>
+          ・受入テスト: 顧客・エンドユーザーが確認
+        </div>
+      </details>
+    </div>
+
+    <!-- 問2 -->
+    <div class="problem">
+      <h3>問2 <span class="tag tag-easy">Easy</span></h3>
+      <div class="problem-desc">
+        以下の文の（　　）に当てはまる言葉を答えてください。<br><br>
+        「バグのランクAは（　　　）なバグを指し、このランクのバグが残っている場合は（　　）できない。」
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解: 重大 / リリース</strong><br><br>
+          ランクAのバグは「システムが使えない・データが壊れる・セキュリティ上の問題がある」などの重大な問題。リリース前に必ず0件にしなければならない。<br><br>
+          テスト計画書の完了基準として「<strong>バグランクAの残件0件</strong>」を明記するのはそのため。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問3 -->
+    <div class="problem">
+      <h3>問3 <span class="tag tag-medium">Medium</span></h3>
+      <div class="problem-desc">
+        新規会員登録機能について、以下の観点でテストケースを3件書いてみましょう。<br><br>
+        ・正常系（正しい情報で登録できる）<br>
+        ・異常系（メールアドレスの形式が不正）<br>
+        ・異常系（パスワードが短すぎる）
+      </div>
+      <details>
+        <summary>答えのサンプルを見る</summary>
+        <div class="answer">
+          <strong>答えのサンプル:</strong><br><br>
+          <table>
+            <tr>
+              <th>No</th>
+              <th>テスト条件</th>
+              <th>入力値</th>
+              <th>期待結果</th>
+            </tr>
+            <tr>
+              <td>TC01</td>
+              <td>正常登録</td>
+              <td>有効なメール・8文字以上PW・氏名</td>
+              <td>登録完了・確認メール送信</td>
+            </tr>
+            <tr>
+              <td>TC02</td>
+              <td>メール形式不正</td>
+              <td>「abc」（@なし）</td>
+              <td>「メールアドレスの形式が正しくありません」エラー</td>
+            </tr>
+            <tr>
+              <td>TC03</td>
+              <td>PW短すぎる</td>
+              <td>「abc」（3文字）</td>
+              <td>「パスワードは8文字以上で入力してください」エラー</td>
+            </tr>
+          </table>
+          <br>
+          <strong>ポイント:</strong> テストケースには「入力値」と「期待結果」を具体的に書くことが重要。「不正なメール」だけでは実施者によって入力値が変わってしまう。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問4 -->
+    <div class="problem">
+      <h3>問4 <span class="tag tag-medium">Medium</span></h3>
+      <div class="problem-desc">
+        バグ票 BUG-042 を読んで、なぜこのバグはランクA（重大）なのか説明してください。
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解例:</strong><br><br>
+          アカウントのロック機能が動作していないことで、<strong>ブルートフォース攻撃（パスワードを総当たりで試みる攻撃）</strong>への対策がなくなっているため。<br><br>
+          悪意のある第三者がパスワードを何度でも試行できる状態は、<strong>セキュリティ上の重大な脆弱性</strong>であり、アカウントが不正アクセスされる可能性がある。<br><br>
+          バグランクの基準「セキュリティ問題」に該当するため、ランクAと判断される。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問5 -->
+    <div class="problem">
+      <h3>問5 <span class="tag tag-hard">Hard</span></h3>
+      <div class="problem-desc">
+        <strong>考えてみよう</strong><br><br>
+        テスト担当者が「全テストケースを実施したのでOK」と言っていますが、テストケースの作りが粗く、カバレッジ（網羅率）が不十分でした。<br><br>
+        テスト計画書にはどんな基準を入れておくべきでしたか？
+      </div>
+      <details>
+        <summary>答え例を見る</summary>
+        <div class="answer">
+          <strong>答え例:</strong><br><br>
+          テスト完了基準を「実施率100%」だけにするのではなく、以下のような基準も加えるべきだった。<br><br>
+          <strong>追加すべき基準の例:</strong><br>
+          ・テストケース自体のレビューを実施済みであること<br>
+          ・正常系・異常系・境界値のテストが全機能に対して含まれていること<br>
+          ・テストケースのカバレッジ率（仕様書の条件を何%網羅しているか）が一定以上であること<br>
+          ・テストケースは仕様書の要件項目とトレーサビリティ（紐づき）があること<br><br>
+          <strong>教訓:</strong> 「何件テストしたか」より「何を確認したか」が本質。テスト計画書の完了基準は「量」と「質」の両方を定義する必要がある。
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /container -->
+
+</body>
+</html>

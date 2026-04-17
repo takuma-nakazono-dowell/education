@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 8: リリースと保守 | 開発プロセス基礎</title>
+  <style>
+    /* 共通スタイル */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.8; }
+    .header { background: #00796B; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 55%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 45%; padding: 30px; overflow-y: auto; }
+    h2 { color: #004D40; border-bottom: 2px solid #00796B; padding-bottom: 10px; margin-top: 30px; }
+    h3 { color: #00796B; margin-top: 25px; }
+    h4 { color: #333; margin-top: 20px; }
+    .point-box { background: #E0F2F1; border-left: 4px solid #00796B; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #004D40; }
+    .warning-box { background: #FFF8E1; border-left: 4px solid #FFC107; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #E65100; }
+    .info-box { background: #E3F2FD; border-left: 4px solid #1976D2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #0D47A1; }
+    .doc-sample { background: #FAFAFA; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 15px 0; font-size: 0.95em; }
+    .doc-sample .doc-title { font-weight: bold; color: #004D40; border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-bottom: 12px; font-size: 1.1em; }
+    .doc-sample table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    .doc-sample th { background: #E0F2F1; padding: 8px 12px; text-align: left; border: 1px solid #ccc; font-size: 0.9em; }
+    .doc-sample td { padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9em; vertical-align: top; }
+    .doc-sample pre { background: #f0f0f0; padding: 12px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.9em; overflow-x: auto; white-space: pre-wrap; }
+    .flow-diagram { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+    .flow-box { background: #00796B; color: white; padding: 12px 18px; border-radius: 8px; text-align: center; font-size: 0.9em; font-weight: bold; min-width: 90px; }
+    .flow-arrow { color: #00796B; font-size: 1.5em; margin: 0 5px; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #00796B; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; line-height: 1.8; }
+    .choices { list-style: none; padding: 0; }
+    .choices li { padding: 8px 12px; margin: 6px 0; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #00796B; font-weight: bold; padding: 8px 12px; background: #E0F2F1; border-radius: 6px; user-select: none; }
+    summary:hover { background: #B2DFDB; }
+    .answer { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 0 0 8px 8px; line-height: 1.8; }
+    .answer strong { color: #004D40; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; vertical-align: middle; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th { background: #E0F2F1; padding: 10px 12px; text-align: left; border: 1px solid #ccc; }
+    td { padding: 10px 12px; border: 1px solid #ccc; vertical-align: top; }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー・ナビゲーション -->
+<div class="header">
+  <h1>Day 8: リリースと保守</h1>
+  <div class="nav">
+    <a href="day7-testing.html">← 前へ: テスト</a>
+    <a href="index.html">← トップに戻る</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明 -->
+  <div class="left-panel">
+
+    <h2>リリース（デプロイ）とは</h2>
+    <p>開発・テストが完了したシステムを、実際にユーザーが使える本番環境に展開すること。</p>
+
+    <h2>リリース前の確認事項</h2>
+    <ul>
+      <li><strong>リリース判定会議</strong>: 全テストが完了し、残バグが基準以内か確認する</li>
+      <li><strong>リリース計画書</strong>: いつ・誰が・どの順番で作業するかを事前に定義</li>
+      <li><strong>ロールバック計画</strong>: 万が一リリースに失敗した場合、元の状態に戻す手順</li>
+    </ul>
+
+    <div class="doc-sample">
+      <div class="doc-title">リリース計画書 サンプル</div>
+      <pre>
+リリース日時: 2026年1月15日（木）23:00〜翌1:00
+担当: インフラ担当 山田、バックエンド担当 田中
+
+■ 作業手順
+  23:00 メンテナンス画面に切り替え
+  23:05 DBバックアップ取得
+  23:20 バックアップ確認 → OK
+  23:25 マイグレーション実行（DBスキーマ変更）
+  23:40 アプリケーションデプロイ
+  00:00 動作確認（チェックリスト実施）
+  00:30 メンテナンス画面を解除・本番公開
+  01:00 監視継続（1時間）
+
+■ ロールバック基準
+  ・動作確認でA判定のバグが発見された場合
+  ・ロールバック実施者: 山田
+
+■ ロールバック手順
+  1. アプリケーションを旧バージョンに戻す
+  2. DBマイグレーションをロールバック
+  3. バックアップから復元（必要な場合）
+  4. 動作確認
+      </pre>
+    </div>
+
+    <h2>リリースの種類と戦略</h2>
+    <ul>
+      <li><strong>ビッグバンリリース</strong>: 全機能を一度にリリース（ウォーターフォールに多い）</li>
+      <li><strong>段階的リリース</strong>: 一部のユーザーから徐々に展開</li>
+      <li><strong>ブルーグリーンデプロイ</strong>: 本番環境を2つ用意し切り替える（ダウンタイムなし）</li>
+    </ul>
+
+    <div class="info-box">
+      <strong>補足:</strong> 本番リリースは失敗が許されない場面。不安な点は事前に確認し、作業手順を必ずリハーサルする。
+    </div>
+
+    <h2>リリースノート</h2>
+    <p>リリース内容をユーザーや関係者に伝える文書。</p>
+
+    <div class="doc-sample">
+      <div class="doc-title">リリースノート サンプル</div>
+      <pre>
+バージョン: 1.0.0
+リリース日: 2026年1月15日
+
+■ 新機能
+  ・顧客情報の登録・編集・削除・検索が可能になりました
+  ・月次売上レポートのPDF出力機能を追加しました
+
+■ 改善
+  ・検索処理の速度を改善しました
+
+■ 既知の問題
+  ・Internet Explorer 11 では一部機能が動作しません（非対応）
+
+■ 次回リリース予定
+  2026年3月（バッチ処理機能の追加を予定）
+      </pre>
+    </div>
+
+    <h2>保守とは</h2>
+    <p>リリース後のシステムを安定して動かし続けること。バグ修正・機能追加・性能改善などが含まれる。</p>
+
+    <table>
+      <tr>
+        <th>種類</th>
+        <th>内容</th>
+      </tr>
+      <tr>
+        <td><strong>障害対応</strong></td>
+        <td>本番環境のバグ・障害を緊急修正する</td>
+      </tr>
+      <tr>
+        <td><strong>機能追加</strong></td>
+        <td>新しい要望に応じて機能を拡張する</td>
+      </tr>
+      <tr>
+        <td><strong>性能改善</strong></td>
+        <td>遅くなった処理を最適化する</td>
+      </tr>
+      <tr>
+        <td><strong>セキュリティ対応</strong></td>
+        <td>脆弱性のパッチ適用・ライブラリ更新</td>
+      </tr>
+    </table>
+
+    <h2>障害対応の流れ</h2>
+
+    <!-- 障害対応フロー図 -->
+    <div class="flow-diagram">
+      <div class="flow-box">障害検知</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box">一次対応<br><small>（影響を最小化）</small></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box">原因調査</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box">修正・<br>デプロイ</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box">再発防止策</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box">報告書<br>作成</div>
+    </div>
+
+    <div class="doc-sample">
+      <div class="doc-title">障害報告書 サンプル</div>
+      <pre>
+障害ID: INC-2026-001
+発生日時: 2026年2月3日 14:32
+復旧日時: 2026年2月3日 15:47
+影響範囲: 全ユーザーのログインができなかった（約1時間15分）
+
+■ 原因
+  DBサーバーのディスク容量が満杯になり、
+  セッション情報の書き込みに失敗した
+
+■ 対処内容
+  1. 不要ログファイルを削除（ディスク確保）
+  2. アプリケーションを再起動
+  3. 動作確認・復旧を確認
+
+■ 再発防止策
+  ・ディスク使用率80%でアラートを設定する
+  ・不要ログの自動削除バッチを導入する
+  ・ログ保存期間を見直す（30日→7日）
+      </pre>
+    </div>
+
+    <h2>ウォーターフォールを振り返る・次のステップ</h2>
+    <p>ウォーターフォールはプロセスが明確で大規模開発に向く一方、変化に弱い面がある。</p>
+
+    <table>
+      <tr>
+        <th>観点</th>
+        <th>ウォーターフォール</th>
+        <th>アジャイル</th>
+      </tr>
+      <tr>
+        <td><strong>進め方</strong></td>
+        <td>工程を順番に</td>
+        <td>短いサイクルで繰り返す</td>
+      </tr>
+      <tr>
+        <td><strong>要件変更</strong></td>
+        <td>対応しにくい</td>
+        <td>柔軟に対応できる</td>
+      </tr>
+      <tr>
+        <td><strong>向いている場面</strong></td>
+        <td>要件が明確な大規模案件</td>
+        <td>変化が多いWebサービス等</td>
+      </tr>
+      <tr>
+        <td><strong>ドキュメント</strong></td>
+        <td>重視</td>
+        <td>動くソフトウェアを重視</td>
+      </tr>
+    </table>
+
+    <div class="point-box">
+      <strong>ポイント:</strong> どちらが優れているということはない。案件の性質・チームの規模・顧客の特性によって選ぶ。現場ではウォーターフォールとアジャイルを組み合わせた「ハイブリッド型」も多い。
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- 右パネル: 確認問題 -->
+  <div class="right-panel">
+
+    <h2>確認問題</h2>
+
+    <!-- 問1 -->
+    <div class="problem">
+      <h3>問1 <span class="tag tag-easy">Easy</span></h3>
+      <div class="problem-desc">
+        以下の文の（　　　）に当てはまる言葉を答えてください。<br><br>
+        「リリース時に失敗した場合に元の状態に戻すことを（　　　　　　）という。事前にその手順を定義した計画を（　　　　　　）という。」
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解: ロールバック / ロールバック計画</strong><br><br>
+          ロールバックとは「以前の安定した状態に巻き戻すこと」。本番リリースは「いざとなれば戻せる」状態にしてから実施することが鉄則。<br><br>
+          特にDBのスキーマ変更（マイグレーション）を伴う場合は、ロールバック手順が複雑になるため、事前に必ず手順を確認しておく。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問2 -->
+    <div class="problem">
+      <h3>問2 <span class="tag tag-easy">Easy</span></h3>
+      <div class="problem-desc">
+        障害対応の流れとして正しい順番はどれか？
+        <ul class="choices">
+          <li>a) 原因調査 → 障害検知 → 修正 → 一次対応</li>
+          <li>b) 障害検知 → 一次対応 → 原因調査 → 修正 → 再発防止策</li>
+          <li>c) 障害検知 → 原因調査 → 一次対応 → 修正</li>
+        </ul>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解: b)</strong><br><br>
+          <strong>障害検知 → 一次対応 → 原因調査 → 修正・デプロイ → 再発防止策 → 報告書作成</strong><br><br>
+          一次対応（トリアージ）は「まず影響範囲を最小化する」ことが目的。原因が分からなくてもメンテナンスモードにしたり、旧バージョンに戻したりして被害を抑える。原因調査はその後に行う。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問3 -->
+    <div class="problem">
+      <h3>問3 <span class="tag tag-medium">Medium</span></h3>
+      <div class="problem-desc">
+        以下の作業を「障害対応・機能追加・性能改善・セキュリティ対応」に分類してください。<br><br>
+        <ul>
+          <li>a) ライブラリの脆弱性パッチを適用する</li>
+          <li>b) ユーザーから要望のあった検索フィルター機能を追加する</li>
+          <li>c) 本番DBに接続できないというアラートが発生し対応する</li>
+          <li>d) 検索に5秒かかっているのを0.5秒に改善する</li>
+        </ul>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解:</strong><br><br>
+          ・<strong>a) → セキュリティ対応</strong><br>
+          &nbsp;&nbsp;脆弱性パッチの適用は放置するとシステムが攻撃を受けるリスクがある。定期的な実施が必要。<br><br>
+          ・<strong>b) → 機能追加</strong><br>
+          &nbsp;&nbsp;新しい機能を追加する開発作業。要望・仕様確認・設計・実装・テストのサイクルで進める。<br><br>
+          ・<strong>c) → 障害対応</strong><br>
+          &nbsp;&nbsp;本番環境で発生した問題への緊急対応。スピードと正確さが求められる。<br><br>
+          ・<strong>d) → 性能改善</strong><br>
+          &nbsp;&nbsp;既存機能の速度・効率を向上させる作業。クエリ最適化・キャッシュ導入などが手段となる。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問4 -->
+    <div class="problem">
+      <h3>問4 <span class="tag tag-medium">Medium</span></h3>
+      <div class="problem-desc">
+        リリース手順を計画書にまとめずに、当日その場で対応しようとすることの問題点を3つ挙げてください。
+      </div>
+      <details>
+        <summary>答え例を見る</summary>
+        <div class="answer">
+          <strong>答え例（3つ以上）:</strong><br><br>
+          1. <strong>手順漏れのリスク</strong><br>
+          &nbsp;&nbsp;バックアップ取得やマイグレーション実行など、重要な手順を当日の緊張やプレッシャーで抜かしてしまう可能性がある。<br><br>
+          2. <strong>担当者間の認識齟齬</strong><br>
+          &nbsp;&nbsp;「次は誰が何をするのか」が明確でないため、二重作業や抜け漏れが発生しやすい。<br><br>
+          3. <strong>ロールバック判断が遅れる</strong><br>
+          &nbsp;&nbsp;「いつロールバックすべきか」の基準を決めていないと、問題が発生しても判断に時間がかかり被害が拡大する。<br><br>
+          4. <strong>ミスの記録が残らない</strong><br>
+          &nbsp;&nbsp;計画書がないと、実際に何をしたかの記録が残らず、後から振り返りや再発防止ができない。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問5 -->
+    <div class="problem">
+      <h3>問5 <span class="tag tag-hard">Hard</span></h3>
+      <div class="problem-desc">
+        <strong>考えてみよう</strong><br><br>
+        本番リリース直後に重大なバグが発見されました。<br><br>
+        「ロールバックするべきか、バグを修正してから再リリースするべきか」を判断するには、どんな情報が必要ですか？
+      </div>
+      <details>
+        <summary>答え例を見る</summary>
+        <div class="answer">
+          <strong>判断に必要な情報（答え例）:</strong><br><br>
+          <strong>バグ側の情報</strong><br>
+          ・バグの影響範囲（全ユーザーか、一部の操作のみか）<br>
+          ・バグのランク（A:重大 / B:中 / C:軽）<br>
+          ・修正の難易度（すぐ直せるか、調査に時間がかかるか）<br>
+          ・修正〜再デプロイまでにかかる時間の見込み<br><br>
+          <strong>ロールバック側の情報</strong><br>
+          ・DBのスキーマ変更（マイグレーション）を含んでいるか<br>
+          &nbsp;&nbsp;→ スキーマ変更がある場合、ロールバック自体がリスクを伴う<br>
+          ・ロールバックにかかる時間と手順<br><br>
+          <strong>ビジネス側の情報</strong><br>
+          ・ユーザーへの影響度合い（業務が止まっているか）<br>
+          ・このまま動かし続けることのリスク（データ破損・セキュリティ）<br>
+          ・経営判断が必要かどうか（サービス停止の判断など）<br><br>
+          <strong>判断の基本原則:</strong><br>
+          ユーザーへの被害が大きく・修正に時間がかかる場合 → ロールバック優先<br>
+          軽微なバグで・すぐに修正できる場合 → 修正・再デプロイを検討
+        </div>
+      </details>
+    </div>
+
+    <!-- コース完了メッセージ -->
+    <div style="background: linear-gradient(135deg, #00796B, #004D40); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-top: 30px;">
+      <h2 style="color: white; border: none; margin-top: 0;">開発プロセス基礎コース修了！</h2>
+      <p>お疲れ様でした。8日間でウォーターフォール開発の全工程を学びました。</p>
+      <p>受注→要件定義→設計→製造→テスト→リリース→保守の流れと、各工程のアウトプットを理解できましたか？</p>
+      <p>次のステップ: スクラム・アジャイル開発の世界へ！</p>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /container -->
+
+</body>
+</html>

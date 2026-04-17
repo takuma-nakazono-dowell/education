@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 5: 詳細設計（内部設計） | 開発プロセス基礎</title>
+  <style>
+    /* 共通スタイル */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.8; }
+    .header { background: #00796B; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 55%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 45%; padding: 30px; overflow-y: auto; }
+    h2 { color: #004D40; border-bottom: 2px solid #00796B; padding-bottom: 10px; margin-top: 30px; }
+    h3 { color: #00796B; margin-top: 25px; }
+    h4 { color: #333; margin-top: 20px; }
+    .point-box { background: #E0F2F1; border-left: 4px solid #00796B; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #004D40; }
+    .warning-box { background: #FFF8E1; border-left: 4px solid #FFC107; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #E65100; }
+    .info-box { background: #E3F2FD; border-left: 4px solid #1976D2; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .info-box strong { color: #0D47A1; }
+    .doc-sample { background: #FAFAFA; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 15px 0; font-size: 0.95em; }
+    .doc-sample .doc-title { font-weight: bold; color: #004D40; border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-bottom: 12px; font-size: 1.1em; }
+    .doc-sample table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    .doc-sample th { background: #E0F2F1; padding: 8px 12px; text-align: left; border: 1px solid #ccc; font-size: 0.9em; }
+    .doc-sample td { padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9em; vertical-align: top; }
+    .doc-sample pre { background: #f0f0f0; padding: 12px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.9em; overflow-x: auto; white-space: pre-wrap; }
+    .flow-diagram { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+    .flow-box { background: #00796B; color: white; padding: 12px 18px; border-radius: 8px; text-align: center; font-size: 0.9em; font-weight: bold; min-width: 90px; }
+    .flow-arrow { color: #00796B; font-size: 1.5em; margin: 0 5px; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; color: #00796B; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; line-height: 1.8; }
+    .choices { list-style: none; padding: 0; }
+    .choices li { padding: 8px 12px; margin: 6px 0; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #00796B; font-weight: bold; padding: 8px 12px; background: #E0F2F1; border-radius: 6px; user-select: none; }
+    summary:hover { background: #B2DFDB; }
+    .answer { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 0 0 8px 8px; line-height: 1.8; }
+    .answer strong { color: #004D40; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 8px; vertical-align: middle; }
+    .tag-easy { background: #c8e6c9; color: #1b5e20; }
+    .tag-medium { background: #fff9c4; color: #f57f17; }
+    .tag-hard { background: #ffcdd2; color: #b71c1c; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    th { background: #E0F2F1; padding: 10px 12px; text-align: left; border: 1px solid #ccc; }
+    td { padding: 10px 12px; border: 1px solid #ccc; vertical-align: top; }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー・ナビゲーション -->
+<div class="header">
+  <h1>Day 5: 詳細設計（内部設計）</h1>
+  <div class="nav">
+    <a href="day4-basicdesign.html">← 前へ: 基本設計（外部設計）</a>
+    <a href="day6-development.html">次へ: 製造（実装）→</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 左パネル: 説明 -->
+  <div class="left-panel">
+
+    <h2>詳細設計（内部設計）とは</h2>
+    <p>基本設計で決めた「どう見せるか」をさらに深掘りし、プログラマーが実装できるレベルまで落とし込む工程。ユーザーには見えない内部の動き（処理ロジック・クラス構造・DB物理設計）を定義する。</p>
+
+    <h2>詳細設計のアウトプット</h2>
+    <ul>
+      <li><strong>詳細設計書</strong>: 各機能の処理手順・条件分岐・エラー処理</li>
+      <li><strong>クラス図</strong>: クラスの構造と関係</li>
+      <li><strong>シーケンス図</strong>: 処理の流れ（時系列）</li>
+      <li><strong>DB物理設計書</strong>: テーブル定義書（型・制約・インデックス）</li>
+    </ul>
+
+    <h2>クラス図</h2>
+    <p>システムを構成するクラス（設計の単位）とその関係を図で表す。</p>
+
+    <div class="doc-sample">
+      <div class="doc-title">クラス図（簡略テキスト表現）</div>
+      <pre>
+┌──────────────────┐    ┌──────────────────┐
+│   UserService    │    │  UserRepository  │
+│──────────────────│    │──────────────────│
+│ + login()        │───>│ + findByEmail()  │
+│ + logout()       │    │ + save()         │
+│ + register()     │    │ + delete()       │
+└──────────────────┘    └──────────────────┘
+         │
+         ▼
+┌──────────────────┐
+│      User        │
+│──────────────────│
+│ - id: int        │
+│ - name: string   │
+│ - email: string  │
+│ - password: hash │
+│──────────────────│
+│ + validate()     │
+└──────────────────┘
+      </pre>
+    </div>
+
+    <div class="point-box">
+      <strong>ポイント:</strong> クラス図は「設計の地図」。複数人で開発する際、誰が何を作るかの分担と依存関係を明確にする。
+    </div>
+
+    <h2>シーケンス図</h2>
+    <p>処理がどの順番で、どのコンポーネント間でやりとりされるかを時系列で示す図。</p>
+
+    <div class="doc-sample">
+      <div class="doc-title">シーケンス図：ログイン処理</div>
+      <pre>
+ユーザー     画面      サーバー      DB
+  │          │          │            │
+  │─ ID/PW入力→│          │            │
+  │          │─ POST /login→          │
+  │          │          │─ findByEmail()→│
+  │          │          │←─ User データ─│
+  │          │          │            │
+  │          │          │（パスワード照合）
+  │          │          │            │
+  │          │←─ 200 OK（トークン）─  │
+  │←─ ホーム画面表示─│  │            │
+  │          │          │            │
+
+  ※ 失敗時: ←─ 401 エラー → エラーメッセージ表示
+      </pre>
+    </div>
+
+    <h2>DB物理設計書（テーブル定義書）</h2>
+    <p>論理設計（ER図）を具体的なDBMSに落とし込んだ定義書。</p>
+
+    <div class="doc-sample">
+      <div class="doc-title">テーブル定義書</div>
+      <pre>
+テーブル名: users
+説明: 会員情報を管理するテーブル
+
+┌────────────┬──────────────┬──────────┬────────┬────────────────────────┐
+│ カラム名   │ データ型      │ NULL     │ デフォ │ 備考                   │
+├────────────┼──────────────┼──────────┼────────┼────────────────────────┤
+│ id         │ INT          │ NOT NULL │ AUTO   │ 主キー・自動連番        │
+│ name       │ VARCHAR(100) │ NOT NULL │ ─      │ 氏名                   │
+│ email      │ VARCHAR(255) │ NOT NULL │ ─      │ UNIQUE制約・ログインID  │
+│ password   │ VARCHAR(255) │ NOT NULL │ ─      │ bcryptハッシュ          │
+│ created_at │ DATETIME     │ NOT NULL │ NOW()  │ 登録日時               │
+│ deleted_at │ DATETIME     │ NULL     │ ─      │ 論理削除用              │
+└────────────┴──────────────┴──────────┴────────┴────────────────────────┘
+インデックス: email（UNIQUE）
+      </pre>
+    </div>
+
+    <h2>処理仕様書</h2>
+    <p>個々の機能がどんな条件で何を行うかを文章・フローチャートで記述する。</p>
+
+    <div class="doc-sample">
+      <div class="doc-title">処理仕様書</div>
+      <pre>
+機能名: ログイン処理
+機能ID: FNC-001
+
+■ 入力
+  - メールアドレス（文字列）
+  - パスワード（文字列）
+
+■ 処理フロー
+  1. 入力値の空チェック
+     → どちらかが空の場合: エラーコード E001 を返す
+  2. メールアドレスでユーザーを検索
+     → 存在しない場合: エラーコード E002 を返す
+  3. パスワードをハッシュ化して照合
+     → 不一致の場合: 失敗回数をカウントし E002 を返す
+     → 5回失敗した場合: アカウントをロックし E003 を返す
+  4. セッショントークンを発行して返す
+
+■ エラーコード定義
+  E001: 入力値不正
+  E002: 認証失敗
+  E003: アカウントロック
+      </pre>
+    </div>
+
+    <div class="info-box">
+      <strong>補足:</strong> 詳細設計書が丁寧であるほど、プログラマーはロジックではなく「コードに落とす作業」に集中できる。設計書の品質がコードの品質に直結する。
+    </div>
+
+    <div class="warning-box">
+      <strong>注意:</strong> 詳細設計書があっても、製造工程で仕様の解釈がブレることはある。不明点はすぐ設計者に確認するのが新人の重要なスキル。
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- 右パネル: 確認問題 -->
+  <div class="right-panel">
+
+    <h2>確認問題</h2>
+
+    <!-- 問1 -->
+    <div class="problem">
+      <h3>問1 <span class="tag tag-easy">Easy</span></h3>
+      <div class="problem-desc">
+        詳細設計で作成するドキュメントとして正しいものを全て選べ。
+        <ul class="choices">
+          <li>a) 画面遷移図</li>
+          <li>b) テーブル定義書（DB物理設計）</li>
+          <li>c) シーケンス図</li>
+          <li>d) RFP（提案依頼書）</li>
+          <li>e) 処理仕様書</li>
+        </ul>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解: b, c, e</strong><br><br>
+          ・<strong>b) テーブル定義書</strong>: DB物理設計書として詳細設計の主要アウトプット。<br>
+          ・<strong>c) シーケンス図</strong>: 処理の時系列フローを示す詳細設計の成果物。<br>
+          ・<strong>e) 処理仕様書</strong>: 各機能の条件分岐・エラー処理を記述する。<br><br>
+          a) 画面遷移図は基本設計（外部設計）のアウトプット。<br>
+          d) RFPは発注前の要件提示文書で、開発工程の設計書ではない。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問2 -->
+    <div class="problem">
+      <h3>問2 <span class="tag tag-easy">Easy</span></h3>
+      <div class="problem-desc">
+        以下の文の（　　）に当てはまる言葉を答えてください。<br><br>
+        「シーケンス図は、処理がどの順番で、どのコンポーネント間でやりとりされるかを（　　　）で表した図である。」
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解: 時系列</strong><br><br>
+          シーケンス図の特徴は「時間の流れ」に沿って処理を追えること。縦軸が時間軸になっており、どのコンポーネントがいつ何をするかを一目で把握できる。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問3 -->
+    <div class="problem">
+      <h3>問3 <span class="tag tag-medium">Medium</span></h3>
+      <div class="problem-desc">
+        テーブル定義書の以下のカラム定義を見て答えてください。<br><br>
+        <code>deleted_at | DATETIME | NULL | ─ | 論理削除用</code><br><br>
+        <strong>Q: deleted_at カラムが NULL許容で設定されている理由は何か？</strong>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解: 論理削除のため</strong><br><br>
+          データを物理的に削除（DELETE文でレコードを消す）せず、<code>deleted_at</code> に削除日時を入れることで「削除済み」を表現する手法。<br><br>
+          NULLのとき = 有効なデータ<br>
+          値が入っているとき = 削除済みのデータ<br><br>
+          <strong>メリット:</strong><br>
+          ・削除したデータを復元できる<br>
+          ・削除の履歴が残る<br>
+          ・関連テーブルへの影響を最小限にできる
+        </div>
+      </details>
+    </div>
+
+    <!-- 問4 -->
+    <div class="problem">
+      <h3>問4 <span class="tag tag-medium">Medium</span></h3>
+      <div class="problem-desc">
+        ログインのシーケンス図と処理仕様書を参照して答えてください。<br><br>
+        <strong>Q: パスワードが5回間違えた場合の処理の流れを、登場するコンポーネントを含めて説明してください。</strong>
+      </div>
+      <details>
+        <summary>答えを見る</summary>
+        <div class="answer">
+          <strong>正解例:</strong><br><br>
+          1. ユーザーが誤ったパスワードを入力し、画面を通じてサーバーにPOSTする。<br>
+          2. サーバーはDBからユーザーデータを取得し、パスワードを照合。不一致のたびに失敗回数をカウントする。<br>
+          3. 5回目の失敗時点でサーバーがアカウントをロック状態に変更（DBを更新）。<br>
+          4. サーバーはエラーコード <strong>E003（アカウントロック）</strong> を画面に返す。<br>
+          5. 画面はユーザーにアカウントロックのエラーメッセージを表示する。<br><br>
+          ロック後は正しいパスワードでもログインできない点がポイント。
+        </div>
+      </details>
+    </div>
+
+    <!-- 問5 -->
+    <div class="problem">
+      <h3>問5 <span class="tag tag-hard">Hard</span></h3>
+      <div class="problem-desc">
+        <strong>処理仕様書を書いてみよう</strong><br><br>
+        「パスワードリセット機能」の処理仕様書を、以下の項目で書いてみましょう。<br>
+        ・入力（何を受け取るか）<br>
+        ・処理フロー（ステップごとに）<br>
+        ・エラーケース（どんな場合にエラーを返すか）
+      </div>
+      <details>
+        <summary>答えのサンプルを見る</summary>
+        <div class="answer">
+          <strong>答えのサンプル:</strong><br><br>
+          <strong>■ 入力</strong><br>
+          ・登録済みメールアドレス（文字列）<br><br>
+          <strong>■ 処理フロー</strong><br>
+          1. 入力値の空チェック → 空の場合: E001 を返す<br>
+          2. メールアドレスの形式チェック → 不正形式: E001 を返す<br>
+          3. メールアドレスでユーザーを検索 → 存在しない場合: E002 を返す<br>
+          4. リセット用トークン（有効期限付き）を発行してDBに保存<br>
+          5. リセットURLをメールで送信<br>
+          6. ユーザーがリセットURLにアクセス → トークンの有効期限チェック<br>
+          &nbsp;&nbsp;&nbsp;→ 期限切れ: E003 を返す<br>
+          7. 新しいパスワードを入力・確認入力と一致チェック<br>
+          8. パスワードをハッシュ化してDBに保存・トークンを無効化<br><br>
+          <strong>■ エラーコード定義</strong><br>
+          E001: 入力値不正<br>
+          E002: メールアドレス未登録<br>
+          E003: トークン有効期限切れ<br><br>
+          <strong>ポイント:</strong> リセットURLは使い切り（1回使ったら無効）にするのがセキュリティ上の基本。
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /container -->
+
+</body>
+</html>
