@@ -28,6 +28,11 @@
     .flow-diagram { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
     .flow-box { background: #00796B; color: white; padding: 12px 18px; border-radius: 8px; text-align: center; font-size: 0.9em; font-weight: bold; min-width: 90px; }
     .flow-arrow { color: #00796B; font-size: 1.5em; margin: 0 5px; }
+    /* 階段状フロー図 */
+    .flow-stair { margin: 20px 0; }
+    .flow-row { display: flex; align-items: center; flex-wrap: nowrap; }
+    .flow-row-end { display: flex; align-items: center; flex-wrap: nowrap; justify-content: flex-end; margin-top: 6px; }
+    .flow-turn { text-align: right; font-size: 1.5em; color: #00796B; line-height: 1.2; }
 
     /* カリキュラム一覧 */
     .section-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
@@ -80,26 +85,30 @@
   <h2>ウォーターフォール開発の全体像</h2>
   <p>ウォーターフォール開発では、以下の工程を順番に進めていきます。各工程が完了してから次の工程へ進むのが原則です。</p>
 
-  <div class="flow-diagram">
-    <div class="flow-box">RFP</div>
-    <div class="flow-arrow">▶</div>
-    <div class="flow-box">見積もり</div>
-    <div class="flow-arrow">▶</div>
-    <div class="flow-box">受注</div>
-    <div class="flow-arrow">▶</div>
-    <div class="flow-box">要件定義</div>
-    <div class="flow-arrow">▶</div>
-    <div class="flow-box">基本設計</div>
-    <div class="flow-arrow">▶</div>
-    <div class="flow-box">詳細設計</div>
-    <div class="flow-arrow">▶</div>
-    <div class="flow-box">製造</div>
-    <div class="flow-arrow">▶</div>
-    <div class="flow-box">テスト</div>
-    <div class="flow-arrow">▶</div>
-    <div class="flow-box">リリース</div>
-    <div class="flow-arrow">▶</div>
-    <div class="flow-box">保守</div>
+  <div class="flow-stair">
+    <div class="flow-row">
+      <div class="flow-box">RFP</div>
+      <span class="flow-arrow">▶</span>
+      <div class="flow-box">見積もり</div>
+      <span class="flow-arrow">▶</span>
+      <div class="flow-box">受注</div>
+      <span class="flow-arrow">▶</span>
+      <div class="flow-box">要件定義</div>
+      <span class="flow-arrow">▶</span>
+      <div class="flow-box">基本設計</div>
+    </div>
+    <div class="flow-turn">▼</div>
+    <div class="flow-row-end">
+      <div class="flow-box">詳細設計</div>
+      <span class="flow-arrow">▶</span>
+      <div class="flow-box">製造</div>
+      <span class="flow-arrow">▶</span>
+      <div class="flow-box">テスト</div>
+      <span class="flow-arrow">▶</span>
+      <div class="flow-box">リリース</div>
+      <span class="flow-arrow">▶</span>
+      <div class="flow-box">保守</div>
+    </div>
   </div>
 
   <!-- カリキュラム一覧 -->

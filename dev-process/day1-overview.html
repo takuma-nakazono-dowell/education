@@ -41,6 +41,11 @@
     .flow-diagram { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
     .flow-box { background: #00796B; color: white; padding: 12px 18px; border-radius: 8px; text-align: center; font-size: 0.9em; font-weight: bold; min-width: 90px; }
     .flow-arrow { color: #00796B; font-size: 1.5em; margin: 0 5px; }
+    /* 階段状フロー図 */
+    .flow-stair { margin: 20px 0; }
+    .flow-row { display: flex; align-items: center; flex-wrap: nowrap; }
+    .flow-row-end { display: flex; align-items: center; flex-wrap: nowrap; justify-content: flex-end; margin-top: 6px; }
+    .flow-turn { text-align: right; font-size: 1.5em; color: #00796B; line-height: 1.2; }
 
     /* V字モデル */
     .v-model { margin: 20px 0; }
@@ -124,22 +129,26 @@
     </p>
     <p>工程の流れは以下のとおりです。</p>
 
-    <div class="flow-diagram">
-      <div class="flow-box">要件定義</div>
-      <div class="flow-arrow">▶</div>
-      <div class="flow-box">基本設計</div>
-      <div class="flow-arrow">▶</div>
-      <div class="flow-box">詳細設計</div>
-      <div class="flow-arrow">▶</div>
-      <div class="flow-box">製造</div>
-      <div class="flow-arrow">▶</div>
-      <div class="flow-box">単体テスト</div>
-      <div class="flow-arrow">▶</div>
-      <div class="flow-box">結合テスト</div>
-      <div class="flow-arrow">▶</div>
-      <div class="flow-box">システムテスト</div>
-      <div class="flow-arrow">▶</div>
-      <div class="flow-box">リリース</div>
+    <div class="flow-stair">
+      <div class="flow-row">
+        <div class="flow-box">要件定義</div>
+        <span class="flow-arrow">▶</span>
+        <div class="flow-box">基本設計</div>
+        <span class="flow-arrow">▶</span>
+        <div class="flow-box">詳細設計</div>
+        <span class="flow-arrow">▶</span>
+        <div class="flow-box">製造</div>
+      </div>
+      <div class="flow-turn">▼</div>
+      <div class="flow-row-end">
+        <div class="flow-box">単体テスト</div>
+        <span class="flow-arrow">▶</span>
+        <div class="flow-box">結合テスト</div>
+        <span class="flow-arrow">▶</span>
+        <div class="flow-box">システムテスト</div>
+        <span class="flow-arrow">▶</span>
+        <div class="flow-box">リリース</div>
+      </div>
     </div>
 
     <h2>各工程の役割</h2>
