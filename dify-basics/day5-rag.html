@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 5: RAG（ナレッジベース） - Difyの使い方</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #6366f1; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #4338ca; border-bottom: 2px solid #6366f1; padding-bottom: 10px; }
+        h3 { color: #6366f1; margin-top: 25px; }
+        .point-box { background: #eef2ff; border-left: 4px solid #6366f1; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #4338ca; }
+        .warn-box { background: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warn-box strong { color: #b91c1c; }
+        .info-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .info-card h3 { margin-top: 0; }
+        .step-list { list-style: none; padding: 0; counter-reset: step; }
+        .step-list li { padding: 12px 15px 12px 55px; margin: 10px 0; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; position: relative; }
+        .step-list li::before { counter-increment: step; content: counter(step); position: absolute; left: 15px; top: 12px; background: #6366f1; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85em; }
+        .compare-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+        .compare-table th { background: #6366f1; color: white; padding: 10px; text-align: left; }
+        .compare-table td { border: 1px solid #ddd; padding: 10px; }
+        .compare-table tr:nth-child(even) { background: #f9fafb; }
+        .arch-diagram { background: #1e1b4b; color: white; border-radius: 12px; padding: 25px; margin: 15px 0; font-size: 0.85em; }
+        .arch-row { display: flex; justify-content: center; align-items: center; margin: 8px 0; gap: 12px; flex-wrap: wrap; }
+        .arch-box { padding: 10px 16px; border-radius: 8px; text-align: center; font-size: 0.9em; min-width: 120px; }
+        .arch-user { background: #818cf8; }
+        .arch-dify { background: #6366f1; }
+        .arch-llm { background: #4338ca; }
+        .arch-data { background: #3730a3; }
+        .arch-arrow { color: #a5b4fc; font-size: 1.3em; }
+        .chunk-demo { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; margin: 10px 0; }
+        .chunk-item { background: white; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; margin: 6px 0; font-size: 0.85em; position: relative; }
+        .chunk-item::before { content: attr(data-label); position: absolute; top: -8px; left: 10px; background: #6366f1; color: white; padding: 1px 8px; border-radius: 10px; font-size: 0.75em; }
+        .mock-screen { background: #f3f4f6; border: 2px solid #d1d5db; border-radius: 10px; overflow: hidden; margin: 15px 0; }
+        .mock-titlebar { background: #6366f1; color: white; padding: 8px 15px; font-size: 0.85em; font-weight: bold; }
+        .mock-content { padding: 15px; }
+        .tip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
+        .tip-item { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 12px; font-size: 0.85em; }
+        .tip-item.bad { background: #fef2f2; border-color: #fca5a5; }
+        .tip-item h4 { margin: 0 0 6px; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Lesson 5: RAG（ナレッジベース）</h1>
+        <div class="nav">
+            <a href="index.html">← コース一覧</a>
+            <a href="day4-chatbot.html">← Lesson 4</a>
+            <a href="day6-workflow.html">次へ: ワークフロー →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>RAGとは？</h2>
+            <p><strong>RAG（Retrieval-Augmented Generation）</strong>は、LLMに外部の知識を与える仕組みです。</p>
+            <p>通常のLLMは学習データにない情報（社内規定、マニュアル等）を知りません。<br>
+            RAGを使うことで、<strong>自社の文書をAIが参照して回答</strong>できるようになります。</p>
+
+            <h3>RAGの仕組み</h3>
+            <div class="arch-diagram">
+                <div style="text-align:center; margin-bottom:5px; color:#a5b4fc; font-size:0.8em;">【事前準備】文書の登録</div>
+                <div class="arch-row">
+                    <div class="arch-box arch-data">PDF / Word<br><small>社内文書</small></div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-box arch-dify">チャンク分割<br><small>小さな単位に分割</small></div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-box arch-llm">ベクトル化<br><small>数値に変換</small></div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-box arch-data">ベクトルDB<br><small>検索用に保存</small></div>
+                </div>
+                <div style="text-align:center; margin:15px 0 5px; color:#a5b4fc; font-size:0.8em;">【質問時】検索 → 回答生成</div>
+                <div class="arch-row">
+                    <div class="arch-box arch-user">ユーザーの質問</div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-box arch-dify">関連チャンク検索<br><small>類似度で上位を取得</small></div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-box arch-llm">LLMが回答生成<br><small>検索結果を参考に</small></div>
+                </div>
+            </div>
+
+            <div class="point-box">
+                <strong>RAGの利点</strong><br>
+                ① LLMを再学習させる必要がない（文書を追加するだけ）<br>
+                ② 出典を明示できる（「〇〇.pdf の p.5」等）<br>
+                ③ 情報の更新が簡単（文書を差し替えるだけ）
+            </div>
+
+            <h3>対応ファイル形式</h3>
+            <table class="compare-table">
+                <tr><th>形式</th><th>拡張子</th><th>備考</th></tr>
+                <tr><td>PDF</td><td>.pdf</td><td>最もよく使われる。画像抽出にも対応</td></tr>
+                <tr><td>Word</td><td>.docx</td><td>テキスト部分を抽出</td></tr>
+                <tr><td>Excel</td><td>.xlsx</td><td>表データとして取り込み</td></tr>
+                <tr><td>PowerPoint</td><td>.pptx</td><td>スライドのテキストを抽出</td></tr>
+                <tr><td>テキスト</td><td>.txt / .md</td><td>そのまま取り込み</td></tr>
+                <tr><td>CSV</td><td>.csv</td><td>構造化データとして取り込み</td></tr>
+                <tr><td>HTML</td><td>.html</td><td>Webページのテキストを抽出</td></tr>
+            </table>
+
+            <h3>チャンク分割とは？</h3>
+            <p>文書を小さな「チャンク（塊）」に分割してインデックス化します。<br>
+            チャンクのサイズと重複（オーバーラップ）が検索精度に影響します。</p>
+
+            <table class="compare-table">
+                <tr><th>設定</th><th>説明</th><th>推奨値</th></tr>
+                <tr><td>チャンクサイズ</td><td>1つのチャンクの最大文字数</td><td>500〜1000</td></tr>
+                <tr><td>オーバーラップ</td><td>前後のチャンクと重複する文字数</td><td>50〜100</td></tr>
+                <tr><td>分割方式</td><td>自動 / 改行 / 段落 など</td><td>通常は「自動」でOK</td></tr>
+            </table>
+
+            <div class="warn-box">
+                <strong>チャンクが小さすぎると文脈が失われる</strong><br>
+                チャンクサイズが小さすぎると、1つのチャンクに意味のある情報が収まらない。<br>
+                大きすぎると検索の精度が落ちる。まずはデフォルト設定で試すのがよい。
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>ナレッジベースの作成手順</h2>
+
+            <div class="info-card">
+                <h3>Step 1: ナレッジベースを作成</h3>
+                <ol class="step-list">
+                    <li>左メニューの「ナレッジ」をクリック</li>
+                    <li>「ナレッジベースを作成」をクリック</li>
+                    <li>名前をつける（例: 「社内マニュアル」）</li>
+                </ol>
+            </div>
+
+            <div class="info-card">
+                <h3>Step 2: 文書をアップロード</h3>
+                <ol class="step-list">
+                    <li>「ファイルをアップロード」からPDF等を選択</li>
+                    <li>複数ファイルを一括アップロード可能</li>
+                    <li>アップロード後、自動でチャンク分割が始まる</li>
+                </ol>
+
+                <div class="mock-screen">
+                    <div class="mock-titlebar">ナレッジベース: 社内マニュアル</div>
+                    <div class="mock-content">
+                        <div style="border:2px dashed #d1d5db; border-radius:8px; padding:25px; text-align:center; color:#6b7280;">
+                            📄 ファイルをドラッグ&ドロップ<br>
+                            <small>または「ファイルを選択」をクリック</small><br>
+                            <small style="color:#9ca3af;">対応形式: PDF, DOCX, XLSX, TXT, MD, CSV, HTML</small>
+                        </div>
+                        <div style="margin-top:15px;">
+                            <div style="display:flex; align-items:center; padding:8px; background:#f9fafb; border-radius:6px; margin:4px 0;">
+                                <span style="margin-right:10px;">📄</span>
+                                <span style="flex:1;">社内規定_2024.pdf</span>
+                                <span style="color:#10b981; font-size:0.85em;">✅ 完了</span>
+                            </div>
+                            <div style="display:flex; align-items:center; padding:8px; background:#f9fafb; border-radius:6px; margin:4px 0;">
+                                <span style="margin-right:10px;">📄</span>
+                                <span style="flex:1;">経費精算マニュアル.pdf</span>
+                                <span style="color:#10b981; font-size:0.85em;">✅ 完了</span>
+                            </div>
+                            <div style="display:flex; align-items:center; padding:8px; background:#f9fafb; border-radius:6px; margin:4px 0;">
+                                <span style="margin-right:10px;">📄</span>
+                                <span style="flex:1;">システム操作手順書.docx</span>
+                                <span style="color:#6366f1; font-size:0.85em;">⏳ 処理中...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>チャンク分割のイメージ</h3>
+                <p>1つのPDFがこのように分割されます:</p>
+                <div class="chunk-demo">
+                    <div class="chunk-item" data-label="チャンク1">
+                        <strong>第1章 就業規則</strong><br>
+                        勤務時間は9:00〜18:00とする。休憩時間は12:00〜13:00の1時間。
+                        フレックスタイム制の対象者はコアタイム10:00〜15:00...
+                    </div>
+                    <div class="chunk-item" data-label="チャンク2">
+                        ...フレックスタイム制の対象者はコアタイム10:00〜15:00とする。
+                        有給休暇は入社6か月後に10日付与。以降、勤続年数に応じて加算...
+                    </div>
+                    <div class="chunk-item" data-label="チャンク3">
+                        <strong>第2章 経費精算</strong><br>
+                        出張時の交通費は実費精算とする。宿泊費の上限は1泊12,000円。
+                        事前申請が必要な場合は出張申請書を...
+                    </div>
+                </div>
+                <p style="font-size:0.85em; color:#666;">
+                    ※ オーバーラップ部分（チャンク1の末尾とチャンク2の先頭が重複）が文脈の切れ目を防ぐ
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>Step 3: チャットボットにナレッジを接続</h3>
+                <ol class="step-list">
+                    <li>Lesson 4で作ったチャットボットの編集画面を開く</li>
+                    <li>「コンテキスト」セクションの「＋追加」をクリック</li>
+                    <li>作成したナレッジベースを選択して接続</li>
+                    <li>検索モードを選択（通常は「ベクトル検索」でOK）</li>
+                </ol>
+
+                <table class="compare-table">
+                    <tr><th>検索モード</th><th>特徴</th></tr>
+                    <tr><td><strong>ベクトル検索</strong></td><td>意味的に近い文書を検索。一般的な質問向き</td></tr>
+                    <tr><td><strong>全文検索</strong></td><td>キーワード完全一致で検索。固有名詞や型番の検索向き</td></tr>
+                    <tr><td><strong>ハイブリッド検索</strong></td><td>両方を組み合わせ。精度が高いがやや遅い</td></tr>
+                </table>
+            </div>
+
+            <div class="info-card">
+                <h3>RAGの精度を上げるコツ</h3>
+                <div class="tip-grid">
+                    <div class="tip-item">
+                        <h4>✅ 文書を整理してからアップロード</h4>
+                        目次・見出しが整った文書は、チャンク分割の精度が上がる
+                    </div>
+                    <div class="tip-item">
+                        <h4>✅ 1ナレッジベース = 1テーマ</h4>
+                        「就業規則」「IT手順書」など分けると検索精度が向上
+                    </div>
+                    <div class="tip-item bad">
+                        <h4>❌ スキャンPDFをそのまま</h4>
+                        画像だけのPDFはテキスト抽出できない。OCR処理が必要
+                    </div>
+                    <div class="tip-item bad">
+                        <h4>❌ 1ファイルに全部詰め込む</h4>
+                        巨大な1ファイルより、適度に分割された複数ファイルの方が良い
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>Summary Index（v1.12〜の新機能）</h3>
+                <p>AIが各チャンクの要約を自動生成し、検索時にこの要約も使って精度を向上させる機能。</p>
+                <div class="point-box">
+                    <strong>通常のベクトル検索との違い</strong><br>
+                    通常: 質問 → チャンクの原文と類似度比較<br>
+                    Summary Index: 質問 → AI生成の要約と類似度比較 → より本質的なマッチ
+                </div>
+                <p style="font-size:0.85em; color:#666;">
+                    ※ インデックス作成時にLLM APIを消費するため、コストとのバランスを考慮
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 3: 環境準備 - Difyの使い方</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #6366f1; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #4338ca; border-bottom: 2px solid #6366f1; padding-bottom: 10px; }
+        h3 { color: #6366f1; margin-top: 25px; }
+        .code-block { white-space: pre; background: #263238; color: #aed581; padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; overflow-x: auto; margin: 15px 0; line-height: 1.5; }
+        .point-box { background: #eef2ff; border-left: 4px solid #6366f1; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #4338ca; }
+        .warn-box { background: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warn-box strong { color: #b91c1c; }
+        .success-box { background: #d1fae5; border-left: 4px solid #10b981; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .success-box strong { color: #065f46; }
+        .compare-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+        .compare-table th { background: #6366f1; color: white; padding: 10px; text-align: left; }
+        .compare-table td { border: 1px solid #ddd; padding: 10px; }
+        .compare-table tr:nth-child(even) { background: #f9fafb; }
+        .info-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .info-card h3 { margin-top: 0; }
+        .step-list { list-style: none; padding: 0; counter-reset: step; }
+        .step-list li { padding: 12px 15px 12px 55px; margin: 10px 0; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; position: relative; }
+        .step-list li::before { counter-increment: step; content: counter(step); position: absolute; left: 15px; top: 12px; background: #6366f1; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85em; }
+        .mock-screen { background: #f3f4f6; border: 2px solid #d1d5db; border-radius: 10px; overflow: hidden; margin: 15px 0; }
+        .mock-titlebar { background: #6366f1; color: white; padding: 8px 15px; font-size: 0.85em; font-weight: bold; }
+        .mock-content { padding: 15px; }
+        .mock-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin: 6px 0; font-size: 0.9em; background: white; }
+        .mock-btn { display: inline-block; padding: 8px 20px; background: #6366f1; color: white; border: none; border-radius: 6px; font-size: 0.9em; cursor: default; margin: 6px 0; }
+        .mock-sidebar { background: #1e1b4b; color: white; padding: 12px; font-size: 0.8em; }
+        .mock-sidebar-item { padding: 6px 10px; margin: 3px 0; border-radius: 4px; }
+        .mock-sidebar-item.active { background: #4338ca; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Lesson 3: 環境準備</h1>
+        <div class="nav">
+            <a href="index.html">← コース一覧</a>
+            <a href="day2-usecases.html">← Lesson 2</a>
+            <a href="day4-chatbot.html">次へ: チャットボット作成 →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>Difyの始め方</h2>
+            <p>Difyの利用方法は<strong>2つ</strong>あります。<br>
+            まずはどちらで始めるか選びましょう。</p>
+
+            <h3>クラウド版 vs セルフホスト版</h3>
+            <table class="compare-table">
+                <tr>
+                    <th>項目</th>
+                    <th>クラウド版（dify.ai）</th>
+                    <th>セルフホスト版（Docker）</th>
+                </tr>
+                <tr>
+                    <td>セットアップ</td>
+                    <td>アカウント登録だけ</td>
+                    <td>Docker環境が必要</td>
+                </tr>
+                <tr>
+                    <td>費用</td>
+                    <td>無料枠あり / 有料プラン</td>
+                    <td>サーバー費用のみ</td>
+                </tr>
+                <tr>
+                    <td>データの場所</td>
+                    <td>Dify社のサーバー</td>
+                    <td>自社サーバー内</td>
+                </tr>
+                <tr>
+                    <td>管理・運用</td>
+                    <td>不要（Dify社が管理）</td>
+                    <td>自社で管理・更新</td>
+                </tr>
+                <tr>
+                    <td>LLM費用</td>
+                    <td>自分のAPIキーを設定</td>
+                    <td>自分のAPIキーを設定</td>
+                </tr>
+                <tr>
+                    <td>おすすめ</td>
+                    <td>まず試したい人</td>
+                    <td>機密データを扱う場合</td>
+                </tr>
+            </table>
+
+            <div class="point-box">
+                <strong>おすすめ: まずクラウド版で試す</strong><br>
+                操作を覚えてから必要に応じてセルフホストに移行するのが効率的。<br>
+                クラウド版の無料枠で十分に学習できます。
+            </div>
+
+            <h3>LLM APIキーの準備</h3>
+            <p>Dify自体は「プラットフォーム」であり、<strong>AIの頭脳（LLM）は別途必要</strong>です。</p>
+            <ul>
+                <li><strong>OpenAI</strong>: GPT-4o / GPT-4 を使う場合</li>
+                <li><strong>Anthropic</strong>: Claude を使う場合</li>
+                <li><strong>Google</strong>: Gemini を使う場合</li>
+            </ul>
+            <p>いずれかのAPIキーを事前に取得しておきましょう。</p>
+
+            <div class="warn-box">
+                <strong>APIキーの管理に注意</strong><br>
+                APIキーは<strong>パスワードと同じ</strong>です。<br>
+                他人に共有しない、GitHubにコミットしない、定期的にローテーションする。
+            </div>
+
+            <h3>セルフホスト版のインストール</h3>
+            <p>Dockerが使える環境で以下を実行します。</p>
+            <div class="code-block">
+# Difyリポジトリをクローン
+git clone https://github.com/langgenius/dify.git
+
+# dockerディレクトリに移動
+cd dify/docker
+
+# 環境変数ファイルをコピー
+cp .env.example .env
+
+# 起動
+docker compose up -d</div>
+
+            <p>起動後、<code>http://localhost/install</code> にアクセスして初期設定を行います。</p>
+
+            <div class="warn-box">
+                <strong>Docker版の要件</strong><br>
+                Docker / Docker Compose が必要。メモリは最低4GB推奨。<br>
+                社内ネットワークの制約（プロキシ等）に注意。
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>セットアップ手順</h2>
+
+            <div class="info-card">
+                <h3>クラウド版の登録手順</h3>
+                <ol class="step-list">
+                    <li>ブラウザで <strong>https://cloud.dify.ai</strong> にアクセス</li>
+                    <li>「Get Started」をクリックし、メールアドレスで登録<br>
+                        <small style="color:#666;">（GitHubアカウントやGoogleアカウントでも可）</small></li>
+                    <li>メール認証を完了してログイン</li>
+                    <li>ワークスペースが自動作成され、ダッシュボードが表示される</li>
+                </ol>
+            </div>
+
+            <div class="info-card">
+                <h3>LLMプロバイダーの設定</h3>
+                <p>ログイン後、まずAIモデルを接続します。</p>
+
+                <div class="mock-screen">
+                    <div class="mock-titlebar">設定 → モデルプロバイダー</div>
+                    <div class="mock-content">
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <div style="border:2px solid #6366f1; border-radius:8px; padding:12px; width:140px; text-align:center;">
+                                <strong>OpenAI</strong><br>
+                                <small style="color:#666;">GPT-4o / GPT-4</small><br>
+                                <span style="color:#10b981; font-size:0.8em;">✅ 設定済み</span>
+                            </div>
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:12px; width:140px; text-align:center;">
+                                <strong>Anthropic</strong><br>
+                                <small style="color:#666;">Claude</small><br>
+                                <span style="color:#9ca3af; font-size:0.8em;">未設定</span>
+                            </div>
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:12px; width:140px; text-align:center;">
+                                <strong>Google</strong><br>
+                                <small style="color:#666;">Gemini</small><br>
+                                <span style="color:#9ca3af; font-size:0.8em;">未設定</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ol class="step-list">
+                    <li>右上のユーザーアイコン → 「設定」をクリック</li>
+                    <li>左メニューの「モデルプロバイダー」を選択</li>
+                    <li>使いたいプロバイダー（例: OpenAI）をクリック</li>
+                    <li>APIキーを入力して「保存」</li>
+                </ol>
+
+                <div class="mock-screen">
+                    <div class="mock-titlebar">OpenAI APIキー設定</div>
+                    <div class="mock-content">
+                        <label style="font-size:0.85em; color:#666;">API Key</label>
+                        <div class="mock-input">sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+                        <div style="margin-top:10px;">
+                            <span class="mock-btn">保存</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>ダッシュボード画面の構成</h3>
+                <div class="mock-screen">
+                    <div class="mock-titlebar">Dify ダッシュボード</div>
+                    <div style="display:flex;">
+                        <div class="mock-sidebar" style="width:180px;">
+                            <div class="mock-sidebar-item active">📱 アプリ一覧</div>
+                            <div class="mock-sidebar-item">📚 ナレッジ</div>
+                            <div class="mock-sidebar-item">🔧 ツール</div>
+                            <div class="mock-sidebar-item">📊 ログ&アノテーション</div>
+                        </div>
+                        <div class="mock-content" style="flex:1;">
+                            <p style="margin:0 0 15px; font-weight:bold;">アプリ一覧</p>
+                            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                                <div style="border:2px dashed #d1d5db; border-radius:8px; padding:20px 30px; text-align:center; color:#6366f1; font-weight:bold; cursor:default;">
+                                    ＋ アプリを作成
+                                </div>
+                            </div>
+                            <p style="font-size:0.8em; color:#999; margin-top:15px;">まだアプリがありません。最初のアプリを作成しましょう。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="compare-table" style="margin-top:15px;">
+                    <tr><th>メニュー</th><th>説明</th></tr>
+                    <tr><td><strong>アプリ一覧</strong></td><td>作成したAIアプリの管理。ここからアプリを新規作成</td></tr>
+                    <tr><td><strong>ナレッジ</strong></td><td>RAG用のドキュメント管理。文書のアップロード・管理</td></tr>
+                    <tr><td><strong>ツール</strong></td><td>外部ツール・APIの接続設定</td></tr>
+                    <tr><td><strong>ログ&アノテーション</strong></td><td>利用ログの確認・AIの回答改善</td></tr>
+                </table>
+            </div>
+
+            <div class="success-box">
+                <strong>環境準備完了！</strong><br>
+                APIキーの設定まで終われば、次のLesson 4でチャットボットを作成できます。
+            </div>
+        </div>
+    </div>
+</body>
+</html>

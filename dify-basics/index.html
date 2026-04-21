@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Difyの使い方 — AI開発プラットフォーム入門</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background: #f5f5f5; color: #333; line-height: 1.7; }
+        .header { background: #6366f1; color: white; padding: 20px 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 1.8em; }
+        .header p { margin: 8px 0 0; opacity: 0.9; }
+        .header a { color: white; text-decoration: none; }
+        .header a:hover { text-decoration: underline; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .intro { background: white; border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .intro h2 { color: #4338ca; margin-top: 0; }
+        .day-list { list-style: none; padding: 0; }
+        .day-list li { margin-bottom: 12px; }
+        .day-list a { display: block; background: white; border-radius: 10px; padding: 18px 22px; text-decoration: none; color: #333; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: transform 0.15s, box-shadow 0.15s; border-left: 5px solid #6366f1; }
+        .day-list a:hover { transform: translateX(6px); box-shadow: 0 4px 12px rgba(99,102,241,0.2); }
+        .day-list .day-num { color: #6366f1; font-weight: bold; margin-right: 10px; }
+        .day-list .day-desc { font-size: 0.85em; color: #666; margin-top: 4px; }
+        .back-link { text-align: center; margin-top: 30px; }
+        .back-link a { color: #6366f1; text-decoration: none; font-weight: bold; }
+        .back-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Difyの使い方</h1>
+        <p>AI開発プラットフォーム入門 — 全7レッスン（目安 6時間 / 2日）</p>
+        <p><a href="../index.html">← ポータルに戻る</a></p>
+    </div>
+    <div class="container">
+        <div class="intro">
+            <h2>このコースについて</h2>
+            <p>Difyは、プログラミング不要でAIアプリを構築できるオープンソースのプラットフォームです。<br>
+            チャットボット、RAG（社内文書検索）、業務自動化ワークフローなどを、GUIの操作だけで作れます。</p>
+            <p>このコースでは、Difyの基本概念から実践的な活用方法まで、ステップバイステップで学びます。</p>
+        </div>
+        <ul class="day-list">
+            <li><a href="day1-overview.html">
+                <span class="day-num">Lesson 1</span> Difyとは？
+                <div class="day-desc">概要・特徴・他ツールとの違い・Difyでできること</div>
+            </a></li>
+            <li><a href="day2-usecases.html">
+                <span class="day-num">Lesson 2</span> よくある使い方・実例集
+                <div class="day-desc">FAQボット、文書検索、メール下書き、業務自動化など具体的な活用パターン</div>
+            </a></li>
+            <li><a href="day3-setup.html">
+                <span class="day-num">Lesson 3</span> 環境準備
+                <div class="day-desc">クラウド版の登録 / Docker版の構築・初期設定</div>
+            </a></li>
+            <li><a href="day4-chatbot.html">
+                <span class="day-num">Lesson 4</span> チャットボット作成
+                <div class="day-desc">基本のAIアプリを作る・プロンプト設計・変数の使い方</div>
+            </a></li>
+            <li><a href="day5-rag.html">
+                <span class="day-num">Lesson 5</span> RAG（ナレッジベース）
+                <div class="day-desc">社内文書を読ませて回答させる・ナレッジベースの作成と設定</div>
+            </a></li>
+            <li><a href="day6-workflow.html">
+                <span class="day-num">Lesson 6</span> ワークフロー
+                <div class="day-desc">複数ステップの処理を組む・条件分岐・ノードの種類</div>
+            </a></li>
+            <li><a href="day7-api.html">
+                <span class="day-num">Lesson 7</span> API連携・外部公開
+                <div class="day-desc">作ったAIアプリを業務システムに組み込む・Webサイト埋め込み</div>
+            </a></li>
+        </ul>
+        <div class="back-link"><a href="../index.html">← ポータルに戻る</a></div>
+    </div>
+</body>
+</html>

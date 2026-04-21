@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 2: よくある使い方・実例集 - Difyの使い方</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #6366f1; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #4338ca; border-bottom: 2px solid #6366f1; padding-bottom: 10px; }
+        h3 { color: #6366f1; margin-top: 25px; }
+        .point-box { background: #eef2ff; border-left: 4px solid #6366f1; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #4338ca; }
+        .usecase-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .usecase-card h3 { margin-top: 0; }
+        .usecase-icon { font-size: 2em; float: left; margin-right: 15px; margin-top: 5px; }
+        .usecase-meta { display: flex; gap: 15px; margin: 12px 0; font-size: 0.85em; }
+        .meta-item { background: #f3f4f6; padding: 4px 10px; border-radius: 6px; }
+        .meta-item.easy { background: #d1fae5; color: #065f46; }
+        .meta-item.medium { background: #fef3c7; color: #92400e; }
+        .meta-item.hard { background: #fee2e2; color: #991b1b; }
+        .scenario-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; margin: 10px 0; }
+        .scenario-box h4 { margin: 0 0 8px; color: #4338ca; font-size: 0.95em; }
+        .effect-list { list-style: none; padding: 0; margin: 10px 0; }
+        .effect-list li { padding: 4px 0; }
+        .effect-list li::before { content: "✅ "; }
+        .category-label { display: inline-block; background: #6366f1; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: bold; margin-bottom: 10px; }
+        .flow-box { background: #1e1b4b; color: white; border-radius: 10px; padding: 15px; margin: 10px 0; font-size: 0.85em; }
+        .flow-step { display: flex; align-items: center; margin: 6px 0; gap: 10px; }
+        .flow-num { background: #6366f1; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85em; flex-shrink: 0; }
+        .flow-arrow { color: #818cf8; text-align: center; margin: 2px 0 2px 9px; }
+        .summary-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.85em; }
+        .summary-table th { background: #6366f1; color: white; padding: 8px; text-align: left; }
+        .summary-table td { border: 1px solid #ddd; padding: 8px; }
+        .summary-table tr:nth-child(even) { background: #f9fafb; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Lesson 2: よくある使い方・実例集</h1>
+        <div class="nav">
+            <a href="index.html">← コース一覧</a>
+            <a href="day1-overview.html">← Lesson 1</a>
+            <a href="day3-setup.html">次へ: 環境準備 →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>Difyの活用パターン</h2>
+            <p>Difyは様々な業務シーンで使われています。<br>
+            ここでは<strong>よくある使い方を6パターン</strong>紹介します。</p>
+
+            <div class="point-box">
+                <strong>「AIで何ができるか」のイメージを掴む</strong><br>
+                具体例を知ることで、自社の業務にどう活かせるかが見えてきます。
+                まずは一つ試してみることが大切です。
+            </div>
+
+            <h3>活用パターン一覧</h3>
+            <table class="summary-table">
+                <tr>
+                    <th>#</th>
+                    <th>パターン</th>
+                    <th>アプリ種類</th>
+                    <th>難易度</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>社内FAQボット</td>
+                    <td>チャットボット + RAG</td>
+                    <td>★☆☆</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>文書検索・要約</td>
+                    <td>チャットボット + RAG</td>
+                    <td>★☆☆</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>メール・報告書の下書き</td>
+                    <td>テキスト生成</td>
+                    <td>★☆☆</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>問い合わせ対応の自動振り分け</td>
+                    <td>ワークフロー</td>
+                    <td>★★☆</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>多言語カスタマーサポート</td>
+                    <td>チャットボット</td>
+                    <td>★★☆</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>業務ワークフロー自動化</td>
+                    <td>ワークフロー + API</td>
+                    <td>★★★</td>
+                </tr>
+            </table>
+
+            <h3>導入のポイント</h3>
+            <div class="point-box">
+                <strong>最初の一歩は「社内FAQ」か「メール下書き」</strong><br>
+                <ul style="margin: 8px 0 0; padding-left: 20px;">
+                    <li>効果が見えやすく、失敗のリスクが低い</li>
+                    <li>既存の文書やテンプレートを活用できる</li>
+                    <li>小さく始めて、成功体験を積むのが重要</li>
+                </ul>
+            </div>
+
+            <h3>ORSYSでの活用アイデア</h3>
+            <ul>
+                <li><strong>操作マニュアル検索ボット</strong>：「受注入力の方法は？」→ マニュアルから回答</li>
+                <li><strong>障害対応ナレッジ</strong>：過去の障害票から類似事例を検索</li>
+                <li><strong>仕様確認アシスタント</strong>：設計書を読ませて仕様に関する質問に回答</li>
+                <li><strong>定型メール生成</strong>：顧客への連絡文面をテンプレートから生成</li>
+            </ul>
+        </div>
+
+        <div class="right-panel">
+            <h2>具体的な実例</h2>
+
+            <!-- 実例1 -->
+            <div class="usecase-card">
+                <span class="category-label">パターン1</span>
+                <div class="usecase-icon">🏢</div>
+                <h3>社内FAQボット</h3>
+                <div class="usecase-meta">
+                    <span class="meta-item easy">難易度: 低</span>
+                    <span class="meta-item">チャットボット + RAG</span>
+                    <span class="meta-item">構築: 1〜2時間</span>
+                </div>
+                <div style="clear:both;"></div>
+
+                <div class="scenario-box">
+                    <h4>どんな場面で使う？</h4>
+                    <p>社内規定、就業規則、経費精算のルールなど、「毎回同じ質問が来る」内容をAIに回答させる。<br>
+                    人事・総務・情シスの問い合わせ対応を大幅に削減できる。</p>
+                </div>
+
+                <div class="flow-box">
+                    <div class="flow-step"><div class="flow-num">1</div>社内規定PDF・マニュアルをアップロード</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">2</div>ナレッジベースに自動で分割・インデックス化</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">3</div>チャットボットアプリを作成、ナレッジを接続</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">4</div>社員が質問 → 関連箇所を検索 → AIが回答を生成</div>
+                </div>
+
+                <ul class="effect-list">
+                    <li>問い合わせ対応の時間を50〜80%削減</li>
+                    <li>24時間対応可能（担当者不在でも回答できる）</li>
+                    <li>回答のばらつきがなくなる</li>
+                </ul>
+            </div>
+
+            <!-- 実例2 -->
+            <div class="usecase-card">
+                <span class="category-label">パターン2</span>
+                <div class="usecase-icon">📚</div>
+                <h3>文書検索・要約</h3>
+                <div class="usecase-meta">
+                    <span class="meta-item easy">難易度: 低</span>
+                    <span class="meta-item">チャットボット + RAG</span>
+                    <span class="meta-item">構築: 1〜2時間</span>
+                </div>
+                <div style="clear:both;"></div>
+
+                <div class="scenario-box">
+                    <h4>どんな場面で使う？</h4>
+                    <p>大量の議事録、設計書、報告書の中から必要な情報を探し出す。<br>
+                    「あの件、どの議事録に書いてあったっけ？」を一瞬で解決。</p>
+                </div>
+
+                <div class="flow-box">
+                    <div class="flow-step"><div class="flow-num">1</div>議事録・設計書をまとめてアップロード</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">2</div>「〇〇の仕様変更はいつ決まった？」と質問</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">3</div>AIが関連文書を検索し、要約して回答</div>
+                </div>
+
+                <ul class="effect-list">
+                    <li>文書検索の時間を大幅に短縮</li>
+                    <li>出典（どの文書の何ページ）も提示できる</li>
+                    <li>Summary Index機能で検索精度が向上（v1.12〜）</li>
+                </ul>
+            </div>
+
+            <!-- 実例3 -->
+            <div class="usecase-card">
+                <span class="category-label">パターン3</span>
+                <div class="usecase-icon">✉️</div>
+                <h3>メール・報告書の下書き</h3>
+                <div class="usecase-meta">
+                    <span class="meta-item easy">難易度: 低</span>
+                    <span class="meta-item">テキスト生成</span>
+                    <span class="meta-item">構築: 30分</span>
+                </div>
+                <div style="clear:both;"></div>
+
+                <div class="scenario-box">
+                    <h4>どんな場面で使う？</h4>
+                    <p>定型的なメールや報告書の下書きをAIに任せる。<br>
+                    要件（宛先、目的、トーン）を入力すると、文面を自動生成。</p>
+                </div>
+
+                <p><strong>使い方の例：</strong></p>
+                <ul>
+                    <li>顧客への納期回答メール：案件名・納期・理由を入力 → 丁寧な文面を生成</li>
+                    <li>週次報告書：箇条書きのメモを入力 → フォーマットに沿った報告書に</li>
+                    <li>障害報告：エラー内容を入力 → 報告テンプレートに沿って整形</li>
+                </ul>
+
+                <ul class="effect-list">
+                    <li>文章作成時間を60〜70%短縮</li>
+                    <li>文体・フォーマットが統一される</li>
+                    <li>テンプレートをプロンプトに組み込める</li>
+                </ul>
+            </div>
+
+            <!-- 実例4 -->
+            <div class="usecase-card">
+                <span class="category-label">パターン4</span>
+                <div class="usecase-icon">🔀</div>
+                <h3>問い合わせの自動振り分け</h3>
+                <div class="usecase-meta">
+                    <span class="meta-item medium">難易度: 中</span>
+                    <span class="meta-item">ワークフロー</span>
+                    <span class="meta-item">構築: 2〜3時間</span>
+                </div>
+                <div style="clear:both;"></div>
+
+                <div class="scenario-box">
+                    <h4>どんな場面で使う？</h4>
+                    <p>問い合わせ内容をAIが分類し、適切な担当チームに振り分ける。<br>
+                    「質問分類器」ノードを使って、カテゴリ別に処理を分岐させる。</p>
+                </div>
+
+                <div class="flow-box">
+                    <div class="flow-step"><div class="flow-num">1</div>問い合わせ内容を受け取る（開始ノード）</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">2</div>AIが内容を分類（質問分類器ノード）</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">3</div>カテゴリ別に処理を分岐</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">4</div>各カテゴリの回答テンプレートで応答 or 担当者に転送</div>
+                </div>
+
+                <ul class="effect-list">
+                    <li>問い合わせの初期対応を自動化</li>
+                    <li>誤振り分けはHuman-in-the-Loop（人間確認）で防止可能</li>
+                    <li>対応状況のログが自動で残る</li>
+                </ul>
+            </div>
+
+            <!-- 実例5 -->
+            <div class="usecase-card">
+                <span class="category-label">パターン5</span>
+                <div class="usecase-icon">🌐</div>
+                <h3>多言語カスタマーサポート</h3>
+                <div class="usecase-meta">
+                    <span class="meta-item medium">難易度: 中</span>
+                    <span class="meta-item">チャットボット</span>
+                    <span class="meta-item">構築: 2〜3時間</span>
+                </div>
+                <div style="clear:both;"></div>
+
+                <div class="scenario-box">
+                    <h4>どんな場面で使う？</h4>
+                    <p>海外顧客や外国人スタッフへの対応。日本語のナレッジベースを使いつつ、<br>
+                    質問された言語で自動的に回答する。</p>
+                </div>
+
+                <ul class="effect-list">
+                    <li>LLMの翻訳能力を活用し、追加の翻訳ツール不要</li>
+                    <li>「日本語で回答を生成 → 質問の言語に翻訳」をプロンプトで指示</li>
+                    <li>英語・中国語・韓国語など主要言語に対応</li>
+                </ul>
+            </div>
+
+            <!-- 実例6 -->
+            <div class="usecase-card">
+                <span class="category-label">パターン6</span>
+                <div class="usecase-icon">⚙️</div>
+                <h3>業務ワークフロー自動化</h3>
+                <div class="usecase-meta">
+                    <span class="meta-item hard">難易度: 高</span>
+                    <span class="meta-item">ワークフロー + API</span>
+                    <span class="meta-item">構築: 半日〜1日</span>
+                </div>
+                <div style="clear:both;"></div>
+
+                <div class="scenario-box">
+                    <h4>どんな場面で使う？</h4>
+                    <p>複数のステップを組み合わせた業務プロセスをAIで自動化。<br>
+                    HTTPリクエストノードで外部システムとも連携できる。</p>
+                </div>
+
+                <p><strong>例: 日次レポート自動生成</strong></p>
+                <div class="flow-box">
+                    <div class="flow-step"><div class="flow-num">1</div>HTTPノードで業務データを取得（売上、在庫等）</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">2</div>LLMノードでデータを分析・要約</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">3</div>条件分岐：異常値があれば警告文を追加</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step"><div class="flow-num">4</div>レポート形式に整形して出力</div>
+                </div>
+
+                <ul class="effect-list">
+                    <li>定型的な分析・レポート作成を自動化</li>
+                    <li>外部API連携で既存システムのデータを活用</li>
+                    <li>Dify APIを通じて他のシステムからトリガーも可能</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

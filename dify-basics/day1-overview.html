@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 1: Difyとは？ - Difyの使い方</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #6366f1; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.3em; }
+        .header .nav { margin-top: 8px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .left-panel { width: 45%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+        .right-panel { width: 55%; padding: 30px; overflow-y: auto; }
+        h2 { color: #4338ca; border-bottom: 2px solid #6366f1; padding-bottom: 10px; }
+        h3 { color: #6366f1; margin-top: 25px; }
+        .point-box { background: #eef2ff; border-left: 4px solid #6366f1; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .point-box strong { color: #4338ca; }
+        .warn-box { background: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .warn-box strong { color: #b91c1c; }
+        .compare-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+        .compare-table th { background: #6366f1; color: white; padding: 10px; text-align: left; }
+        .compare-table td { border: 1px solid #ddd; padding: 10px; }
+        .compare-table tr:nth-child(even) { background: #f9fafb; }
+        .info-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .info-card h3 { margin-top: 0; }
+        .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
+        .app-item { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 10px; padding: 15px; text-align: center; }
+        .app-item.highlight { border-color: #6366f1; background: #eef2ff; }
+        .app-item h4 { margin: 0 0 8px; color: #4338ca; font-size: 1.1em; }
+        .app-item p { margin: 0; font-size: 0.85em; color: #666; }
+        .app-icon { font-size: 2em; margin-bottom: 8px; }
+        .arch-diagram { background: #1e1b4b; color: white; border-radius: 12px; padding: 25px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 0.85em; }
+        .arch-row { display: flex; justify-content: center; align-items: center; margin: 8px 0; gap: 10px; flex-wrap: wrap; }
+        .arch-box { padding: 10px 16px; border-radius: 8px; text-align: center; font-size: 0.9em; }
+        .arch-user { background: #818cf8; }
+        .arch-dify { background: #6366f1; }
+        .arch-llm { background: #4338ca; }
+        .arch-data { background: #3730a3; }
+        .arch-arrow { color: #a5b4fc; font-size: 1.4em; }
+        .feature-list { list-style: none; padding: 0; }
+        .feature-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .feature-list li:last-child { border-bottom: none; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; margin-left: 6px; }
+        .tag-core { background: #eef2ff; color: #4338ca; }
+        .tag-new { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Lesson 1: Difyとは？</h1>
+        <div class="nav">
+            <a href="index.html">← コース一覧</a>
+            <a href="day2-usecases.html">次へ: 実例集 →</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>Dify — AI開発プラットフォーム</h2>
+            <p>Difyは<strong>プログラミング不要でAIアプリを構築できる</strong>オープンソースのプラットフォームです。</p>
+            <p>チャットボット、RAG（文書検索AI）、業務自動化ワークフローなどを、
+            ブラウザ上のGUI操作だけで作れます。</p>
+
+            <h3>なぜDifyが注目されるのか？</h3>
+            <ul>
+                <li><strong>ノーコード / ローコード</strong>：GUI操作だけでAIアプリが作れる</li>
+                <li><strong>複数のLLM対応</strong>：GPT-4、Claude、Gemini、ローカルLLMなど数十のプロバイダーに対応</li>
+                <li><strong>RAG内蔵</strong>：社内文書を読ませて回答させる機能が標準装備</li>
+                <li><strong>ワークフロー</strong>：複数ステップの処理をビジュアルに構築</li>
+                <li><strong>オープンソース</strong>：無料でセルフホスト可能（MITライセンス）</li>
+                <li><strong>API提供</strong>：作ったアプリを業務システムに組み込める</li>
+            </ul>
+
+            <h3>他のツールとの比較</h3>
+            <table class="compare-table">
+                <tr>
+                    <th>項目</th>
+                    <th>ChatGPT</th>
+                    <th>Dify</th>
+                    <th>LangChain</th>
+                </tr>
+                <tr>
+                    <td>対象者</td>
+                    <td>エンドユーザー</td>
+                    <td>業務担当者〜開発者</td>
+                    <td>開発者</td>
+                </tr>
+                <tr>
+                    <td>構築方法</td>
+                    <td>利用のみ</td>
+                    <td>GUI（ノーコード）</td>
+                    <td>Pythonコード</td>
+                </tr>
+                <tr>
+                    <td>カスタマイズ</td>
+                    <td>低い</td>
+                    <td>高い</td>
+                    <td>非常に高い</td>
+                </tr>
+                <tr>
+                    <td>RAG</td>
+                    <td>GPTs で一部可</td>
+                    <td>標準機能</td>
+                    <td>自分で構築</td>
+                </tr>
+                <tr>
+                    <td>自社サーバー運用</td>
+                    <td>不可</td>
+                    <td>可能（Docker）</td>
+                    <td>可能</td>
+                </tr>
+                <tr>
+                    <td>学習コスト</td>
+                    <td>低い</td>
+                    <td>中程度</td>
+                    <td>高い</td>
+                </tr>
+            </table>
+
+            <div class="point-box">
+                <strong>Difyの立ち位置</strong><br>
+                ChatGPTの「手軽さ」とLangChainの「自由度」の中間。<br>
+                プログラミングなしで本格的なAIアプリが作れるのが最大の強み。
+            </div>
+
+            <h3>オープンソースとは？</h3>
+            <p>Difyのソースコードは<strong>GitHub上で公開</strong>されています（MITライセンス）。</p>
+            <ul>
+                <li>誰でもコードを見て、改造して、自社サーバーにデプロイできる</li>
+                <li>クラウド版（dify.ai）は有料プランあり、すぐ使い始められる</li>
+                <li>セルフホスト版はDocker Composeで構築、データが社外に出ない</li>
+            </ul>
+
+            <div class="warn-box">
+                <strong>セルフホスト版の注意点</strong><br>
+                自社サーバーで動かす場合、サーバーの管理・アップデートは自己責任。<br>
+                まずはクラウド版（無料枠あり）で試すのがおすすめ。
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2>Difyの全体像</h2>
+
+            <div class="info-card">
+                <h3>アーキテクチャ概要</h3>
+                <div class="arch-diagram">
+                    <div class="arch-row">
+                        <div class="arch-box arch-user">ユーザー<br><small>ブラウザ / API</small></div>
+                    </div>
+                    <div class="arch-row"><span class="arch-arrow">▼</span></div>
+                    <div class="arch-row">
+                        <div class="arch-box arch-dify">Dify プラットフォーム<br><small>アプリ管理 / ワークフロー / RAG / Prompt IDE</small></div>
+                    </div>
+                    <div class="arch-row"><span class="arch-arrow">▼</span></div>
+                    <div class="arch-row">
+                        <div class="arch-box arch-llm">LLMプロバイダー<br><small>OpenAI / Anthropic / Google / ローカルLLM</small></div>
+                        <div class="arch-box arch-data">データソース<br><small>文書 / PDF / Web / DB</small></div>
+                    </div>
+                </div>
+                <p style="font-size:0.85em; color:#666;">Difyが中間層として、ユーザーとLLM・データを繋ぐ</p>
+            </div>
+
+            <div class="info-card">
+                <h3>4種類のアプリ</h3>
+                <div class="app-grid">
+                    <div class="app-item highlight">
+                        <div class="app-icon">💬</div>
+                        <h4>チャットボット</h4>
+                        <p>対話形式のAIアプリ。<br>FAQ対応、社内ヘルプに最適</p>
+                    </div>
+                    <div class="app-item">
+                        <div class="app-icon">📝</div>
+                        <h4>テキスト生成</h4>
+                        <p>入力から文章を生成。<br>メール下書き、要約に</p>
+                    </div>
+                    <div class="app-item highlight">
+                        <div class="app-icon">🔀</div>
+                        <h4>ワークフロー</h4>
+                        <p>複数ステップの処理を<br>ビジュアルに構築</p>
+                    </div>
+                    <div class="app-item">
+                        <div class="app-icon">🤖</div>
+                        <h4>エージェント</h4>
+                        <p>ツールを使って自律的に<br>タスクを実行するAI</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>Difyの主要機能</h3>
+                <ul class="feature-list">
+                    <li>🎨 <strong>Prompt IDE</strong> — プロンプトの設計・テスト・比較ができるエディタ <span class="tag tag-core">コア機能</span></li>
+                    <li>📚 <strong>RAGパイプライン</strong> — 文書をアップロードして検索・回答に活用 <span class="tag tag-core">コア機能</span></li>
+                    <li>🔀 <strong>ワークフロービルダー</strong> — ドラッグ&ドロップで処理フローを構築 <span class="tag tag-core">コア機能</span></li>
+                    <li>🤖 <strong>エージェント</strong> — Function Calling / ReActでツール呼び出し <span class="tag tag-core">コア機能</span></li>
+                    <li>🔌 <strong>Backend-as-a-Service</strong> — 全機能にREST API提供 <span class="tag tag-core">コア機能</span></li>
+                    <li>📊 <strong>LLMOps</strong> — ログ監視・利用分析・コスト管理 <span class="tag tag-core">コア機能</span></li>
+                    <li>👤 <strong>Human-in-the-Loop</strong> — ワークフロー途中で人間が承認・編集 <span class="tag tag-new">v1.13 新機能</span></li>
+                    <li>📄 <strong>Summary Index</strong> — AIがチャンク要約を生成し検索精度向上 <span class="tag tag-new">v1.12 新機能</span></li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>対応LLMプロバイダー（一部）</h3>
+                <table class="compare-table">
+                    <tr><th>プロバイダー</th><th>主なモデル</th></tr>
+                    <tr><td>OpenAI</td><td>GPT-4o, GPT-4, GPT-3.5</td></tr>
+                    <tr><td>Anthropic</td><td>Claude Opus, Claude Sonnet</td></tr>
+                    <tr><td>Google</td><td>Gemini Pro, Gemini Flash</td></tr>
+                    <tr><td>Meta（ローカル）</td><td>Llama 3</td></tr>
+                    <tr><td>Mistral</td><td>Mistral Large, Mixtral</td></tr>
+                    <tr><td>OpenAI互換</td><td>任意のOpenAI互換APIサーバー</td></tr>
+                </table>
+                <p style="font-size:0.85em; color:#666; margin-top:10px;">
+                    ※ 数十のプロバイダー・数百のモデルに対応。随時追加されている。
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
