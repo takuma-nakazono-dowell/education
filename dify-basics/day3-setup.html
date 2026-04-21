@@ -235,9 +235,272 @@ docker compose up -d</div>
                 </table>
             </div>
 
+            <div class="info-card">
+                <h3>🔍 探索（Explore）画面</h3>
+                <p>Difyが用意した<strong>テンプレートアプリのギャラリー</strong>。まずここで「AIアプリとはどんなものか」を体感する。</p>
+
+                <div class="mock-screen">
+                    <div class="mock-titlebar">探索（Explore）</div>
+                    <div class="mock-content">
+                        <p style="margin:0 0 10px; font-weight:bold; font-size:0.9em;">おすすめアプリ</p>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:10px; width:140px;">
+                                <div style="font-size:1.3em;">🌐</div>
+                                <strong style="font-size:0.85em;">翻訳アシスタント</strong><br>
+                                <small style="color:#666;">多言語翻訳チャットボット</small>
+                            </div>
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:10px; width:140px;">
+                                <div style="font-size:1.3em;">📝</div>
+                                <strong style="font-size:0.85em;">文書要約</strong><br>
+                                <small style="color:#666;">長文を3行に要約</small>
+                            </div>
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:10px; width:140px;">
+                                <div style="font-size:1.3em;">💻</div>
+                                <strong style="font-size:0.85em;">コード生成</strong><br>
+                                <small style="color:#666;">自然言語→コード変換</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p><strong>探索画面でできること：</strong></p>
+                <ul>
+                    <li>テンプレートアプリをその場で<strong>試用</strong>（チャット画面で会話できる）</li>
+                    <li>気に入ったアプリを「ワークスペースに追加」して<strong>カスタマイズ</strong></li>
+                    <li>プロンプトやモデル設定の<strong>お手本</strong>として参考にする</li>
+                    <li>カテゴリ別に検索（翻訳、分析、コーディング、HR等）</li>
+                </ul>
+
+                <div class="point-box">
+                    <strong>おすすめの使い方</strong><br>
+                    まず「翻訳アシスタント」や「文書要約」を試してみる。<br>
+                    「ワークスペースに追加」してプロンプトを覗くと、設計の参考になる。
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>🎨 スタジオ（Studio）画面</h3>
+                <p>AIアプリの<strong>作成・編集・管理のメイン画面</strong>。Difyで最も多くの時間を過ごす場所。</p>
+
+                <div class="mock-screen">
+                    <div class="mock-titlebar">スタジオ — アプリ一覧</div>
+                    <div class="mock-content">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <strong style="font-size:0.9em;">マイアプリ</strong>
+                            <span class="mock-btn" style="font-size:0.8em; padding:5px 12px;">＋ アプリを作成</span>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:12px; width:150px;">
+                                <div style="font-size:1.3em;">💬</div>
+                                <strong style="font-size:0.85em;">社内FAQボット</strong><br>
+                                <small style="color:#666;">チャットボット</small><br>
+                                <small style="color:#10b981;">公開中</small>
+                            </div>
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:12px; width:150px;">
+                                <div style="font-size:1.3em;">🔀</div>
+                                <strong style="font-size:0.85em;">問い合わせ振り分け</strong><br>
+                                <small style="color:#666;">ワークフロー</small><br>
+                                <small style="color:#f59e0b;">下書き</small>
+                            </div>
+                            <div style="border:2px dashed #d1d5db; border-radius:8px; padding:20px 12px; width:150px; text-align:center; color:#6366f1;">
+                                ＋ 新規
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p><strong>スタジオ画面でできること：</strong></p>
+                <table class="compare-table">
+                    <tr><th>機能</th><th>説明</th></tr>
+                    <tr><td><strong>アプリ作成</strong></td><td>「最初から作成」「テンプレートから」「DSLファイルをインポート」の3通り</td></tr>
+                    <tr><td><strong>Prompt IDE</strong></td><td>プロンプトの編集・テスト・比較。右パネルでリアルタイムプレビュー</td></tr>
+                    <tr><td><strong>変数管理</strong></td><td>ユーザーから受け取る入力項目（テキスト、選択肢、ファイル等）を定義</td></tr>
+                    <tr><td><strong>コンテキスト設定</strong></td><td>ナレッジベースの接続、検索モードの選択</td></tr>
+                    <tr><td><strong>モデル設定</strong></td><td>使用するLLM、Temperature、Max Tokensの調整</td></tr>
+                    <tr><td><strong>デバッグ&プレビュー</strong></td><td>公開前にチャット画面でテスト。ログで入出力を確認</td></tr>
+                    <tr><td><strong>公開&監視</strong></td><td>Webアプリ / 埋め込み / APIとして公開。利用ログの確認</td></tr>
+                </table>
+
+                <div class="mock-screen">
+                    <div class="mock-titlebar">スタジオ — アプリ編集画面（Prompt IDE）</div>
+                    <div style="display:flex;">
+                        <div style="flex:1; padding:12px; border-right:1px solid #d1d5db;">
+                            <p style="margin:0 0 6px; font-size:0.8em; color:#666; font-weight:bold;">システムプロンプト</p>
+                            <div style="background:white; border:1px solid #d1d5db; border-radius:6px; padding:8px; font-size:0.8em; min-height:80px;">
+                                あなたは社内ヘルプデスクです。<br>
+                                丁寧に回答してください。<br>
+                                わからないことは「確認します」と答えて。
+                            </div>
+                            <p style="margin:10px 0 4px; font-size:0.8em; color:#666; font-weight:bold;">コンテキスト</p>
+                            <div style="background:#eef2ff; border-radius:6px; padding:6px 8px; font-size:0.8em;">📚 社内マニュアル（接続済み）</div>
+                        </div>
+                        <div style="flex:1; padding:12px; background:#fafafa;">
+                            <p style="margin:0 0 6px; font-size:0.8em; color:#666; font-weight:bold;">プレビュー</p>
+                            <div style="background:white; border:1px solid #d1d5db; border-radius:6px; padding:8px; font-size:0.8em;">
+                                <div style="background:#eef2ff; padding:6px; border-radius:4px; margin-bottom:6px;">経費精算の申請方法は？</div>
+                                <div style="background:#f9fafb; padding:6px; border-radius:4px;">経費精算の手順をご案内します：<br>1. 経費精算システムにログイン...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="point-box">
+                    <strong>DSLインポートとは？</strong><br>
+                    DifyアプリはYAML形式の「DSLファイル」としてエクスポート/インポートできる。<br>
+                    他のメンバーが作ったアプリの設定を丸ごと取り込んだり、バックアップに使える。
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>📚 ナレッジ（Knowledge）画面</h3>
+                <p>RAG用の<strong>ドキュメント管理画面</strong>。ここで登録した文書をチャットボットやワークフローから参照できる。</p>
+
+                <div class="mock-screen">
+                    <div class="mock-titlebar">ナレッジ — ナレッジベース一覧</div>
+                    <div class="mock-content">
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:12px; width:170px;">
+                                <div style="font-size:1.3em;">📋</div>
+                                <strong style="font-size:0.85em;">社内規定集</strong><br>
+                                <small style="color:#666;">5ファイル / 128チャンク</small>
+                            </div>
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:12px; width:170px;">
+                                <div style="font-size:1.3em;">🔧</div>
+                                <strong style="font-size:0.85em;">IT手順書</strong><br>
+                                <small style="color:#666;">12ファイル / 340チャンク</small>
+                            </div>
+                            <div style="border:2px dashed #d1d5db; border-radius:8px; padding:18px 12px; width:170px; text-align:center; color:#6366f1;">
+                                ＋ 作成
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p><strong>ナレッジ画面でできること：</strong></p>
+                <ul>
+                    <li><strong>ナレッジベースの作成</strong>：テーマごとに文書をグルーピング</li>
+                    <li><strong>ファイルアップロード</strong>：PDF、Word、Excel、テキスト、HTML等に対応</li>
+                    <li><strong>チャンク管理</strong>：分割されたチャンクの確認・編集・削除</li>
+                    <li><strong>検索テスト</strong>：実際にクエリを入力して、どのチャンクがヒットするか確認</li>
+                    <li><strong>インデックス方式の選択</strong>：高品質（推奨）/ エコノミー</li>
+                    <li><strong>メタデータ管理</strong>：ファイルごとにタグや説明を付与</li>
+                </ul>
+
+                <table class="compare-table">
+                    <tr><th>インデックス方式</th><th>特徴</th><th>コスト</th></tr>
+                    <tr><td><strong>高品質</strong></td><td>Embeddingモデルでベクトル化。意味検索が可能</td><td>Embedding API費用あり</td></tr>
+                    <tr><td><strong>エコノミー</strong></td><td>キーワードベースの全文検索のみ</td><td>無料（API不要）</td></tr>
+                </table>
+
+                <div class="point-box">
+                    <strong>ナレッジ設計のコツ</strong><br>
+                    1テーマ1ナレッジベースに分ける（「就業規則」「IT手順」「経理マニュアル」等）。<br>
+                    アプリから必要なナレッジだけを接続すると、検索精度が上がる。
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>🔧 ツール（Tools）画面</h3>
+                <p>AIアプリに<strong>外部機能を追加する</strong>ための管理画面。ビルトインツール、カスタムツール、ワークフローツールの3種類がある。</p>
+
+                <div class="mock-screen">
+                    <div class="mock-titlebar">ツール — ツール一覧</div>
+                    <div class="mock-content">
+                        <div style="display:flex; gap:6px; margin-bottom:10px; font-size:0.8em;">
+                            <span style="background:#6366f1; color:white; padding:3px 10px; border-radius:12px;">すべて</span>
+                            <span style="background:#f3f4f6; padding:3px 10px; border-radius:12px;">ビルトイン</span>
+                            <span style="background:#f3f4f6; padding:3px 10px; border-radius:12px;">カスタム</span>
+                            <span style="background:#f3f4f6; padding:3px 10px; border-radius:12px;">ワークフロー</span>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:10px; width:140px;">
+                                <div style="font-size:1.2em;">🌐</div>
+                                <strong style="font-size:0.82em;">Google検索</strong><br>
+                                <small style="color:#10b981;">ビルトイン</small>
+                            </div>
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:10px; width:140px;">
+                                <div style="font-size:1.2em;">🧮</div>
+                                <strong style="font-size:0.82em;">計算機</strong><br>
+                                <small style="color:#10b981;">ビルトイン</small>
+                            </div>
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:10px; width:140px;">
+                                <div style="font-size:1.2em;">🎨</div>
+                                <strong style="font-size:0.82em;">DALL-E</strong><br>
+                                <small style="color:#10b981;">ビルトイン</small>
+                            </div>
+                            <div style="border:1px solid #d1d5db; border-radius:8px; padding:10px; width:140px;">
+                                <div style="font-size:1.2em;">📊</div>
+                                <strong style="font-size:0.82em;">社内売上API</strong><br>
+                                <small style="color:#6366f1;">カスタム</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p><strong>3種類のツール：</strong></p>
+                <table class="compare-table">
+                    <tr><th>種類</th><th>説明</th><th>例</th></tr>
+                    <tr>
+                        <td><strong>ビルトインツール</strong></td>
+                        <td>Difyに標準搭載されたツール。APIキーを設定するだけで使える</td>
+                        <td>Google検索、Wikipedia、天気予報、DALL-E、Stable Diffusion、計算機</td>
+                    </tr>
+                    <tr>
+                        <td><strong>カスタムツール</strong></td>
+                        <td>自社APIをOpenAPI(Swagger)スキーマで登録。任意のREST APIをツール化</td>
+                        <td>社内売上API、在庫確認API、顧客検索API</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ワークフローツール</strong></td>
+                        <td>作ったワークフローを他のアプリから「ツール」として呼び出せる</td>
+                        <td>データ整形ワークフロー、レポート生成ワークフロー</td>
+                    </tr>
+                </table>
+
+                <p><strong>ツールの使い方例：</strong></p>
+                <ul>
+                    <li><strong>エージェント + Google検索</strong>：最新情報を調べて回答するAI（LLMの学習データにない情報も対応）</li>
+                    <li><strong>エージェント + カスタムAPI</strong>：「売上を調べて」→ 社内APIを叩いて回答</li>
+                    <li><strong>ワークフロー + DALL-E</strong>：テキストから画像を生成するステップを組み込む</li>
+                    <li><strong>チャットボット + 計算機</strong>：計算が必要な質問に正確に回答</li>
+                </ul>
+
+                <div class="mock-screen">
+                    <div class="mock-titlebar">カスタムツールの登録（OpenAPIスキーマ）</div>
+                    <div class="mock-content" style="font-size:0.82em;">
+                        <label style="color:#666;">ツール名</label>
+                        <div class="mock-input" style="font-size:0.9em;">社内売上検索API</div>
+                        <label style="color:#666;">OpenAPIスキーマ（YAML / JSON）</label>
+                        <div style="background:#263238; color:#aed581; padding:10px; border-radius:6px; font-family:monospace; font-size:0.85em; margin:6px 0;">
+                            openapi: "3.0.0"<br>
+                            paths:<br>
+                            &nbsp;&nbsp;/api/sales:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;get:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;summary: 売上データ取得<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parameters: ...
+                        </div>
+                        <span class="mock-btn" style="font-size:0.8em; padding:5px 12px;">保存</span>
+                    </div>
+                </div>
+
+                <div class="point-box">
+                    <strong>ツール活用のポイント</strong><br>
+                    ① エージェントアプリでツールを有効にすると、AIが<strong>必要に応じて自動的に呼び出す</strong><br>
+                    ② ワークフローでは特定のノードからツールを<strong>明示的に呼び出す</strong><br>
+                    ③ カスタムツールはOpenAPIスキーマがあればどんなAPIでも登録可能
+                </div>
+
+                <div class="warn-box">
+                    <strong>カスタムツールのAPI認証</strong><br>
+                    外部APIにアクセスする場合、APIキーやOAuth等の認証情報が必要。<br>
+                    認証情報はDifyのツール設定画面で安全に管理される。
+                </div>
+            </div>
+
             <div class="success-box">
                 <strong>環境準備完了！</strong><br>
-                APIキーの設定まで終われば、次のLesson 4でチャットボットを作成できます。
+                APIキーの設定まで終われば、次のLesson 4でチャットボットを作成できます。<br>
+                各画面の役割を把握したので、迷わず操作できるはずです。
             </div>
         </div>
     </div>

@@ -138,26 +138,6 @@
                 必ずバックエンド側で保持し、サーバー経由でDifyを呼び出す。
             </div>
 
-            <h3>ORSYSとの連携イメージ</h3>
-            <div class="arch-diagram">
-                <div style="text-align:center; margin-bottom:5px; color:#a5b4fc; font-size:0.8em;">DB-WEB 構成の場合</div>
-                <div class="arch-row">
-                    <div class="arch-box arch-user">ブラウザ<br><small>ユーザー</small></div>
-                    <span class="arch-arrow">→</span>
-                    <div class="arch-box arch-system">ASP.NET<br><small>Webサーバー</small></div>
-                    <span class="arch-arrow">→</span>
-                    <div class="arch-box arch-dify">Dify API<br><small>AI処理</small></div>
-                </div>
-                <div class="arch-row">
-                    <div style="width:120px;"></div>
-                    <div class="arch-box arch-system" style="margin-left:10px;">ASP.NET<br><small>Webサーバー</small></div>
-                    <span class="arch-arrow">→</span>
-                    <div class="arch-box" style="background:#3730a3;">SQL Server<br><small>データベース</small></div>
-                </div>
-                <div style="text-align:center; margin-top:10px; color:#a5b4fc; font-size:0.8em;">
-                    ASP.NETがDify APIとSQL Server両方に接続する
-                </div>
-            </div>
         </div>
 
         <div class="right-panel">
