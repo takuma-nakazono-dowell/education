@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JS ロジック演習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; max-width: 900px; margin: 0 auto; padding: 40px 20px; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #e65100; color: white; padding: 30px 40px; text-align: center; border-radius: 14px; margin-bottom: 30px; }
+    .header h1 { margin: 0 0 10px; font-size: 2em; }
+    .header p { margin: 0; font-size: 1.1em; opacity: 0.9; }
+    .info-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 20px 25px; border-radius: 0 12px 12px 0; margin-bottom: 30px; }
+    .info-box h2 { margin-top: 0; color: #e65100; }
+    h2 { color: #333; border-bottom: 2px solid #ff9800; padding-bottom: 10px; margin-bottom: 25px; }
+    .curriculum { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+    .section-card { background: white; border-radius: 12px; padding: 20px 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: flex-start; gap: 20px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, transform 0.2s; }
+    .section-card:hover { box-shadow: 0 4px 16px rgba(230,81,0,0.2); transform: translateY(-2px); }
+    .phase-badge { background: #e65100; color: white; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85em; flex-shrink: 0; text-align: center; line-height: 1.2; }
+    .card-content h3 { margin: 0 0 4px; color: #e65100; }
+    .card-content p { margin: 0; color: #666; font-size: 0.92em; }
+    .q-list { margin: 6px 0 0; padding-left: 18px; font-size: 0.88em; color: #555; }
+    .q-list li { margin: 2px 0; }
+    .prereq-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 30px; font-size: 0.92em; }
+    .prereq-box strong { color: #e65100; }
+    .rule-box { background: #ffebee; border-left: 4px solid #c62828; padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 30px; font-size: 0.92em; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⚡ JS ロジック演習</h1>
+    <p>プログラミングの基礎ロジックをブラウザで実践</p>
+  </div>
+
+  <div class="prereq-box">
+    <strong>前提知識</strong>：JavaScript基礎（変数・条件・ループ・配列・関数）を完了していること
+  </div>
+
+  <div class="info-box">
+    <h2>この教材について</h2>
+    <p>C# 基礎研修の演習問題と同じロジック課題を、JavaScript で解きます。<br>
+    コンソールアプリの代わりにブラウザ上で実行でき、テストケースで自動的に正解チェックされます。</p>
+    <p><strong>AIは使わずに</strong>自力で考えてください。わからない場合はヒントを参照してください。</p>
+  </div>
+
+  <div class="rule-box">
+    <strong>問題の解き方</strong>：各問に <strong>関数のスケルトン</strong> が用意されています。
+    関数の中身を実装して「実行」ボタンを押すとテストケースで合否が判定されます。
+  </div>
+
+  <h2>カリキュラム</h2>
+  <div class="curriculum">
+    <a href="phase1.html" class="section-card">
+      <div class="phase-badge">Phase<br>1</div>
+      <div class="card-content">
+        <h3>条件・ループ</h3>
+        <p>変数・条件分岐・ループ・文字列操作・エラーハンドリング</p>
+        <ul class="q-list">
+          <li>数値配列の合計を計算する</li>
+          <li>加算処理を別関数（サブルーチン）に切り出す</li>
+          <li>文字の種別を判定する（数字／英字／その他）</li>
+          <li>種別ごとの個数をカウントする</li>
+          <li>合計値の大小・奇偶を判定する</li>
+          <li>数値以外の入力に対するエラーハンドリング</li>
+        </ul>
+      </div>
+    </a>
+    <a href="phase2.html" class="section-card">
+      <div class="phase-badge">Phase<br>2</div>
+      <div class="card-content">
+        <h3>配列・アルゴリズム</h3>
+        <p>配列操作・ソートアルゴリズムの実装</p>
+        <ul class="q-list">
+          <li>配列の2要素を入れ替える（swap）</li>
+          <li>バブルソートを実装する</li>
+          <li>挿入ソートを実装する</li>
+        </ul>
+      </div>
+    </a>
+    <a href="phase3.html" class="section-card">
+      <div class="phase-badge">Phase<br>3</div>
+      <div class="card-content">
+        <h3>関数・応用ロジック</h3>
+        <p>アルゴリズム設計・数学的ロジックの実装</p>
+        <ul class="q-list">
+          <li>素数判定・100以下の素数一覧を求める</li>
+          <li>曜日計算（自作ロジック）— 12000年1月1日は何曜日？</li>
+        </ul>
+      </div>
+    </a>
+  </div>
+
+  <p style="text-align:center;">
+    <a href="../index.html" style="color:#e65100;">← 学習ポータルに戻る</a>
+  </p>
+</body>
+</html>

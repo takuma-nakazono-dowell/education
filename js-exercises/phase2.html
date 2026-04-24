@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 2: 配列・アルゴリズム - JS演習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #e65100; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.2em; }
+    .header .nav { margin-top: 6px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; font-size: 0.9em; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 66px); }
+    .left-panel { width: 36%; padding: 24px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 64%; padding: 24px; overflow-y: auto; }
+    h2 { color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 8px; margin-top: 0; }
+    .hint-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 12px 14px; border-radius: 0 6px 6px 0; margin: 8px 0; font-size: 0.88em; }
+    .hint-box strong { color: #e65100; }
+    .hint-box code { background: #ffe0b2; padding: 1px 4px; border-radius: 3px; font-family: 'Consolas', monospace; }
+    .algo-box { background: #263238; color: #cfd8dc; padding: 14px; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 0.82em; margin: 10px 0; }
+    .algo-box .comment { color: #78909c; }
+    .algo-box .step { color: #80cbc4; }
+    .problem { background: white; border-radius: 12px; padding: 18px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin: 0 0 8px; color: #e65100; font-size: 1em; }
+    .problem-desc { background: #fff3e0; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 0.9em; }
+    .spec-box { background: #f5f5f5; border-left: 3px solid #ff9800; padding: 8px 12px; margin: 8px 0; font-size: 0.85em; font-family: 'Consolas', monospace; }
+    textarea { width: 100%; height: 160px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; padding: 12px; border: 2px solid #ddd; border-radius: 6px; resize: vertical; }
+    textarea:focus { outline: none; border-color: #e65100; }
+    .btn { display: inline-block; padding: 8px 18px; background: #e65100; color: white; border: none; border-radius: 6px; font-size: 0.9em; cursor: pointer; margin-top: 8px; }
+    .btn:hover { background: #bf360c; }
+    .result-area { background: #263238; color: #aed581; padding: 12px; border-radius: 6px; font-family: 'Consolas', monospace; font-size: 12px; margin-top: 8px; min-height: 50px; }
+    .test-pass { color: #69f0ae; margin: 3px 0; }
+    .test-fail { color: #ef5350; margin: 3px 0; }
+    .test-error { color: #ff8a65; margin: 3px 0; }
+    .all-pass { color: #ffd54f; font-weight: bold; margin-top: 6px; font-size: 1.1em; }
+    .summary { color: #b0bec5; font-size: 0.9em; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>Phase 2: 配列・アルゴリズム</h1>
+  <div class="nav">
+    <a href="phase1.html">← Phase 1</a>
+    <a href="index.html">コース一覧</a>
+    <a href="phase3.html">Phase 3 →</a>
+  </div>
+</div>
+<div class="container">
+  <div class="left-panel">
+    <h2>アルゴリズム解説</h2>
+
+    <div class="hint-box">
+      <strong>swap（入れ替え）の基本</strong><br>
+      一時変数を使う:<br>
+      <code>const tmp = arr[i]</code><br>
+      <code>arr[i] = arr[j]</code><br>
+      <code>arr[j] = tmp</code>
+    </div>
+
+    <div class="hint-box">
+      <strong>配列のコピー</strong><br>
+      元の配列を壊さないためにコピーする:<br>
+      <code>const copy = [...arr]</code>
+    </div>
+
+    <h2 style="margin-top:20px;">バブルソート</h2>
+    <p style="font-size:0.88em;">隣り合う要素を比較し、大きい方を後ろに押し出していく。</p>
+    <div class="algo-box">
+<span class="comment">// 例: [5, 3, 1]</span>
+<span class="step">パス1:</span>
+5と3を比較 → 交換 → [3, 5, 1]
+5と1を比較 → 交換 → [3, 1, 5]
+<span class="step">パス2:</span>
+3と1を比較 → 交換 → [1, 3, 5]
+3と5を比較 → そのまま
+<span class="step">完了: [1, 3, 5]</span>
+    </div>
+    <div class="hint-box">
+      外側のループ: <code>n-1</code> 回<br>
+      内側のループ: <code>n-1-i</code> 回<br>
+      隣と比較して大きければswap
+    </div>
+
+    <h2 style="margin-top:20px;">挿入ソート</h2>
+    <p style="font-size:0.88em;">未ソート部分の先頭を取り出し、ソート済み部分の正しい位置に挿入する。</p>
+    <div class="algo-box">
+<span class="comment">// 例: [5, 3, 1]</span>
+<span class="step">i=1: key=3</span>
+3 &lt; 5 → 5を右シフト → [5, 5, 1]
+先頭に3を挿入 → [3, 5, 1]
+<span class="step">i=2: key=1</span>
+1 &lt; 5 → 5を右シフト → [3, 5, 5]
+1 &lt; 3 → 3を右シフト → [3, 3, 5]
+先頭に1を挿入 → [1, 3, 5]
+<span class="step">完了: [1, 3, 5]</span>
+    </div>
+    <div class="hint-box">
+      <code>const key = arr[i]</code><br>
+      <code>let j = i - 1</code><br>
+      <code>while (j >= 0 && arr[j] > key)</code><br>
+      &nbsp;&nbsp;<code>arr[j+1] = arr[j--]</code><br>
+      <code>arr[j+1] = key</code>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <!-- 問7 -->
+    <div class="problem">
+      <h3>問7: 配列の2要素を入れ替える（swap）</h3>
+      <div class="problem-desc">
+        配列 <code>arr</code> のインデックス <code>i</code> と <code>j</code> の要素を入れ替える関数を実装してください。<br>
+        <strong>配列を直接書き換えること（in-place）。</strong>
+      </div>
+      <div class="spec-box">swap(arr, i, j): void（arr を直接変更）</div>
+      <textarea id="code7">function swap(arr, i, j) {
+  // ここに書く
+
+}</textarea>
+      <button class="btn" onclick="run(7)">実行</button>
+      <div class="result-area" id="result7">（実行ボタンを押してください）</div>
+    </div>
+
+    <!-- 問8 -->
+    <div class="problem">
+      <h3>問8: バブルソート</h3>
+      <div class="problem-desc">
+        バブルソートアルゴリズムで配列を昇順にソートして返す関数を実装してください。<br>
+        元の配列は変更せず、ソート済みの新しい配列を返すこと。
+      </div>
+      <div class="spec-box">引数: arr (number[])<br>戻り値: number[]（昇順ソート済み）</div>
+      <textarea id="code8">function bubbleSort(arr) {
+  const result = [...arr]  // コピーして元配列を保護
+  // ここに書く
+
+  return result
+}</textarea>
+      <button class="btn" onclick="run(8)">実行</button>
+      <div class="result-area" id="result8">（実行ボタンを押してください）</div>
+    </div>
+
+    <!-- 問9 -->
+    <div class="problem">
+      <h3>問9: 挿入ソート</h3>
+      <div class="problem-desc">
+        挿入ソートアルゴリズムで配列を昇順にソートして返す関数を実装してください。<br>
+        元の配列は変更せず、ソート済みの新しい配列を返すこと。
+      </div>
+      <div class="spec-box">引数: arr (number[])<br>戻り値: number[]（昇順ソート済み）</div>
+      <textarea id="code9">function insertionSort(arr) {
+  const result = [...arr]  // コピーして元配列を保護
+  // ここに書く
+
+  return result
+}</textarea>
+      <button class="btn" onclick="run(9)">実行</button>
+      <div class="result-area" id="result9">（実行ボタンを押してください）</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const testCases = {
+  7: [
+    { label: '[1,2] の 0,1 入れ替え',       call: '(() => { const a=[1,2];       swap(a,0,1); return a })()', expected: [2,1]         },
+    { label: '[1,2,3,4,5] の 0,4 入れ替え', call: '(() => { const a=[1,2,3,4,5]; swap(a,0,4); return a })()', expected: [5,2,3,4,1]   },
+    { label: '[7,8,9] の 1,2 入れ替え',     call: '(() => { const a=[7,8,9];     swap(a,1,2); return a })()', expected: [7,9,8]       },
+    { label: '同じ位置 [1,2,3] の 1,1',     call: '(() => { const a=[1,2,3];     swap(a,1,1); return a })()', expected: [1,2,3]       },
+  ],
+  8: [
+    { label: '[5,3,1,4,2]',       call: 'bubbleSort([5,3,1,4,2])',       expected: [1,2,3,4,5]           },
+    { label: '[3,1,4,1,5,9,2]',   call: 'bubbleSort([3,1,4,1,5,9,2])',   expected: [1,1,2,3,4,5,9]       },
+    { label: '要素1個 [42]',       call: 'bubbleSort([42])',              expected: [42]                  },
+    { label: '空配列 []',          call: 'bubbleSort([])',                expected: []                    },
+    { label: '既ソート済み',        call: 'bubbleSort([1,2,3,4,5])',      expected: [1,2,3,4,5]           },
+    { label: '元の配列を変更しない', call: '(() => { const a=[5,3,1]; bubbleSort(a); return a })()', expected: [5,3,1] },
+  ],
+  9: [
+    { label: '[5,3,1,4,2]',       call: 'insertionSort([5,3,1,4,2])',     expected: [1,2,3,4,5]           },
+    { label: '[3,1,4,1,5,9,2]',   call: 'insertionSort([3,1,4,1,5,9,2])', expected: [1,1,2,3,4,5,9]      },
+    { label: '要素1個 [42]',       call: 'insertionSort([42])',            expected: [42]                  },
+    { label: '空配列 []',          call: 'insertionSort([])',              expected: []                    },
+    { label: '既ソート済み',        call: 'insertionSort([1,2,3,4,5])',    expected: [1,2,3,4,5]           },
+    { label: '元の配列を変更しない', call: '(() => { const a=[5,3,1]; insertionSort(a); return a })()', expected: [5,3,1] },
+  ],
+}
+
+function runTests(code, tests) {
+  const results = []
+  try { eval(code) } catch(e) {
+    return [{ pass: false, label: 'コードエラー', call: '', error: e.message }]
+  }
+  for (const t of tests) {
+    try {
+      let actual
+      eval('actual = (' + t.call + ')')
+      const pass = JSON.stringify(actual) === JSON.stringify(t.expected)
+      results.push({ pass, label: t.label, call: t.call, actual, expected: t.expected })
+    } catch(e) {
+      results.push({ pass: false, label: t.label, call: t.call, error: e.message })
+    }
+  }
+  return results
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+}
+
+function renderResults(el, results) {
+  const total = results.length
+  const passed = results.filter(r => r.pass).length
+  let html = '<div class="summary">' + passed + ' / ' + total + ' テスト合格</div>'
+  for (const r of results) {
+    if (r.error && !r.call) {
+      html += '<div class="test-error">⛔ ' + esc(r.label) + ': ' + esc(r.error) + '</div>'
+      continue
+    }
+    const icon = r.pass ? '✅' : '❌'
+    const cls  = r.pass ? 'test-pass' : 'test-fail'
+    html += '<div class="' + cls + '">' + icon + ' ' + esc(r.label) + '<br>'
+    if (r.error) {
+      html += '&nbsp;&nbsp;エラー: ' + esc(r.error)
+    } else {
+      html += '&nbsp;&nbsp;期待値: <code>' + esc(JSON.stringify(r.expected)) + '</code>'
+      html += ' ／ 実際: <code>' + esc(JSON.stringify(r.actual)) + '</code>'
+    }
+    html += '</div>'
+  }
+  if (passed === total && total > 0) html += '<div class="all-pass">🎉 全テスト合格！</div>'
+  el.innerHTML = html
+}
+
+function run(n) {
+  const code = document.getElementById('code' + n).value
+  const el   = document.getElementById('result' + n)
+  renderResults(el, runTests(code, testCases[n]))
+}
+</script>
+</body>
+</html>

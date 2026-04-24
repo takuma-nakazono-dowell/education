@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue.js 応用学習</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', 'Meiryo', sans-serif;
+      max-width: 900px; margin: 0 auto; padding: 40px 20px;
+      background-color: #f5f5f5; color: #333; line-height: 1.6;
+    }
+    .header { background: #35a371; color: white; padding: 30px 40px; text-align: center; border-radius: 14px; margin-bottom: 30px; }
+    .header h1 { margin: 0 0 10px; font-size: 2em; }
+    .header p { margin: 0; font-size: 1.1em; opacity: 0.9; }
+    .info-box {
+      background: #e8f5e9; border-left: 4px solid #42b883;
+      padding: 20px 25px; border-radius: 0 12px 12px 0; margin-bottom: 40px;
+    }
+    .info-box h2 { margin-top: 0; color: #1b5e20; }
+    h2 { color: #35495e; border-bottom: 2px solid #42b883; padding-bottom: 10px; margin-bottom: 25px; }
+    .curriculum { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+    .section-card {
+      background: white; border-radius: 12px; padding: 20px 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex; align-items: flex-start; gap: 20px;
+      text-decoration: none; color: inherit;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .section-card:hover { box-shadow: 0 4px 16px rgba(66,184,131,0.25); transform: translateY(-2px); }
+    .day-number {
+      background: #42b883; color: white; font-weight: bold;
+      font-size: 0.85em; padding: 6px 14px; border-radius: 20px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .card-content { flex: 1; }
+    .card-content .day-title { font-size: 1.1em; font-weight: bold; color: #35495e; margin-bottom: 4px; }
+    .card-content .day-desc { font-size: 0.9em; color: #666; }
+    .q-list { margin: 6px 0 0 0; padding-left: 18px; font-size: 0.88em; color: #555; }
+    .q-list li { margin: 2px 0; }
+    .prereq-box {
+      background: #fff3e0; border-left: 4px solid #ff9800;
+      padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 30px;
+      font-size: 0.92em;
+    }
+    .prereq-box strong { color: #e65100; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🖼️ Vue.js 応用学習</h1>
+    <p>コンポーネント設計・ライフサイクル・非同期処理</p>
+  </div>
+
+  <div class="prereq-box">
+    <strong>前提知識</strong>：Vue.js 基礎（データバインディング・イベント・コンポーネント基礎・Computed）を完了していること
+  </div>
+
+  <div class="info-box">
+    <h2>この教材について</h2>
+    <p>Vue.js 基礎で学んだ props / $emit を土台に、実務でよく使う3つのトピックを学びます。</p>
+    <ul>
+      <li><strong>emits宣言・v-model・provide/inject</strong>：コンポーネント間でデータを受け渡す発展的な方法</li>
+      <li><strong>ライフサイクルフック</strong>：コンポーネントの「生まれてから消えるまで」を制御する</li>
+      <li><strong>非同期処理連携</strong>：サーバーからデータを取得してVueに表示する</li>
+    </ul>
+  </div>
+
+  <h2>カリキュラム</h2>
+  <div class="curriculum">
+    <a href="day1-component-advanced.html" class="section-card">
+      <div class="day-number">Day 1</div>
+      <div class="card-content">
+        <div class="day-title">コンポーネント間通信（発展）</div>
+        <div class="day-desc">emits宣言 / v-model on コンポーネント / provide・inject</div>
+        <ul class="q-list">
+          <li>emitsオプションで発火するイベントを明示する</li>
+          <li>v-modelをカスタムコンポーネントに対応させる</li>
+          <li>provide/injectで深い階層にデータを渡す</li>
+        </ul>
+      </div>
+    </a>
+    <a href="day2-lifecycle.html" class="section-card">
+      <div class="day-number">Day 2</div>
+      <div class="card-content">
+        <div class="day-title">ライフサイクルフック</div>
+        <div class="day-desc">created / mounted / updated / unmounted</div>
+        <ul class="q-list">
+          <li>コンポーネントの「一生」と各フックの役割</li>
+          <li>created：初期データ取得・初期化処理</li>
+          <li>mounted：DOM操作・外部ライブラリ初期化</li>
+          <li>updated：再レンダリング後の処理</li>
+          <li>unmounted：タイマー・イベントリスナーのクリーンアップ</li>
+        </ul>
+      </div>
+    </a>
+    <a href="day3-async.html" class="section-card">
+      <div class="day-number">Day 3</div>
+      <div class="card-content">
+        <div class="day-title">非同期処理連携</div>
+        <div class="day-desc">fetch API / ローディング状態 / エラーハンドリング</div>
+        <ul class="q-list">
+          <li>なぜVueで非同期が必要か</li>
+          <li>mounted + async/await でデータ取得</li>
+          <li>isLoading フラグでローディング表示</li>
+          <li>try/catch でエラーを画面に表示</li>
+        </ul>
+      </div>
+    </a>
+  </div>
+
+  <p style="text-align:center;">
+    <a href="../index.html" style="color:#42b883;">← 学習ポータルに戻る</a>
+  </p>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 3: 非同期処理連携 | Vue.js 応用</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #35a371; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #35495e; border-bottom: 2px solid #42b883; padding-bottom: 10px; }
+    h3 { color: #35a371; margin-top: 28px; }
+    .code-block {
+      white-space: pre; background: #263238; color: #aed581;
+      padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px; overflow-x: auto; margin: 15px 0;
+    }
+    .code-block .comment { color: #78909c; }
+    .code-block .keyword { color: #82b1ff; }
+    .code-block .string { color: #c3e88d; }
+    .point-box { background: #e8f5e9; border-left: 4px solid #42b883; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #1b5e20; }
+    .warning-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #e65100; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.92em; }
+    .demo-area { background: #fafafa; border: 2px solid #42b883; border-radius: 8px; padding: 20px; margin: 15px 0; }
+    .demo-area button { padding: 8px 16px; background: #42b883; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 4px; }
+    .demo-area button:hover { background: #35a371; }
+    .demo-area button:disabled { background: #aaa; cursor: not-allowed; }
+    .demo-area input { padding: 8px 12px; border: 2px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .demo-area input:focus { outline: none; border-color: #42b883; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: #35a371; font-weight: bold; padding: 8px 12px; background: #e8f5e9; border-radius: 4px; }
+    summary:hover { background: #c8e6c9; }
+    details > div { background: #f9fbe7; border: 1px solid #c8e6c9; padding: 15px; border-radius: 0 0 8px 8px; margin-top: 4px; }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #c8e6c9; border-top-color: #42b883; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .user-card { background: white; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; border-left: 4px solid #42b883; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .user-card .name { font-weight: bold; color: #35495e; }
+    .user-card .email { font-size: 0.85em; color: #888; }
+    .error-box { background: #ffebee; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 0 6px 6px 0; color: #b71c1c; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Day 3: 非同期処理連携</h1>
+  <div class="nav">
+    <a href="day2-lifecycle.html">← 前へ: ライフサイクルフック</a>
+    <a href="index.html">トップに戻る</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 左パネル: 説明 -->
+<div class="left-panel">
+  <h2>なぜVueで非同期が必要か？</h2>
+
+  <p>
+    実務のWebアプリでは、<strong>サーバーからデータを取得して画面に表示する</strong>処理が必ず発生します。
+    サーバーとの通信は時間がかかるため、<strong>非同期処理（async/await）</strong>を使います。
+  </p>
+
+  <div class="point-box">
+    <strong>非同期なしだとどうなる？</strong><br>
+    通信が終わるまでブラウザ全体がフリーズします。<br>
+    async/await を使うことで「通信中も他の処理を続けられる」状態を作ります。
+  </div>
+
+  <h3>Vueでの非同期パターン</h3>
+
+  <p>最も一般的なパターン：<strong>mounted で API を呼ぶ</strong></p>
+
+  <div class="code-block">
+Vue.createApp({
+  data() {
+    <span class="keyword">return</span> {
+      users: [],       <span class="comment">// 取得したデータを入れる配列</span>
+      isLoading: <span class="keyword">false</span>, <span class="comment">// 読み込み中フラグ</span>
+      error: <span class="keyword">null</span>        <span class="comment">// エラーメッセージ</span>
+    }
+  },
+  <span class="keyword">async</span> mounted() {       <span class="comment">// mounted を async にする</span>
+    <span class="keyword">this</span>.isLoading = <span class="keyword">true</span>
+    <span class="keyword">try</span> {
+      <span class="keyword">const</span> res = <span class="keyword">await</span> fetch(<span class="string">'/api/users'</span>)
+      <span class="keyword">this</span>.users = <span class="keyword">await</span> res.json()
+    } <span class="keyword">catch</span> (e) {
+      <span class="keyword">this</span>.error = <span class="string">'データの取得に失敗しました'</span>
+    } <span class="keyword">finally</span> {
+      <span class="keyword">this</span>.isLoading = <span class="keyword">false</span>  <span class="comment">// 成功・失敗どちらでも必ず解除</span>
+    }
+  }
+})
+  </div>
+
+  <h3>テンプレート側の3状態を表示</h3>
+
+  <div class="code-block">
+<span class="comment">&lt;!-- ① 読み込み中 --&gt;</span>
+&lt;div v-if=<span class="string">"isLoading"</span>&gt;読み込み中...&lt;/div&gt;
+
+<span class="comment">&lt;!-- ② エラー --&gt;</span>
+&lt;div v-else-if=<span class="string">"error"</span>&gt;{{ error }}&lt;/div&gt;
+
+<span class="comment">&lt;!-- ③ 正常表示 --&gt;</span>
+&lt;ul v-else&gt;
+  &lt;li v-for=<span class="string">"user in users"</span> :key=<span class="string">"user.id"</span>&gt;
+    {{ user.name }}
+  &lt;/li&gt;
+&lt;/ul&gt;
+  </div>
+
+  <div class="point-box">
+    <strong>3状態を必ず用意する</strong><br>
+    ① ローディング中 → スピナーやスケルトン表示<br>
+    ② エラー → ユーザーに伝わるメッセージ表示<br>
+    ③ 正常 → データ表示<br>
+    <code>finally</code> で isLoading を必ず <code>false</code> に戻すことを忘れずに。
+  </div>
+
+  <h3>メソッドに切り出す</h3>
+
+  <p>mounted が長くなる場合はメソッドに切り出すのが一般的です：</p>
+
+  <div class="code-block">
+{
+  <span class="keyword">async</span> mounted() {
+    <span class="keyword">await</span> <span class="keyword">this</span>.fetchUsers()  <span class="comment">// メソッドを呼ぶだけ</span>
+  },
+  methods: {
+    <span class="keyword">async</span> fetchUsers() {
+      <span class="keyword">this</span>.isLoading = <span class="keyword">true</span>
+      <span class="keyword">try</span> {
+        <span class="keyword">const</span> res = <span class="keyword">await</span> fetch(<span class="string">'/api/users'</span>)
+        <span class="keyword">this</span>.users = <span class="keyword">await</span> res.json()
+      } <span class="keyword">catch</span> (e) {
+        <span class="keyword">this</span>.error = e.message
+      } <span class="keyword">finally</span> {
+        <span class="keyword">this</span>.isLoading = <span class="keyword">false</span>
+      }
+    }
+  }
+}
+  </div>
+
+  <div class="warning-box">
+    <strong>デモについて</strong><br>
+    右のデモは <code>JSONPlaceholder</code>（テスト用の無料API）を使っています。
+    インターネット接続が必要です。実務では <code>axios</code> を使うことが多いですが、
+    <code>fetch</code> でも同じパターンで書けます。
+  </div>
+
+</div><!-- /.left-panel -->
+
+<!-- 右パネル: デモ + 練習問題 -->
+<div class="right-panel">
+  <h2>動くデモ &amp; 練習問題</h2>
+
+  <!-- デモ1: 基本的なfetch -->
+  <div class="problem">
+    <h3>デモ 1: mounted でユーザー一覧を取得</h3>
+    <div class="problem-desc">
+      画面が表示されると同時に API を呼び出してユーザー一覧を取得します。<br>
+      <code>mounted</code> + <code>async/await</code> + <code>fetch</code> の基本パターンです。
+    </div>
+    <div class="demo-area" id="demo1">
+      <div v-if="isLoading"><span class="spinner"></span>読み込み中...</div>
+      <div v-else-if="error" class="error-box">{{ error }}</div>
+      <div v-else>
+        <div v-for="user in users" :key="user.id" class="user-card">
+          <div class="name">{{ user.name }}</div>
+          <div class="email">{{ user.email }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- デモ2: ボタンで再取得 + ローディング -->
+  <div class="problem">
+    <h3>デモ 2: ボタンでデータを再取得</h3>
+    <div class="problem-desc">
+      ボタンをクリックすると投稿データを取得します。<br>
+      取得中はボタンが無効化されローディング表示になります。
+    </div>
+    <div class="demo-area" id="demo2">
+      <button @click="fetchPost" :disabled="isLoading">
+        <span v-if="isLoading"><span class="spinner"></span>取得中...</span>
+        <span v-else>投稿を1件取得</span>
+      </button>
+      <div v-if="post" style="margin-top:14px;background:white;padding:14px;border-radius:8px;border:1px solid #ddd;">
+        <div style="font-weight:bold;color:#35495e;margin-bottom:6px;">{{ post.title }}</div>
+        <div style="font-size:0.9em;color:#666;">{{ post.body }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- デモ3: エラーハンドリング -->
+  <div class="problem">
+    <h3>デモ 3: エラーハンドリング</h3>
+    <div class="problem-desc">
+      「正常取得」は成功します。「存在しないURL」はエラーになります。<br>
+      <code>try/catch</code> でエラーをキャッチして画面に表示します。
+    </div>
+    <div class="demo-area" id="demo3">
+      <button @click="fetchData(true)">正常取得</button>
+      <button @click="fetchData(false)" style="background:#c62828;">存在しないURL（エラー）</button>
+      <div style="margin-top:12px;">
+        <div v-if="isLoading"><span class="spinner"></span>取得中...</div>
+        <div v-else-if="errMsg" class="error-box">エラー: {{ errMsg }}</div>
+        <div v-else-if="result" style="background:white;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:0.9em;">
+          <strong>取得成功:</strong> {{ result.name }} ({{ result.email }})
+        </div>
+        <div v-else style="color:#aaa;font-size:0.9em;">ボタンを押してください</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 練習問題 -->
+  <div class="problem">
+    <h3>練習: ID を指定して投稿を取得</h3>
+    <div class="problem-desc">
+      入力欄に1〜100の数字を入力して「取得」ボタンを押すと、
+      その ID の投稿を <code>JSONPlaceholder</code> から取得して表示してください。<br>
+      URL: <code>https://jsonplaceholder.typicode.com/posts/{id}</code>
+    </div>
+    <div class="demo-area" id="exercise1">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="number" v-model="inputId" min="1" max="100" placeholder="1〜100" style="width:100px;" />
+        <button @click="fetchById" :disabled="loading">{{ loading ? '取得中...' : '取得' }}</button>
+      </div>
+      <div style="margin-top:12px;">
+        <div v-if="loading"><span class="spinner"></span>読み込み中...</div>
+        <div v-else-if="fetchError" class="error-box">{{ fetchError }}</div>
+        <div v-else-if="fetchedPost" style="background:white;padding:14px;border-radius:8px;border:1px solid #ddd;">
+          <div style="font-size:0.8em;color:#999;margin-bottom:4px;">Post #{{ fetchedPost.id }}</div>
+          <div style="font-weight:bold;color:#35495e;margin-bottom:6px;">{{ fetchedPost.title }}</div>
+          <div style="font-size:0.9em;color:#666;">{{ fetchedPost.body }}</div>
+        </div>
+      </div>
+    </div>
+    <details>
+      <summary>ヒント</summary>
+      <div>
+        <code>methods</code> に <code>async fetchById()</code> を定義します。<br>
+        URL は <code>`https://jsonplaceholder.typicode.com/posts/${this.inputId}`</code><br>
+        入力値のバリデーション（1〜100かどうか）も忘れずに。
+      </div>
+    </details>
+    <details>
+      <summary>答えを見る</summary>
+      <div>
+        <div class="code-block" style="white-space:pre-wrap;">
+data() {
+  <span class="keyword">return</span> { inputId: <span class="string">''</span>, fetchedPost: <span class="keyword">null</span>, loading: <span class="keyword">false</span>, fetchError: <span class="keyword">null</span> }
+},
+methods: {
+  <span class="keyword">async</span> fetchById() {
+    <span class="keyword">const</span> id = parseInt(<span class="keyword">this</span>.inputId)
+    <span class="keyword">if</span> (!id || id &lt; 1 || id &gt; 100) {
+      <span class="keyword">this</span>.fetchError = <span class="string">'1〜100の数値を入力してください'</span>
+      <span class="keyword">return</span>
+    }
+    <span class="keyword">this</span>.loading = <span class="keyword">true</span>
+    <span class="keyword">this</span>.fetchError = <span class="keyword">null</span>
+    <span class="keyword">try</span> {
+      <span class="keyword">const</span> res = <span class="keyword">await</span> fetch(
+        <span class="string">`https://jsonplaceholder.typicode.com/posts/${id}`</span>
+      )
+      <span class="keyword">if</span> (!res.ok) <span class="keyword">throw new</span> Error(<span class="string">`HTTP ${res.status}`</span>)
+      <span class="keyword">this</span>.fetchedPost = <span class="keyword">await</span> res.json()
+    } <span class="keyword">catch</span> (e) {
+      <span class="keyword">this</span>.fetchError = e.message
+    } <span class="keyword">finally</span> {
+      <span class="keyword">this</span>.loading = <span class="keyword">false</span>
+    }
+  }
+}</div>
+      </div>
+    </details>
+  </div>
+
+</div><!-- /.right-panel -->
+</div><!-- /.container -->
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+const BASE = 'https://jsonplaceholder.typicode.com'
+
+// ===== デモ1: mounted でユーザー一覧取得 =====
+Vue.createApp({
+  data() { return { users: [], isLoading: false, error: null } },
+  async mounted() {
+    this.isLoading = true
+    try {
+      const res = await fetch(`${BASE}/users`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      this.users = await res.json()
+    } catch (e) {
+      this.error = 'ユーザーデータの取得に失敗しました: ' + e.message
+    } finally {
+      this.isLoading = false
+    }
+  }
+}).mount('#demo1')
+
+// ===== デモ2: ボタンで再取得 =====
+let postIndex = 1
+Vue.createApp({
+  data() { return { post: null, isLoading: false } },
+  methods: {
+    async fetchPost() {
+      this.isLoading = true
+      try {
+        const res = await fetch(`${BASE}/posts/${postIndex}`)
+        this.post = await res.json()
+        postIndex = postIndex >= 10 ? 1 : postIndex + 1
+      } finally {
+        this.isLoading = false
+      }
+    }
+  }
+}).mount('#demo2')
+
+// ===== デモ3: エラーハンドリング =====
+Vue.createApp({
+  data() { return { result: null, errMsg: null, isLoading: false } },
+  methods: {
+    async fetchData(success) {
+      this.result = null
+      this.errMsg = null
+      this.isLoading = true
+      try {
+        const url = success
+          ? `${BASE}/users/1`
+          : 'https://this-url-does-not-exist.example.com/api'
+        const res = await fetch(url)
+        if (!res.ok) throw new Error(`サーバーエラー: HTTP ${res.status}`)
+        this.result = await res.json()
+      } catch (e) {
+        this.errMsg = e.message
+      } finally {
+        this.isLoading = false
+      }
+    }
+  }
+}).mount('#demo3')
+
+// ===== 練習問題 =====
+Vue.createApp({
+  data() { return { inputId: '', fetchedPost: null, loading: false, fetchError: null } },
+  methods: {
+    async fetchById() {
+      const id = parseInt(this.inputId)
+      if (!id || id < 1 || id > 100) {
+        this.fetchError = '1〜100の数値を入力してください'
+        this.fetchedPost = null
+        return
+      }
+      this.loading = true
+      this.fetchError = null
+      try {
+        const res = await fetch(`${BASE}/posts/${id}`)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        this.fetchedPost = await res.json()
+      } catch (e) {
+        this.fetchError = e.message
+      } finally {
+        this.loading = false
+      }
+    }
+  }
+}).mount('#exercise1')
+</script>
+</body>
+</html>

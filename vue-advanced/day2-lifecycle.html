@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 2: ライフサイクルフック | Vue.js 応用</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #35a371; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #35495e; border-bottom: 2px solid #42b883; padding-bottom: 10px; }
+    h3 { color: #35a371; margin-top: 28px; }
+    .code-block {
+      white-space: pre; background: #263238; color: #aed581;
+      padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px; overflow-x: auto; margin: 15px 0;
+    }
+    .code-block .comment { color: #78909c; }
+    .code-block .keyword { color: #82b1ff; }
+    .code-block .string { color: #c3e88d; }
+    .point-box { background: #e8f5e9; border-left: 4px solid #42b883; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #1b5e20; }
+    .warning-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #e65100; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.92em; }
+    .demo-area { background: #fafafa; border: 2px solid #42b883; border-radius: 8px; padding: 20px; margin: 15px 0; }
+    .demo-area button { padding: 8px 16px; background: #42b883; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 4px; }
+    .demo-area button:hover { background: #35a371; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: #35a371; font-weight: bold; padding: 8px 12px; background: #e8f5e9; border-radius: 4px; }
+    summary:hover { background: #c8e6c9; }
+    details > div { background: #f9fbe7; border: 1px solid #c8e6c9; padding: 15px; border-radius: 0 0 8px 8px; margin-top: 4px; }
+    /* ライフサイクル図 */
+    .lifecycle-flow { display: flex; flex-direction: column; gap: 4px; margin: 15px 0; }
+    .lc-item { display: flex; align-items: center; gap: 10px; font-size: 0.88em; }
+    .lc-hook { background: #42b883; color: white; padding: 4px 10px; border-radius: 4px; font-family: monospace; font-size: 0.9em; min-width: 140px; }
+    .lc-hook.key { background: #1b5e20; font-weight: bold; }
+    .lc-desc { color: #555; }
+    .lc-arrow { color: #aaa; font-size: 1.1em; margin-left: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Day 2: ライフサイクルフック</h1>
+  <div class="nav">
+    <a href="day1-component-advanced.html">← 前へ: コンポーネント間通信</a>
+    <a href="index.html">トップ</a>
+    <a href="day3-async.html">次へ: 非同期処理連携 →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 左パネル: 説明 -->
+<div class="left-panel">
+  <h2>ライフサイクルとは？</h2>
+
+  <p>
+    Vueのコンポーネントには<strong>「生まれてから消えるまで」の一定の流れ</strong>があります。
+    この流れの各タイミングで処理を差し込める仕組みが<strong>ライフサイクルフック</strong>です。
+  </p>
+
+  <div class="lifecycle-flow">
+    <div class="lc-item"><span class="lc-hook">beforeCreate</span><span class="lc-desc">インスタンス生成直後（data未初期化）</span></div>
+    <div class="lc-arrow" style="margin-left:16px;">↓</div>
+    <div class="lc-item"><span class="lc-hook">created</span><span class="lc-desc">data / computed 利用可能、DOM未生成</span></div>
+    <div class="lc-arrow" style="margin-left:16px;">↓</div>
+    <div class="lc-item"><span class="lc-hook">beforeMount</span><span class="lc-desc">DOM生成直前</span></div>
+    <div class="lc-arrow" style="margin-left:16px;">↓</div>
+    <div class="lc-item"><span class="lc-hook key">mounted</span><span class="lc-desc">★ DOM利用可能。最もよく使う</span></div>
+    <div class="lc-arrow" style="margin-left:16px;">↓ データ変更があるたびに</div>
+    <div class="lc-item"><span class="lc-hook">beforeUpdate</span><span class="lc-desc">再レンダリング前</span></div>
+    <div class="lc-arrow" style="margin-left:16px;">↓</div>
+    <div class="lc-item"><span class="lc-hook key">updated</span><span class="lc-desc">★ 再レンダリング後のDOM利用可能</span></div>
+    <div class="lc-arrow" style="margin-left:16px;">↓ コンポーネント削除時</div>
+    <div class="lc-item"><span class="lc-hook">beforeUnmount</span><span class="lc-desc">削除直前</span></div>
+    <div class="lc-arrow" style="margin-left:16px;">↓</div>
+    <div class="lc-item"><span class="lc-hook key">unmounted</span><span class="lc-desc">★ 削除完了。クリーンアップに使う</span></div>
+  </div>
+
+  <h3>よく使うフック</h3>
+
+  <h3 style="margin-top:16px;font-size:1em;">① created</h3>
+  <p>data が使えるが DOM はまだない。非同期処理の<strong>初期データ取得</strong>によく使う。</p>
+  <div class="code-block">
+created() {
+  <span class="comment">// この時点でthis.dataが使える</span>
+  <span class="keyword">this</span>.userId = <span class="keyword">this</span>.getQueryParam(<span class="string">'id'</span>)
+}
+  </div>
+
+  <h3 style="margin-top:16px;font-size:1em;">② mounted ★</h3>
+  <p>DOM が確定した直後。<strong>DOM を直接操作する処理</strong>や<strong>APIからデータ取得</strong>に使う。</p>
+  <div class="code-block">
+mounted() {
+  <span class="comment">// DOM要素を直接参照できる（$el, $refs）</span>
+  <span class="keyword">this</span>.$refs.myInput.focus()
+
+  <span class="comment">// Day 3 で詳しく学ぶ：APIデータ取得</span>
+  <span class="keyword">this</span>.fetchData()
+}
+  </div>
+
+  <h3 style="margin-top:16px;font-size:1em;">③ updated</h3>
+  <p>データが変わって再レンダリングされた後。更新後の DOM を参照したいときに使う。</p>
+  <div class="code-block">
+updated() {
+  <span class="comment">// リスト更新後に末尾へスクロールする例</span>
+  <span class="keyword">const</span> list = <span class="keyword">this</span>.$refs.chatList
+  list.scrollTop = list.scrollHeight
+}
+  </div>
+
+  <h3 style="margin-top:16px;font-size:1em;">④ unmounted ★</h3>
+  <p>コンポーネントが画面から消えたとき。<strong>タイマーやイベントリスナーの後始末</strong>に必ず使う。</p>
+  <div class="code-block">
+mounted() {
+  <span class="comment">// タイマーを起動して保存しておく</span>
+  <span class="keyword">this</span>.timer = setInterval(() => {
+    <span class="keyword">this</span>.time++
+  }, 1000)
+},
+unmounted() {
+  <span class="comment">// コンポーネント削除時に必ずタイマーを止める</span>
+  <span class="comment">// ★ これを忘れるとメモリリークの原因になる</span>
+  clearInterval(<span class="keyword">this</span>.timer)
+}
+  </div>
+
+  <div class="warning-box">
+    <strong>クリーンアップを忘れずに</strong><br>
+    setInterval・addEventListener・WebSocket などを mounted で開始したら、
+    <code>unmounted</code> で必ず止めてください。
+    コンポーネントが消えても動き続け、メモリリークの原因になります。
+  </div>
+
+  <h3>$refs でDOM要素を直接参照</h3>
+  <p>テンプレートに <code>ref="名前"</code> を付けると、<code>this.$refs.名前</code> で DOM 要素を取得できます。</p>
+  <div class="code-block">
+<span class="comment">&lt;!-- テンプレート --&gt;</span>
+&lt;input ref=<span class="string">"searchBox"</span> /&gt;
+
+<span class="comment">// JS側</span>
+mounted() {
+  <span class="keyword">this</span>.$refs.searchBox.focus()  <span class="comment">// 画面表示時に自動フォーカス</span>
+}
+  </div>
+
+</div><!-- /.left-panel -->
+
+<!-- 右パネル: デモ + 練習問題 -->
+<div class="right-panel">
+  <h2>動くデモ &amp; 練習問題</h2>
+
+  <!-- デモ1: ライフサイクルログ -->
+  <div class="problem">
+    <h3>デモ 1: ライフサイクルフックの発火順を確認</h3>
+    <div class="problem-desc">
+      ボタンでコンポーネントをマウント・アンマウントして、
+      どの順にフックが発火するか確認してください。<br>
+      「カウントアップ」でデータを変更すると updated も発火します。
+    </div>
+    <div class="demo-area" id="demo1">
+      <div style="margin-bottom:12px;">
+        <button @click="show = !show">{{ show ? 'アンマウント' : 'マウント' }}</button>
+      </div>
+      <lifecycle-demo v-if="show" @hook-fired="addLog"></lifecycle-demo>
+      <div style="margin-top:12px;">
+        <div style="font-weight:bold;font-size:0.88em;margin-bottom:6px;">フックログ:</div>
+        <div style="background:#263238;color:#aed581;padding:12px;border-radius:6px;font-family:monospace;font-size:12px;min-height:60px;max-height:180px;overflow-y:auto;">
+          <div v-for="(log, i) in logs" :key="i">{{ log }}</div>
+          <div v-if="logs.length === 0" style="color:#78909c;">（まだログはありません）</div>
+        </div>
+        <button @click="logs = []" style="margin-top:6px;background:#607d8b;font-size:0.82em;padding:4px 12px;">ログをクリア</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- デモ2: タイマー -->
+  <div class="problem">
+    <h3>デモ 2: タイマー（mounted で開始・unmounted で停止）</h3>
+    <div class="problem-desc">
+      コンポーネントをマウントするとカウントダウンが始まります。<br>
+      アンマウントするとタイマーが正しく停止します（<code>clearInterval</code>）。<br>
+      アンマウント後にカウントが進まないことを確認してください。
+    </div>
+    <div class="demo-area" id="demo2">
+      <div style="margin-bottom:12px;">
+        <button @click="showTimer = !showTimer">{{ showTimer ? 'タイマーを止める（アンマウント）' : 'タイマー開始（マウント）' }}</button>
+      </div>
+      <timer-component v-if="showTimer"></timer-component>
+      <p v-else style="color:#999;font-size:0.9em;">タイマーは停止しています。</p>
+    </div>
+  </div>
+
+  <!-- デモ3: $refs -->
+  <div class="problem">
+    <h3>デモ 3: $refs で自動フォーカス</h3>
+    <div class="problem-desc">
+      「入力欄を表示」ボタンを押すと、<code>mounted</code> フック内の
+      <code>this.$refs.input.focus()</code> が実行され、自動的にフォーカスが当たります。
+    </div>
+    <div class="demo-area" id="demo3">
+      <button @click="showInput = !showInput">{{ showInput ? '入力欄を隠す' : '入力欄を表示（自動フォーカス）' }}</button>
+      <auto-focus-input v-if="showInput" style="margin-top:12px;display:block;"></auto-focus-input>
+    </div>
+  </div>
+
+  <!-- 練習問題 -->
+  <div class="problem">
+    <h3>練習: 経過時間を表示するコンポーネント</h3>
+    <div class="problem-desc">
+      マウントされてからの経過秒数を表示するコンポーネントを作ってください。<br>
+      ・<code>mounted</code> でタイマーを開始する<br>
+      ・<code>unmounted</code> でタイマーを停止する（メモリリーク防止）<br>
+      ・「表示 / 非表示」で切り替えたとき、非表示にするとリセットされること
+    </div>
+    <div class="demo-area" id="exercise1">
+      <button @click="showElapsed = !showElapsed">{{ showElapsed ? '非表示' : '表示' }}</button>
+      <elapsed-timer v-if="showElapsed" style="margin-top:12px;display:block;"></elapsed-timer>
+    </div>
+    <details>
+      <summary>ヒント</summary>
+      <div>
+        <code>data()</code> に <code>elapsed: 0</code> と <code>timer: null</code> を用意します。<br>
+        <code>mounted</code> で <code>setInterval(() => this.elapsed++, 1000)</code> を実行して結果を <code>this.timer</code> に保存。<br>
+        <code>unmounted</code> で <code>clearInterval(this.timer)</code> を呼びます。
+      </div>
+    </details>
+    <details>
+      <summary>答えを見る</summary>
+      <div>
+        <div class="code-block" style="white-space:pre-wrap;">app.component(<span class="string">'elapsed-timer'</span>, {
+  data() {
+    <span class="keyword">return</span> { elapsed: 0, timer: <span class="keyword">null</span> }
+  },
+  mounted() {
+    <span class="keyword">this</span>.timer = setInterval(() => { <span class="keyword">this</span>.elapsed++ }, 1000)
+  },
+  unmounted() {
+    clearInterval(<span class="keyword">this</span>.timer)
+  },
+  template: <span class="string">`
+    &lt;p style="font-size:1.2em;"&gt;
+      マウントから &lt;strong&gt;{{ elapsed }}&lt;/strong&gt; 秒経過
+    &lt;/p&gt;
+  `</span>
+})</div>
+      </div>
+    </details>
+  </div>
+
+</div><!-- /.right-panel -->
+</div><!-- /.container -->
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+// ===== デモ1: ライフサイクルログ =====
+const LifecycleDemo = {
+  emits: ['hook-fired'],
+  data() { return { count: 0 } },
+  beforeCreate() { this.$emit && this.$emit('hook-fired', 'beforeCreate') },
+  created()      { this.$emit('hook-fired', 'created') },
+  beforeMount()  { this.$emit('hook-fired', 'beforeMount') },
+  mounted()      { this.$emit('hook-fired', 'mounted ★') },
+  beforeUpdate() { this.$emit('hook-fired', 'beforeUpdate') },
+  updated()      { this.$emit('hook-fired', 'updated ★') },
+  beforeUnmount(){ this.$emit('hook-fired', 'beforeUnmount') },
+  unmounted()    { /* emitはできない */ },
+  template: `
+    <div style="padding:12px;background:white;border-radius:8px;border:1px solid #ddd;">
+      <p style="margin:0 0 8px;font-size:0.9em;">コンポーネントがマウントされています</p>
+      <button @click="count++">カウントアップ ({{ count }})</button>
+      <p style="font-size:0.82em;color:#888;margin:6px 0 0;">クリックすると beforeUpdate / updated が発火します</p>
+    </div>
+  `
+}
+
+const app1 = Vue.createApp({
+  components: { LifecycleDemo },
+  data() { return { show: false, logs: [] } },
+  methods: {
+    addLog(hookName) {
+      const time = new Date().toLocaleTimeString('ja-JP', { hour12: false })
+      this.logs.push(`[${time}] ${hookName}`)
+    }
+  }
+})
+app1.mount('#demo1')
+
+// ===== デモ2: タイマー =====
+const TimerComponent = {
+  data() { return { remaining: 30, timer: null } },
+  mounted() {
+    this.timer = setInterval(() => {
+      if (this.remaining > 0) this.remaining--
+      else clearInterval(this.timer)
+    }, 1000)
+  },
+  unmounted() {
+    clearInterval(this.timer)
+  },
+  template: `
+    <div style="text-align:center;padding:16px;background:white;border-radius:8px;border:1px solid #ddd;">
+      <div style="font-size:2.5em;font-weight:bold;color:#35a371;">{{ remaining }}</div>
+      <div style="font-size:0.85em;color:#888;">残り秒数（mounted でカウントダウン開始）</div>
+    </div>
+  `
+}
+
+Vue.createApp({
+  components: { TimerComponent },
+  data() { return { showTimer: false } }
+}).mount('#demo2')
+
+// ===== デモ3: $refs 自動フォーカス =====
+const AutoFocusInput = {
+  mounted() {
+    this.$refs.input.focus()
+  },
+  template: `
+    <div>
+      <input ref="input" placeholder="mounted で自動フォーカスされました" style="padding:8px 12px;border:2px solid #42b883;border-radius:4px;font-size:14px;width:100%;" />
+      <p style="font-size:0.85em;color:#888;margin:4px 0 0;">this.$refs.input.focus() を mounted で呼びました</p>
+    </div>
+  `
+}
+
+Vue.createApp({
+  components: { AutoFocusInput },
+  data() { return { showInput: false } }
+}).mount('#demo3')
+
+// ===== 練習問題 =====
+const exerciseApp = Vue.createApp({
+  data() { return { showElapsed: false } }
+})
+exerciseApp.component('elapsed-timer', {
+  data() { return { elapsed: 0, timer: null } },
+  mounted()   { this.timer = setInterval(() => { this.elapsed++ }, 1000) },
+  unmounted() { clearInterval(this.timer) },
+  template: `<p style="font-size:1.2em;">マウントから <strong>{{ elapsed }}</strong> 秒経過</p>`
+})
+exerciseApp.mount('#exercise1')
+</script>
+</body>
+</html>

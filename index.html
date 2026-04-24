@@ -92,6 +92,7 @@
         .tag-amber  { background: #fff3e0; color: #e65100; }
         .tag-indigo { background: #eef2ff; color: #4338ca; }
         .tag-red    { background: #ffebee; color: #b71c1c; }
+        .tag-green  { background: #e8f5e9; color: #1b5e20; }
 
         .card-desc { font-size: 0.88em; color: #666; }
         .card-meta { font-size: 0.82em; color: #999; display: flex; gap: 10px; }
@@ -141,11 +142,15 @@
             <span class="path-arrow">→</span>
             <span class="path-node p-teal">SQL応用</span>
             <span class="path-arrow">→</span>
+            <span class="path-node" style="background:#e8f5e9;color:#1b5e20;">Vue.js応用</span>
+            <span class="path-arrow">→</span>
             <span class="path-node p-grey">開発プロセス</span>
         </div>
         <div class="path-label" style="margin-top:18px;">③ 実践演習（応用編を終えてから）</div>
         <div class="path-flow">
             <span class="path-node" style="background:#ffebee;color:#b71c1c;">SQL演習問題</span>
+            <span class="path-arrow">／</span>
+            <span class="path-node p-orange">JSロジック演習</span>
         </div>
     </div>
 
@@ -187,6 +192,18 @@
                     <span class="card-prereq">JavaScript基礎</span>
                 </div>
             </a>
+            <a href="js-exercises/index.html" class="course-card theme-orange">
+                <div class="card-header">
+                    <div class="card-icon icon-orange">⚡</div>
+                    <div class="card-title">JS ロジック演習 <span class="card-tag tag-amber">実践</span></div>
+                </div>
+                <div class="card-desc">C#研修の演習問題をJSで解く。条件・ループ・ソートアルゴリズム・素数・曜日計算。テスト自動判定。</div>
+                <div class="card-meta">
+                    <span class="card-days">全11問（3フェーズ）</span>
+                    <span class="card-time">目安 5時間</span>
+                    <span class="card-prereq">JavaScript基礎</span>
+                </div>
+            </a>
             <a href="vue-basics/index.html" class="course-card theme-green">
                 <div class="card-header">
                     <div class="card-icon icon-green">🖼️</div>
@@ -197,6 +214,18 @@
                     <span class="card-days">全7レッスン</span>
                     <span class="card-time">目安 8時間 / 2日</span>
                     <span class="card-prereq">JavaScript基礎</span>
+                </div>
+            </a>
+            <a href="vue-advanced/index.html" class="course-card theme-green">
+                <div class="card-header">
+                    <div class="card-icon icon-green">🔧</div>
+                    <div class="card-title">Vue.js 応用 <span class="card-tag tag-green">Part 2</span></div>
+                </div>
+                <div class="card-desc">emits宣言・v-model対応・provide/inject・ライフサイクルフック・非同期処理連携。</div>
+                <div class="card-meta">
+                    <span class="card-days">全3レッスン</span>
+                    <span class="card-time">目安 6時間 / 2日</span>
+                    <span class="card-prereq">Vue.js基礎</span>
                 </div>
             </a>
         </div>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 1: コンポーネント間通信（発展） | Vue.js 応用</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Meiryo', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; color: #333; line-height: 1.6; }
+    .header { background: #35a371; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+    .header h1 { margin: 0; font-size: 1.3em; }
+    .header .nav { margin-top: 8px; }
+    .header a { color: white; text-decoration: none; margin-right: 20px; }
+    .header a:hover { text-decoration: underline; }
+    .container { display: flex; min-height: calc(100vh - 70px); }
+    .left-panel { width: 50%; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #ddd; }
+    .right-panel { width: 50%; padding: 30px; overflow-y: auto; }
+    h2 { color: #35495e; border-bottom: 2px solid #42b883; padding-bottom: 10px; }
+    h3 { color: #35a371; margin-top: 28px; }
+    .code-block {
+      white-space: pre; background: #263238; color: #aed581;
+      padding: 15px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px; overflow-x: auto; margin: 15px 0;
+    }
+    .code-block .comment { color: #78909c; }
+    .code-block .tag { color: #82b1ff; }
+    .code-block .attr { color: #c3e88d; }
+    .code-block .value { color: #f78c6c; }
+    .code-block .keyword { color: #82b1ff; }
+    .code-block .string { color: #c3e88d; }
+    .point-box { background: #e8f5e9; border-left: 4px solid #42b883; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .point-box strong { color: #1b5e20; }
+    .warning-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+    .warning-box strong { color: #e65100; }
+    .new-badge { background: #42b883; color: white; font-size: 0.72em; padding: 2px 7px; border-radius: 4px; vertical-align: middle; margin-left: 6px; }
+    .problem { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .problem h3 { margin-top: 0; }
+    .problem-desc { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.92em; }
+    .demo-area { background: #fafafa; border: 2px solid #42b883; border-radius: 8px; padding: 20px; margin: 15px 0; }
+    .demo-area button { padding: 8px 16px; background: #42b883; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 4px; }
+    .demo-area button:hover { background: #35a371; }
+    .demo-area input { padding: 8px 12px; border: 2px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%; }
+    .demo-area input:focus { outline: none; border-color: #42b883; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: #35a371; font-weight: bold; padding: 8px 12px; background: #e8f5e9; border-radius: 4px; }
+    summary:hover { background: #c8e6c9; }
+    details > div { background: #f9fbe7; border: 1px solid #c8e6c9; padding: 15px; border-radius: 0 0 8px 8px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Day 1: コンポーネント間通信（発展）</h1>
+  <div class="nav">
+    <a href="index.html">← トップに戻る</a>
+    <a href="day2-lifecycle.html">次へ: ライフサイクルフック →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- 左パネル: 説明 -->
+<div class="left-panel">
+  <h2>1. emits オプション宣言 <span class="new-badge">Vue 3 推奨</span></h2>
+
+  <p>
+    基礎コースで学んだ <code>$emit</code> は、イベントを発火するだけでした。<br>
+    Vue 3 では、コンポーネントが発火するイベントを <code>emits</code> オプションで<strong>明示的に宣言</strong>することが推奨されています。
+  </p>
+
+  <div class="code-block">
+<span class="comment">// ❌ 基礎コースの書き方（動くが非推奨）</span>
+app.component(<span class="string">'my-button'</span>, {
+  methods: {
+    handleClick() {
+      <span class="keyword">this</span>.$emit(<span class="string">'clicked'</span>, <span class="string">'hello'</span>)
+    }
+  }
+})
+
+<span class="comment">// ✅ Vue 3 推奨：emitsオプションで宣言する</span>
+app.component(<span class="string">'my-button'</span>, {
+  emits: [<span class="string">'clicked'</span>],   <span class="comment">// このコンポーネントが発火するイベント一覧</span>
+  methods: {
+    handleClick() {
+      <span class="keyword">this</span>.$emit(<span class="string">'clicked'</span>, <span class="string">'hello'</span>)
+    }
+  }
+})
+  </div>
+
+  <div class="point-box">
+    <strong>emits宣言のメリット</strong><br>
+    ・どのイベントを発火するか一目でわかる（ドキュメント代わり）<br>
+    ・親の同名ネイティブイベントとの衝突を防ぐ<br>
+    ・バリデーション関数で値の検証もできる
+  </div>
+
+  <div class="code-block">
+<span class="comment">// emitsにバリデーション関数を付ける（高度な使い方）</span>
+emits: {
+  submit: (payload) => {
+    <span class="comment">// trueを返せばOK、falseで警告を出す</span>
+    <span class="keyword">return</span> payload.text !== <span class="string">''</span>
+  }
+}
+  </div>
+
+  <h3>2. v-model をコンポーネントに対応させる <span class="new-badge">新規</span></h3>
+
+  <p>
+    <code>v-model</code> はフォーム要素（input など）で使いますが、
+    <strong>自作コンポーネントにも対応</strong>させることができます。
+  </p>
+
+  <p>Vue 3 の <code>v-model</code> は内部的にこの2つに展開されます：</p>
+
+  <div class="code-block">
+<span class="comment">&lt;!-- この書き方は… --&gt;</span>
+<span class="tag">&lt;my-input</span> <span class="attr">v-model</span>=<span class="value">"keyword"</span> <span class="tag">/&gt;</span>
+
+<span class="comment">&lt;!-- 内部的にこう展開される --&gt;</span>
+<span class="tag">&lt;my-input</span>
+  <span class="attr">:modelValue</span>=<span class="value">"keyword"</span>
+  <span class="attr">@update:modelValue</span>=<span class="value">"keyword = $event"</span>
+<span class="tag">/&gt;</span>
+  </div>
+
+  <p>つまりコンポーネント側で <code>modelValue</code> を受け取り、<code>update:modelValue</code> を emitすれば v-model が使えるようになります：</p>
+
+  <div class="code-block">
+app.component(<span class="string">'my-input'</span>, {
+  props: [<span class="string">'modelValue'</span>],
+  emits: [<span class="string">'update:modelValue'</span>],
+  template: <span class="string">`
+    &lt;input
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+    /&gt;
+  `</span>
+})
+  </div>
+
+  <div class="warning-box">
+    <strong>なぜ直接書き換えてはいけないか</strong><br>
+    受け取った <code>props</code> をコンポーネント内で直接変更するのは禁止です。<br>
+    代わりに「変更したい」というイベントを親に通知して、親側で更新します。
+    これがVueの<strong>単方向データフロー</strong>のルールです。
+  </div>
+
+  <h3>3. provide / inject <span class="new-badge">新規</span></h3>
+
+  <p>
+    props でデータを渡す場合、コンポーネントが深くネストされていると
+    <strong>途中の階層が使わないのに props を受け渡し続ける</strong>問題が起きます。
+    これを「<strong>props のバケツリレー</strong>」と呼びます。
+  </p>
+
+  <div class="code-block">
+<span class="comment">// バケツリレーの例（途中のコンポーネントは使わないのに受け渡す）</span>
+App → Section → Panel → Detail → <span class="string">★ここで必要</span>
+          ↑         ↑       ↑
+      使わないのにpropsを中継し続ける
+  </div>
+
+  <p><code>provide</code> / <code>inject</code> を使うと、<strong>階層をスキップして直接渡せます</strong>：</p>
+
+  <div class="code-block">
+<span class="comment">// 祖先コンポーネント（Appなど）</span>
+Vue.createApp({
+  data() {
+    <span class="keyword">return</span> { appName: <span class="string">'ORSYSシステム'</span>, accentColor: <span class="string">'#c62828'</span> }
+  },
+  provide() {
+    <span class="comment">// provideは関数にするとthisが使える</span>
+    <span class="keyword">return</span> {
+      appName: <span class="keyword">this</span>.appName,
+      accentColor: <span class="keyword">this</span>.accentColor
+    }
+  }
+})
+
+<span class="comment">// 深い階層の子孫コンポーネント</span>
+{
+  inject: [<span class="string">'appName'</span>, <span class="string">'accentColor'</span>],
+  template: <span class="string">`&lt;div :style="{ color: accentColor }"&gt;{{ appName }}&lt;/div&gt;`</span>
+}
+  </div>
+
+  <div class="point-box">
+    <strong>provide / inject の使いどころ</strong><br>
+    ・アプリ全体で使う設定値（テーマ・ロケール・API URLなど）<br>
+    ・コンポーネントライブラリで親→子孫へ状態を共有するとき<br>
+    ・頻繁に更新されないデータに向いている
+  </div>
+
+</div><!-- /.left-panel -->
+
+<!-- 右パネル: デモ + 練習問題 -->
+<div class="right-panel">
+  <h2>動くデモ &amp; 練習問題</h2>
+
+  <!-- デモ1: emits宣言 -->
+  <div class="problem">
+    <h3>デモ 1: emits 宣言付きモーダル</h3>
+    <div class="problem-desc">
+      「モーダルを開く」ボタンを押すとモーダルが表示されます。<br>
+      モーダル内の「閉じる」ボタンが <code>$emit('close')</code> で親に通知します。<br>
+      コンソール（F12）を開くと emits の挙動が確認できます。
+    </div>
+    <div class="demo-area" id="demo1">
+      <modal-dialog :show="isOpen" @close="isOpen = false">
+        <template v-slot:default>
+          <p>これはモーダルの内容です。</p>
+          <p style="font-size:0.9em;color:#666;">emitsオプションで <code>'close'</code> を宣言しています。</p>
+        </template>
+      </modal-dialog>
+      <button @click="isOpen = true">モーダルを開く</button>
+      <p style="font-size:0.88em;color:#666;margin-top:8px;">状態: {{ isOpen ? '開いています' : '閉じています' }}</p>
+    </div>
+  </div>
+
+  <!-- デモ2: v-model on component -->
+  <div class="problem">
+    <h3>デモ 2: v-model をカスタム入力コンポーネントに対応</h3>
+    <div class="problem-desc">
+      <code>my-text-input</code> というカスタムコンポーネントに <code>v-model</code> を使っています。<br>
+      内部では <code>modelValue</code> props と <code>update:modelValue</code> emit で双方向バインディングを実現しています。
+    </div>
+    <div class="demo-area" id="demo2">
+      <label style="font-weight:bold;display:block;margin-bottom:8px;">患者名を入力:</label>
+      <my-text-input v-model="patientName" placeholder="例: 山田 太郎" />
+      <p style="margin-top:12px;">入力値: <strong>{{ patientName || '（未入力）' }}</strong></p>
+      <p style="font-size:0.88em;color:#888;">↑ 親コンポーネントのデータがリアルタイムに更新されている</p>
+    </div>
+  </div>
+
+  <!-- デモ3: provide/inject -->
+  <div class="problem">
+    <h3>デモ 3: provide / inject で深い階層にデータを渡す</h3>
+    <div class="problem-desc">
+      App → Section → Card という3階層構造です。<br>
+      App が <code>provide</code> したシステム名とカラーを、
+      中間の Section を介さず Card が直接 <code>inject</code> しています。
+    </div>
+    <div class="demo-area" id="demo3">
+      <app-section></app-section>
+    </div>
+    <details>
+      <summary>コードを見る</summary>
+      <div>
+        <div class="code-block" style="white-space:pre-wrap;">
+<span class="comment">// 最下層の Card コンポーネント</span>
+<span class="keyword">const</span> InfoCard = {
+  inject: [<span class="string">'systemName'</span>, <span class="string">'headerColor'</span>],
+  template: <span class="string">`
+    &lt;div style="border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.12);"&gt;
+      &lt;div :style="{ background: headerColor, color: 'white', padding: '8px 14px' }"&gt;
+        {{ systemName }}
+      &lt;/div&gt;
+      &lt;div style="padding:12px;background:white;"&gt;
+        このカードは inject でシステム名と色を取得しています。&lt;br&gt;
+        Section には props を渡していません。
+      &lt;/div&gt;
+    &lt;/div&gt;
+  `</span>
+}
+
+<span class="comment">// 中間の Section（provideもinjectも不要）</span>
+<span class="keyword">const</span> AppSection = {
+  components: { InfoCard },
+  template: <span class="string">`
+    &lt;div&gt;
+      &lt;p style="font-size:0.88em;color:#666;"&gt;← Section（中継なし）&lt;/p&gt;
+      &lt;info-card /&gt;
+    &lt;/div&gt;
+  `</span>
+}
+
+<span class="comment">// 祖先の App で provide</span>
+Vue.createApp({
+  components: { AppSection },
+  provide() {
+    <span class="keyword">return</span> {
+      systemName: <span class="string">'ORSYSシステム'</span>,
+      headerColor: <span class="string">'#c62828'</span>
+    }
+  },
+  template: <span class="string">`&lt;app-section /&gt;`</span>
+}).mount(<span class="string">'#demo3'</span>)
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- 練習問題 -->
+  <div class="problem">
+    <h3>練習: v-model 対応コンポーネントを作る</h3>
+    <div class="problem-desc">
+      数値を増減できる <code>number-input</code> コンポーネントを完成させてください。<br>
+      ・「－」ボタンで値を1減らす、「＋」ボタンで値を1増やす<br>
+      ・<code>v-model</code> で親と双方向バインディングする
+    </div>
+    <div class="demo-area" id="exercise1">
+      <number-input v-model="score"></number-input>
+      <p style="margin-top:12px;">親が保持するスコア: <strong>{{ score }}</strong></p>
+    </div>
+    <details>
+      <summary>ヒント</summary>
+      <div>
+        <code>number-input</code> コンポーネントは <code>modelValue</code> を props で受け取り、<br>
+        ボタンクリック時に <code>$emit('update:modelValue', modelValue + 1)</code> のように送ります。
+      </div>
+    </details>
+    <details>
+      <summary>答えを見る</summary>
+      <div>
+        <div class="code-block" style="white-space:pre-wrap;">app.component(<span class="string">'number-input'</span>, {
+  props: { modelValue: { type: Number, default: 0 } },
+  emits: [<span class="string">'update:modelValue'</span>],
+  template: <span class="string">`
+    &lt;div style="display:flex;align-items:center;gap:12px;"&gt;
+      &lt;button @click="$emit('update:modelValue', modelValue - 1)"&gt;－&lt;/button&gt;
+      &lt;span style="font-size:1.4em;font-weight:bold;min-width:30px;text-align:center;"&gt;
+        {{ modelValue }}
+      &lt;/span&gt;
+      &lt;button @click="$emit('update:modelValue', modelValue + 1)"&gt;＋&lt;/button&gt;
+    &lt;/div&gt;
+  `</span>
+})</div>
+      </div>
+    </details>
+  </div>
+
+</div><!-- /.right-panel -->
+</div><!-- /.container -->
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+// ===== デモ1: emits宣言付きモーダル =====
+const ModalDialog = {
+  props: {
+    show: { type: Boolean, default: false }
+  },
+  emits: ['close'],
+  template: `
+    <div v-if="show" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:999;">
+      <div style="background:white;border-radius:12px;padding:30px;min-width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+        <h4 style="margin-top:0;color:#35495e;">モーダルウィンドウ</h4>
+        <slot></slot>
+        <button @click="$emit('close')" style="margin-top:12px;padding:8px 20px;background:#42b883;color:white;border:none;border-radius:6px;cursor:pointer;">
+          閉じる
+        </button>
+      </div>
+    </div>
+  `
+}
+
+Vue.createApp({
+  components: { ModalDialog },
+  data() { return { isOpen: false } }
+}).mount('#demo1')
+
+// ===== デモ2: v-model on component =====
+const MyTextInput = {
+  props: {
+    modelValue: { type: String, default: '' },
+    placeholder: { type: String, default: '' }
+  },
+  emits: ['update:modelValue'],
+  template: `
+    <input
+      :value="modelValue"
+      :placeholder="placeholder"
+      @input="$emit('update:modelValue', $event.target.value)"
+      style="padding:8px 12px;border:2px solid #ddd;border-radius:4px;font-size:14px;width:100%;"
+    />
+  `
+}
+
+Vue.createApp({
+  components: { MyTextInput },
+  data() { return { patientName: '' } }
+}).mount('#demo2')
+
+// ===== デモ3: provide / inject =====
+const InfoCard = {
+  inject: ['systemName', 'headerColor'],
+  template: `
+    <div style="border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+      <div :style="{ background: headerColor, color: 'white', padding: '8px 14px', fontWeight: 'bold' }">
+        {{ systemName }}
+      </div>
+      <div style="padding:12px;background:white;font-size:0.9em;">
+        このカードは <code>inject</code> でシステム名と色を取得しています。<br>
+        間にある Section には props を一切渡していません。
+      </div>
+    </div>
+  `
+}
+
+const AppSection = {
+  components: { InfoCard },
+  template: `
+    <div>
+      <p style="font-size:0.85em;color:#888;margin:0 0 8px;">↑ Section コンポーネント（provideもinjectも不要）</p>
+      <info-card />
+    </div>
+  `
+}
+
+Vue.createApp({
+  components: { AppSection },
+  provide() {
+    return {
+      systemName: 'ORSYSシステム',
+      headerColor: '#c62828'
+    }
+  },
+  template: `<app-section />`
+}).mount('#demo3')
+
+// ===== 練習問題 =====
+const app = Vue.createApp({
+  data() { return { score: 0 } }
+})
+
+app.component('number-input', {
+  props: { modelValue: { type: Number, default: 0 } },
+  emits: ['update:modelValue'],
+  template: `
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button @click="$emit('update:modelValue', modelValue - 1)">－</button>
+      <span style="font-size:1.4em;font-weight:bold;min-width:30px;text-align:center;">{{ modelValue }}</span>
+      <button @click="$emit('update:modelValue', modelValue + 1)">＋</button>
+    </div>
+  `
+})
+
+app.mount('#exercise1')
+</script>
+</body>
+</html>
