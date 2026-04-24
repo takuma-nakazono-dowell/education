@@ -63,6 +63,7 @@
         .theme-navy   { border-top-color: #1976d2; }
         .theme-grey   { border-top-color: #607d8b; }
         .theme-indigo { border-top-color: #6366f1; }
+        .theme-red    { border-top-color: #c62828; }
 
         .card-header { display: flex; align-items: center; gap: 12px; }
         .card-icon {
@@ -79,6 +80,7 @@
         .icon-navy   { background: #e3f2fd; }
         .icon-grey   { background: #eceff1; }
         .icon-indigo { background: #eef2ff; }
+        .icon-red    { background: #ffebee; }
 
         .card-title { font-size: 1.05em; font-weight: bold; }
         .card-tag {
@@ -89,6 +91,7 @@
         .tag-teal   { background: #e0f2f1; color: #00695c; }
         .tag-amber  { background: #fff3e0; color: #e65100; }
         .tag-indigo { background: #eef2ff; color: #4338ca; }
+        .tag-red    { background: #ffebee; color: #b71c1c; }
 
         .card-desc { font-size: 0.88em; color: #666; }
         .card-meta { font-size: 0.82em; color: #999; display: flex; gap: 10px; }
@@ -139,6 +142,10 @@
             <span class="path-node p-teal">SQL応用</span>
             <span class="path-arrow">→</span>
             <span class="path-node p-grey">開発プロセス</span>
+        </div>
+        <div class="path-label" style="margin-top:18px;">③ 実践演習（応用編を終えてから）</div>
+        <div class="path-flow">
+            <span class="path-node" style="background:#ffebee;color:#b71c1c;">SQL演習問題</span>
         </div>
     </div>
 
@@ -220,6 +227,18 @@
                     <span class="card-days">全6レッスン</span>
                     <span class="card-time">目安 6時間 / 2日</span>
                     <span class="card-prereq">SQL基礎</span>
+                </div>
+            </a>
+            <a href="sql-exercises/index.html" class="course-card theme-red">
+                <div class="card-header">
+                    <div class="card-icon icon-red">🏥</div>
+                    <div class="card-title">SQL 演習問題 <span class="card-tag tag-red">実践</span></div>
+                </div>
+                <div class="card-desc">手術室システムの実データ構造を使ったSQL演習。絞り込み・集計・応用分析の3フェーズ。</div>
+                <div class="card-meta">
+                    <span class="card-days">全25問（3フェーズ）</span>
+                    <span class="card-time">目安 6時間</span>
+                    <span class="card-prereq">SQL基礎・応用</span>
                 </div>
             </a>
             <a href="csharp-basics/index.html" class="course-card theme-purple">

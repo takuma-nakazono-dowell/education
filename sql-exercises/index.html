@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL 演習問題</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 { text-align: center; color: #c62828; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 40px; }
+        .info-box {
+            background-color: #ffebee;
+            border-left: 4px solid #c62828;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box h2 { margin-top: 0; color: #b71c1c; }
+        .section-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .section-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+        .phase-badge {
+            background: #c62828;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85em;
+            flex-shrink: 0;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .section-content h3 { margin: 0 0 6px 0; color: #c62828; }
+        .section-content p { margin: 0; color: #666; font-size: 0.92em; }
+        .q-list { margin: 6px 0 0 0; padding-left: 18px; font-size: 0.88em; color: #555; }
+        .q-list li { margin: 2px 0; }
+
+        .schema-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .schema-section h2 { margin-top: 0; color: #c62828; }
+        .table-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .table-grid { grid-template-columns: 1fr; } }
+        .db-table {
+            background: #263238;
+            color: #cfd8dc;
+            padding: 14px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.82em;
+        }
+        .db-table .tname { color: #80cbc4; font-weight: bold; margin-bottom: 8px; font-size: 1em; }
+        .db-table .col { padding: 2px 0; border-bottom: 1px solid #37474f; display: flex; gap: 10px; }
+        .db-table .col:last-child { border-bottom: none; }
+        .db-table .cname { color: #aed581; flex: 1; }
+        .db-table .ctype { color: #78909c; font-size: 0.9em; }
+        .db-table .cpk { color: #ffcc02; font-size: 0.75em; margin-left: 4px; }
+        .db-table .cnote { color: #90a4ae; font-size: 0.8em; margin-top: 2px; font-style: italic; }
+
+        .rel-note {
+            background: #e8f5e9;
+            border-left: 4px solid #43a047;
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 16px;
+            font-size: 0.9em;
+            color: #2e7d32;
+        }
+        .rel-note strong { display: block; margin-bottom: 6px; }
+    </style>
+</head>
+<body>
+    <h1>SQL 演習問題</h1>
+    <p class="subtitle">手術室システムのデータを使った実践的なSQL演習</p>
+
+    <div class="info-box">
+        <h2>この教材について</h2>
+        <p>病院の手術室管理システムのデータを使って、実務レベルのSQLを練習します。</p>
+        <p>各問題はブラウザ上で実行できます。<strong>AIは使わずに</strong>自力で考えてください。</p>
+        <p>わからない場合は SQL の教科書・リファレンスを参照してOKです。</p>
+    </div>
+
+    <div class="schema-section">
+        <h2>使用するテーブル</h2>
+        <div class="table-grid">
+            <div class="db-table">
+                <div class="tname">operation_table（症例）</div>
+                <div class="col"><span class="cname">orsys_id</span><span class="ctype">INTEGER<span class="cpk">PK</span></span></div>
+                <div class="col"><span class="cname">patient_id</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">patient_name</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">age_year</span><span class="ctype">INTEGER</span></div>
+                <div class="col"><span class="cname">age_month</span><span class="ctype">INTEGER</span></div>
+                <div class="col"><span class="cname">sex_name</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">birthday</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">height</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">weight</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">ope_extra_id</span><span class="ctype">INTEGER</span></div>
+                <div class="col"><span class="cname">section_id</span><span class="ctype">INTEGER</span></div>
+                <div class="cnote">ope_extra_id: 1=通常 2=緊急 3=枠外</div>
+            </div>
+            <div class="db-table">
+                <div class="tname">operation_schedule_table（スケジュール）</div>
+                <div class="col"><span class="cname">orsys_id</span><span class="ctype">INTEGER<span class="cpk">PK/FK</span></span></div>
+                <div class="col"><span class="cname">ope_date</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">sche_ope_start_time</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">sche_ope_end_time</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">ope_room_id</span><span class="ctype">INTEGER</span></div>
+                <div class="cnote">時刻は DATETIME 形式（'YYYY-MM-DD HH:MM:SS'）</div>
+            </div>
+            <div class="db-table">
+                <div class="tname">operation_name_table（術式）</div>
+                <div class="col"><span class="cname">orsys_id</span><span class="ctype">INTEGER<span class="cpk">FK</span></span></div>
+                <div class="col"><span class="cname">operation_name_id</span><span class="ctype">INTEGER</span></div>
+                <div class="col"><span class="cname">operation_name</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">idx_dsp</span><span class="ctype">INTEGER</span></div>
+                <div class="cnote">1症例に複数術式あり</div>
+            </div>
+            <div class="db-table">
+                <div class="tname">operation_position_table（体位）</div>
+                <div class="col"><span class="cname">orsys_id</span><span class="ctype">INTEGER<span class="cpk">FK</span></span></div>
+                <div class="col"><span class="cname">operation_position_id</span><span class="ctype">INTEGER</span></div>
+                <div class="col"><span class="cname">operation_position_name</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">idx_dsp</span><span class="ctype">INTEGER</span></div>
+            </div>
+            <div class="db-table">
+                <div class="tname">section_master（診療科マスタ）</div>
+                <div class="col"><span class="cname">section_id</span><span class="ctype">INTEGER<span class="cpk">PK</span></span></div>
+                <div class="col"><span class="cname">section_name</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">idx_dsp</span><span class="ctype">INTEGER</span></div>
+                <div class="cnote">idx_dsp: 表示順（昇順ソート基準）</div>
+            </div>
+            <div class="db-table">
+                <div class="tname">ope_room_master（手術室マスタ）</div>
+                <div class="col"><span class="cname">ope_room_id</span><span class="ctype">INTEGER<span class="cpk">PK</span></span></div>
+                <div class="col"><span class="cname">ope_room_name</span><span class="ctype">TEXT</span></div>
+                <div class="col"><span class="cname">idx_dsp</span><span class="ctype">INTEGER</span></div>
+            </div>
+        </div>
+        <div class="rel-note">
+            <strong>テーブル関連</strong>
+            operation_table.orsys_id = operation_schedule_table.orsys_id = operation_name_table.orsys_id = operation_position_table.orsys_id<br>
+            operation_table.section_id = section_master.section_id<br>
+            operation_schedule_table.ope_room_id = ope_room_master.ope_room_id
+        </div>
+    </div>
+
+    <h2>カリキュラム</h2>
+    <div class="section-list">
+        <a href="phase1.html" class="section-card">
+            <div class="phase-badge">Phase<br>1</div>
+            <div class="section-content">
+                <h3>絞り込み・基本検索</h3>
+                <p>WHERE / JOIN / LIKE / 日付・時刻フィルタ</p>
+                <ul class="q-list">
+                    <li>2020年4月の手術をすべて抽出</li>
+                    <li>2020年1年間の緊急手術をすべて抽出</li>
+                    <li>16歳未満の手術をすべて抽出</li>
+                    <li>「腹腔鏡」の手術（1症例1レコード）</li>
+                    <li>「腹臥位」の手術をすべて抽出</li>
+                    <li>心臓血管外科・緊急/枠外・70代</li>
+                    <li>午前中（AM11:59まで）の手術</li>
+                    <li>深夜（PM10時以降〜AM5時）の緊急手術</li>
+                    <li>手術時間をN時間M分で表示</li>
+                </ul>
+            </div>
+        </a>
+        <a href="phase2.html" class="section-card">
+            <div class="phase-badge">Phase<br>2</div>
+            <div class="section-content">
+                <h3>集計・グループ化</h3>
+                <p>GROUP BY / COUNT / AVG / 多軸集計</p>
+                <ul class="q-list">
+                    <li>手術日毎の件数を集計</li>
+                    <li>年毎・年月毎の件数を集計</li>
+                    <li>年月×診療科、年月×術式、年月×診療科×術式</li>
+                    <li>平均手術時間の算出</li>
+                    <li>手術室毎の件数・平均時間</li>
+                    <li>TOP10術式（その他を含む）</li>
+                </ul>
+            </div>
+        </a>
+        <a href="phase3.html" class="section-card">
+            <div class="phase-badge">Phase<br>3</div>
+            <div class="section-content">
+                <h3>応用・分析</h3>
+                <p>サブクエリ / NOT EXISTS / CASE / 比率計算</p>
+                <ul class="q-list">
+                    <li>手術が行われていない診療科を抽出</li>
+                    <li>BMIを計算（身長・体重NULLを除外）</li>
+                    <li>午前中で件数が最多の診療科</li>
+                    <li>深夜緊急手術で件数が最多の診療科</li>
+                    <li>日跨ぎの手術件数</li>
+                    <li>利用頻度が最も高い手術室</li>
+                    <li>女性比率が高い診療科（比率付き）</li>
+                </ul>
+            </div>
+        </a>
+    </div>
+</body>
+</html>

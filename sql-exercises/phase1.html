@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 1: 絞り込み・基本検索 - SQL演習</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="db-init.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            margin: 0; padding: 0;
+            background-color: #f5f5f5;
+            color: #333; line-height: 1.6;
+        }
+        .header {
+            background: #c62828; color: white;
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 1.2em; }
+        .header .nav { margin-top: 6px; }
+        .header a { color: white; text-decoration: none; margin-right: 20px; font-size: 0.9em; }
+        .header a:hover { text-decoration: underline; }
+        .container { display: flex; min-height: calc(100vh - 66px); }
+        .left-panel {
+            width: 38%; padding: 24px; overflow-y: auto;
+            background: white; border-right: 1px solid #ddd;
+        }
+        .right-panel { width: 62%; padding: 24px; overflow-y: auto; }
+        h2 { color: #b71c1c; border-bottom: 2px solid #c62828; padding-bottom: 8px; margin-top: 0; }
+        .db-table {
+            background: #263238; color: #cfd8dc;
+            padding: 12px; border-radius: 8px;
+            font-family: 'Consolas', monospace; font-size: 0.8em;
+            margin: 8px 0;
+        }
+        .db-table .tname { color: #80cbc4; font-weight: bold; margin-bottom: 6px; }
+        .db-table .col { padding: 1px 0; display: flex; gap: 8px; }
+        .db-table .cname { color: #aed581; flex: 1; }
+        .db-table .ctype { color: #78909c; font-size: 0.85em; }
+        .db-table .cnote { color: #90a4ae; font-size: 0.78em; margin-top: 4px; font-style: italic; }
+        .hint-box {
+            background: #fff3e0; border-left: 4px solid #ff9800;
+            padding: 12px 14px; border-radius: 0 6px 6px 0; margin: 8px 0;
+            font-size: 0.88em;
+        }
+        .hint-box strong { color: #e65100; }
+        .problem {
+            background: white; border-radius: 12px;
+            padding: 18px; margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .problem h3 { margin: 0 0 8px 0; color: #b71c1c; font-size: 1em; }
+        .problem-desc {
+            background: #ffebee; padding: 12px; border-radius: 6px;
+            margin-bottom: 12px; font-size: 0.9em;
+        }
+        .condition { color: #b71c1c; font-weight: bold; }
+        textarea {
+            width: 100%; height: 90px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px; padding: 12px;
+            border: 2px solid #ddd; border-radius: 6px; resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #c62828; }
+        .btn {
+            display: inline-block; padding: 8px 18px;
+            background: #c62828; color: white;
+            border: none; border-radius: 6px;
+            font-size: 0.9em; cursor: pointer; margin-top: 8px;
+        }
+        .btn:hover { background: #b71c1c; }
+        .result-area {
+            background: #263238; color: #aed581;
+            padding: 12px; border-radius: 6px;
+            font-family: 'Consolas', monospace; font-size: 12px;
+            margin-top: 8px; min-height: 60px; overflow-x: auto;
+        }
+        .result-area.error { color: #ef5350; }
+        .result-area table { border-collapse: collapse; width: 100%; }
+        .result-area th, .result-area td {
+            border: 1px solid #546e7a; padding: 4px 8px; text-align: left;
+        }
+        .result-area th { background: #37474f; color: #80cbc4; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Phase 1: 絞り込み・基本検索</h1>
+    <div class="nav">
+        <a href="index.html">← コース一覧</a>
+        <a href="phase2.html">Phase 2: 集計 →</a>
+    </div>
+</div>
+<div class="container">
+    <!-- 左パネル: テーブル定義 + ヒント -->
+    <div class="left-panel">
+        <h2>テーブル定義</h2>
+
+        <div class="db-table">
+            <div class="tname">operation_table</div>
+            <div class="col"><span class="cname">orsys_id</span><span class="ctype">PK</span></div>
+            <div class="col"><span class="cname">patient_name</span><span class="ctype">TEXT</span></div>
+            <div class="col"><span class="cname">age_year</span><span class="ctype">INTEGER</span></div>
+            <div class="col"><span class="cname">age_month</span><span class="ctype">INTEGER</span></div>
+            <div class="col"><span class="cname">sex_name</span><span class="ctype">TEXT</span></div>
+            <div class="col"><span class="cname">birthday</span><span class="ctype">TEXT</span></div>
+            <div class="col"><span class="cname">ope_extra_id</span><span class="ctype">INTEGER</span></div>
+            <div class="col"><span class="cname">section_id</span><span class="ctype">INTEGER</span></div>
+            <div class="cnote">ope_extra_id: 1=通常 2=緊急 3=枠外</div>
+        </div>
+
+        <div class="db-table">
+            <div class="tname">operation_schedule_table</div>
+            <div class="col"><span class="cname">orsys_id</span><span class="ctype">PK/FK</span></div>
+            <div class="col"><span class="cname">ope_date</span><span class="ctype">TEXT</span></div>
+            <div class="col"><span class="cname">sche_ope_start_time</span><span class="ctype">TEXT</span></div>
+            <div class="col"><span class="cname">sche_ope_end_time</span><span class="ctype">TEXT</span></div>
+            <div class="col"><span class="cname">ope_room_id</span><span class="ctype">INTEGER</span></div>
+            <div class="cnote">時刻形式: 'YYYY-MM-DD HH:MM:SS'</div>
+        </div>
+
+        <div class="db-table">
+            <div class="tname">operation_name_table</div>
+            <div class="col"><span class="cname">orsys_id</span><span class="ctype">FK</span></div>
+            <div class="col"><span class="cname">operation_name_id</span><span class="ctype">INTEGER</span></div>
+            <div class="col"><span class="cname">operation_name</span><span class="ctype">TEXT</span></div>
+            <div class="col"><span class="cname">idx_dsp</span><span class="ctype">INTEGER</span></div>
+        </div>
+
+        <div class="db-table">
+            <div class="tname">operation_position_table</div>
+            <div class="col"><span class="cname">orsys_id</span><span class="ctype">FK</span></div>
+            <div class="col"><span class="cname">operation_position_name</span><span class="ctype">TEXT</span></div>
+            <div class="col"><span class="cname">idx_dsp</span><span class="ctype">INTEGER</span></div>
+        </div>
+
+        <div class="db-table">
+            <div class="tname">section_master</div>
+            <div class="col"><span class="cname">section_id</span><span class="ctype">PK</span></div>
+            <div class="col"><span class="cname">section_name</span><span class="ctype">TEXT</span></div>
+            <div class="col"><span class="cname">idx_dsp</span><span class="ctype">INTEGER</span></div>
+        </div>
+
+        <h2 style="margin-top:20px;">SQLiteの日付・時刻関数</h2>
+        <div class="hint-box">
+            <strong>日付を取り出す</strong><br>
+            <code>date(sche_ope_start_time)</code> → '2020-04-07'<br>
+            <code>time(sche_ope_start_time)</code> → '09:00:00'
+        </div>
+        <div class="hint-box">
+            <strong>年・月・日を取り出す</strong><br>
+            <code>strftime('%Y', ope_date)</code> → '2020'<br>
+            <code>strftime('%m', ope_date)</code> → '04'<br>
+            <code>strftime('%Y-%m', ope_date)</code> → '2020-04'
+        </div>
+        <div class="hint-box">
+            <strong>時間差（秒単位）</strong><br>
+            <code>strftime('%s', end) - strftime('%s', start)</code><br>
+            → 秒数。3600で割ると時間、%3600/60で分
+        </div>
+        <div class="hint-box">
+            <strong>注意: ソート順</strong><br>
+            日付があるときは ope_date 昇順<br>
+            診療科は section_master.idx_dsp 昇順<br>
+            術式は operation_name_table.idx_dsp 昇順
+        </div>
+    </div>
+
+    <!-- 右パネル: 問題 -->
+    <div class="right-panel">
+        <div id="loading" class="loading">データベースを準備中...</div>
+        <div id="content" style="display:none;">
+            <h2>Phase 1 — 絞り込み・基本検索</h2>
+
+            <!-- 問1 -->
+            <div class="problem">
+                <h3>問1: 2020年4月の手術</h3>
+                <div class="problem-desc">
+                    <span class="condition">2020年4月</span>に行われた手術をすべて抽出してください。<br>
+                    出力列: ope_date, patient_name, section_name<br>
+                    ソート: ope_date 昇順、診療科は idx_dsp 昇順
+                </div>
+                <textarea id="sql1">SELECT </textarea>
+                <button class="btn" onclick="run('sql1','res1')">実行</button>
+                <div class="result-area" id="res1"></div>
+            </div>
+
+            <!-- 問2 -->
+            <div class="problem">
+                <h3>問2: 2020年1年間の緊急手術</h3>
+                <div class="problem-desc">
+                    <span class="condition">2020年1年間</span>に行われた<span class="condition">緊急手術</span>をすべて抽出してください。<br>
+                    出力列: ope_date, patient_name, section_name<br>
+                    ソート: ope_date 昇順、診療科は idx_dsp 昇順
+                </div>
+                <textarea id="sql2">SELECT </textarea>
+                <button class="btn" onclick="run('sql2','res2')">実行</button>
+                <div class="result-area" id="res2"></div>
+            </div>
+
+            <!-- 問3 -->
+            <div class="problem">
+                <h3>問3: 16歳未満の手術</h3>
+                <div class="problem-desc">
+                    <span class="condition">16歳未満</span>の患者の手術をすべて抽出してください。<br>
+                    出力列: ope_date, patient_name, age_year, age_month, section_name<br>
+                    ソート: ope_date 昇順
+                </div>
+                <textarea id="sql3">SELECT </textarea>
+                <button class="btn" onclick="run('sql3','res3')">実行</button>
+                <div class="result-area" id="res3"></div>
+            </div>
+
+            <!-- 問4 -->
+            <div class="problem">
+                <h3>問4: 「腹腔鏡」の手術（1症例1レコード）</h3>
+                <div class="problem-desc">
+                    術式名に<span class="condition">「腹腔鏡」</span>を含む手術をすべて抽出してください。<br>
+                    ただし、<span class="condition">1症例につき1レコード</span>になるようにしてください。<br>
+                    出力列: ope_date, patient_name, section_name<br>
+                    ソート: ope_date 昇順
+                </div>
+                <textarea id="sql4">SELECT </textarea>
+                <button class="btn" onclick="run('sql4','res4')">実行</button>
+                <div class="result-area" id="res4"></div>
+            </div>
+
+            <!-- 問5 -->
+            <div class="problem">
+                <h3>問5: 「腹臥位」の手術</h3>
+                <div class="problem-desc">
+                    体位が<span class="condition">「腹臥位」</span>の手術をすべて抽出してください。<br>
+                    出力列: ope_date, patient_name, section_name, operation_position_name<br>
+                    ソート: ope_date 昇順
+                </div>
+                <textarea id="sql5">SELECT </textarea>
+                <button class="btn" onclick="run('sql5','res5')">実行</button>
+                <div class="result-area" id="res5"></div>
+            </div>
+
+            <!-- 問6 -->
+            <div class="problem">
+                <h3>問6: 心臓血管外科・緊急/枠外・70代</h3>
+                <div class="problem-desc">
+                    <span class="condition">「心臓血管外科」</span>の<span class="condition">「緊急」もしくは「枠外」</span>の手術で、<span class="condition">年齢が70代</span>（70歳以上80歳未満）の手術を抽出してください。<br>
+                    出力列: ope_date, patient_name, age_year, section_name, ope_extra_id<br>
+                    ソート: ope_date 昇順
+                </div>
+                <textarea id="sql6">SELECT </textarea>
+                <button class="btn" onclick="run('sql6','res6')">実行</button>
+                <div class="result-area" id="res6"></div>
+            </div>
+
+            <!-- 問7 -->
+            <div class="problem">
+                <h3>問7: 午前中（AM11:59まで）の手術</h3>
+                <div class="problem-desc">
+                    手術開始時刻が<span class="condition">AM11:59まで</span>（11:59:59以前）の手術をすべて抽出してください。<br>
+                    出力列: ope_date, time(sche_ope_start_time) as start_time, patient_name, section_name<br>
+                    ソート: ope_date 昇順
+                </div>
+                <textarea id="sql7">SELECT </textarea>
+                <button class="btn" onclick="run('sql7','res7')">実行</button>
+                <div class="result-area" id="res7"></div>
+            </div>
+
+            <!-- 問8 -->
+            <div class="problem">
+                <h3>問8: 深夜（PM10時以降〜AM5時）の緊急手術</h3>
+                <div class="problem-desc">
+                    <span class="condition">PM10時（22:00）以降またはAM5時（05:00）未満</span>に開始した<span class="condition">緊急手術</span>をすべて抽出してください。<br>
+                    出力列: ope_date, time(sche_ope_start_time) as start_time, patient_name, section_name<br>
+                    ソート: ope_date 昇順
+                </div>
+                <textarea id="sql8">SELECT </textarea>
+                <button class="btn" onclick="run('sql8','res8')">実行</button>
+                <div class="result-area" id="res8"></div>
+            </div>
+
+            <!-- 問9 -->
+            <div class="problem">
+                <h3>問9: 手術時間（N時間M分）</h3>
+                <div class="problem-desc">
+                    各手術の開始から終了までの時間を<span class="condition">「N時間M分」</span>の形式で表示してください。<br>
+                    出力列: ope_date, patient_name, section_name, duration（例: 2時間30分）<br>
+                    ソート: ope_date 昇順
+                </div>
+                <textarea id="sql9">SELECT </textarea>
+                <button class="btn" onclick="run('sql9','res9')">実行</button>
+                <div class="result-area" id="res9"></div>
+            </div>
+
+        </div><!-- /content -->
+    </div>
+</div>
+
+<script>
+let db;
+
+async function initDB() {
+    const SQL = await initSqlJs({
+        locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${f}`
+    });
+    db = new SQL.Database();
+    initializeDatabase(db);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+}
+
+function run(textareaId, resultId) {
+    const sql = document.getElementById(textareaId).value;
+    const el = document.getElementById(resultId);
+    try {
+        const results = db.exec(sql);
+        if (!results.length) {
+            el.innerHTML = '(結果なし)';
+            el.className = 'result-area';
+            return;
+        }
+        const r = results[0];
+        let html = '<table><tr>' + r.columns.map(c => `<th>${c}</th>`).join('') + '</tr>';
+        r.values.forEach(row => {
+            html += '<tr>' + row.map(v => `<td>${v !== null ? v : 'NULL'}</td>`).join('') + '</tr>';
+        });
+        html += '</table>';
+        html += `<div style="margin-top:8px;color:#78909c;font-size:11px;">${r.values.length} 件</div>`;
+        el.innerHTML = html;
+        el.className = 'result-area';
+    } catch(e) {
+        el.innerHTML = 'エラー: ' + e.message;
+        el.className = 'result-area error';
+    }
+}
+
+initDB();
+</script>
+</body>
+</html>
